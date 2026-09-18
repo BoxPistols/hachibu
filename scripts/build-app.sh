@@ -3,7 +3,18 @@
 #
 #   scripts/build-app.sh：ビルドのみ
 #   scripts/build-app.sh --install：~/Applicationsに置き換えて起動し直す
+#   scripts/build-app.sh --zip：配布用のbuild/Slashstrip-macos.zipとSHA-256も作る（組み合わせてよい）
 set -euo pipefail
+
+INSTALL=0
+ZIP=0
+for arg in "$@"; do
+  case "$arg" in
+    --install) INSTALL=1 ;;
+    --zip) ZIP=1 ;;
+    *) echo "unknown option: $arg" >&2; exit 2 ;;
+  esac
+done
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 APP="$ROOT/build/Slashstrip.app"
@@ -44,7 +55,16 @@ PLIST
 codesign --force --sign - "$APP" >/dev/null
 echo "built: $APP"
 
-if [ "${1:-}" = "--install" ]; then
+if [ "$ZIP" = 1 ]; then
+  # リリースに添付する名前は版の番号を含めない（releases/latest/download/…が常に最新を指すように）
+  ZIPFILE="$ROOT/build/Slashstrip-macos.zip"
+  rm -f "$ZIPFILE"
+  ditto -c -k --sequesterRsrc --keepParent "$APP" "$ZIPFILE"
+  echo "zipped: $ZIPFILE"
+  shasum -a 256 "$ZIPFILE"
+fi
+
+if [ "$INSTALL" = 1 ]; then
   DEST="$HOME/Applications/Slashstrip.app"
   pkill -x Slashstrip 2>/dev/null || true
   mkdir -p "$HOME/Applications"

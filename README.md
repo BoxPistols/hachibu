@@ -6,7 +6,7 @@ A small floating strip for Macs without a Touch Bar. It shows Claude Code's mode
 
 Slashstrip is an unofficial tool made by an individual. It is not affiliated with, endorsed by, or sponsored by Anthropic, PBC.
 
-Download the early build from [Releases](https://github.com/BoxPistols/slashstrip/releases/latest). The app is not signed with a Developer ID yet, so on first launch open System Settings › Privacy & Security and click Open Anyway.
+[Download Slashstrip for macOS](https://github.com/BoxPistols/slashstrip/releases/latest/download/Slashstrip-macos.zip) (macOS 14 or later). macOS blocks the first launch because the app is not notarized yet. [Install](#install) explains how to open it.
 
 [日本語の説明はこちら](#日本語)
 
@@ -64,17 +64,70 @@ Building the hooks bridge into the app itself is tracked in [#1](https://github.
 - With the bridge scripts, hooks from the desktop app are recorded too, so the state color follows desktop sessions. Command buttons appear only while iTerm2 or Terminal is in front. For a permission request in the desktop app, the answer button brings the app to the front
 - Without the bridge scripts, nothing updates in the desktop app, because there is no statusLine there. There is currently no documented way to read usage limits outside the terminal. See [#6](https://github.com/BoxPistols/slashstrip/issues/6)
 
-## Requirements
+## Install
 
-- macOS 14 or later
-- Xcode Command Line Tools (the full Xcode app is not needed)
-- iTerm2, for sending commands
+1. Download [Slashstrip-macos.zip](https://github.com/BoxPistols/slashstrip/releases/latest/download/Slashstrip-macos.zip). It always points to the latest release. Slashstrip needs macOS 14 or later, and iTerm2 if you want to send commands
+2. Unzip it (Safari may already have done this) and move `Slashstrip.app` to your Applications folder
+3. Open Slashstrip. The first time, macOS stops it. Follow the next section once
 
-## Build and run
+### First launch: macOS blocks it once
+
+Slashstrip is not distributed through the App Store, and it is not yet signed with an Apple Developer ID or notarized by Apple ([#3](https://github.com/BoxPistols/slashstrip/issues/3)). macOS cannot check where it came from, so it refuses to open it the first time. This is expected, and you only need to allow it once per download.
+
+These are Apple's own steps from [Open a Mac app from an unknown developer](https://support.apple.com/guide/mac-help/open-a-mac-app-from-an-unknown-developer-mh40616/mac):
+
+1. Try to open Slashstrip, then close the warning. Do not move the app to the Trash
+2. Choose Apple menu > System Settings, then click Privacy & Security in the sidebar
+3. Go to Security. Next to the message about Slashstrip, click Open (Open Anyway on some versions of macOS). The button appears for about an hour after you tried to open the app
+4. Click Open Anyway, enter your login password, then click OK
+
+From then on Slashstrip opens normally, including at login.
+
+If you prefer Terminal, you can remove the "downloaded from the internet" flag that macOS put on this copy, then open it:
+
+```sh
+xattr -dr com.apple.quarantine /Applications/Slashstrip.app
+open /Applications/Slashstrip.app
+```
+
+This skips the check only for this copy. Do either of these only if you trust where the file came from.
+
+### Before you allow it
+
+Allowing an app that Apple has not checked is a decision you make. Some ways to check this one first:
+
+- The source is all in this repository. You can [build it yourself](#build-from-source), and macOS does not block an app you built on your own Mac
+- Compare the checksum with the SHA-256 on the [release page](https://github.com/BoxPistols/slashstrip/releases/latest): `shasum -a 256 ~/Downloads/Slashstrip-macos.zip`
+- Slashstrip does not connect to the network (see [Data](#data))
+
+### Permissions it asks for
+
+- Control iTerm2 (Automation). Asked the first time you press a command button, because Slashstrip types the command into your terminal session. You can change it in System Settings > Privacy & Security > Automation
+- Login Items. When you turn on Launch at Login, macOS tells you that Slashstrip will open at login. You can manage it in System Settings > General > Login Items (Login Items & Extensions on newer versions of macOS)
+
+After you update to a new version, macOS may ask again, because the app is not signed with a fixed Developer ID yet.
+
+### Uninstall
+
+1. If you turned on Launch at Login, turn it off from the menu bar item first
+2. Quit Slashstrip from the menu bar item, and move `Slashstrip.app` to the Trash
+3. To remove its settings and logs as well:
+
+```sh
+defaults delete dev.local.slashstrip
+rm -rf ~/Library/Logs/Slashstrip ~/"Library/Application Support/Slashstrip"
+```
+
+4. If you set up `statusline.sh`, remove it from the statusLine in `~/.claude/settings.json`
+
+## Build from source
+
+You need macOS 14 or later and the Xcode Command Line Tools (the full Xcode app is not needed).
 
 ```sh
 scripts/build-app.sh            # builds build/Slashstrip.app
 scripts/build-app.sh --install  # copies it to ~/Applications and launches it
+scripts/build-app.sh --zip      # also writes build/Slashstrip-macos.zip and its SHA-256
 scripts/test.sh                 # runs the tests
 ```
 
@@ -82,11 +135,18 @@ Without a signing certificate the app is ad-hoc signed, so macOS asks again for 
 
 ## statusLine setup (without the bridge scripts)
 
-Call `scripts/statusline.sh` from the statusLine in `~/.claude/settings.json`. It saves the JSON it receives to `~/Library/Application Support/Slashstrip/statusline.json`, which Slashstrip reads.
+`statusline.sh` saves the JSON that Claude Code passes to the statusLine to `~/Library/Application Support/Slashstrip/statusline.json`, which Slashstrip reads. Download it from the release (or use `scripts/statusline.sh` in a clone) and make it executable:
+
+```sh
+curl -L -o ~/.claude/slashstrip-statusline.sh https://github.com/BoxPistols/slashstrip/releases/latest/download/statusline.sh
+chmod +x ~/.claude/slashstrip-statusline.sh
+```
+
+Then call it from the statusLine in `~/.claude/settings.json`:
 
 ```json
 {
-  "statusLine": { "type": "command", "command": "/path/to/slashstrip/scripts/statusline.sh" }
+  "statusLine": { "type": "command", "command": "~/.claude/slashstrip-statusline.sh" }
 }
 ```
 
@@ -94,18 +154,18 @@ If you already use a statusLine command, pass it as an argument. It receives the
 
 ```json
 {
-  "statusLine": { "type": "command", "command": "/path/to/slashstrip/scripts/statusline.sh ~/.claude/my-statusline.sh" }
+  "statusLine": { "type": "command", "command": "~/.claude/slashstrip-statusline.sh ~/.claude/my-statusline.sh" }
 }
 ```
 
 Usage limits (`rate_limits`) appear in the statusLine data on Pro and Max plans, after the first response in a session.
 
-## Data and permissions
+## Data
 
 - Slashstrip does not connect to the network. It only reads local files written by hooks or the statusLine
 - It does not read Claude Code credentials (Keychain tokens)
 - Each button press and its result are logged to `~/Library/Logs/Slashstrip/actions.log`
-- Commands are typed into the front iTerm2 session through AppleScript. macOS asks for permission the first time
+- Commands are typed into the front iTerm2 session through AppleScript
 
 ## Contributing
 
@@ -127,7 +187,7 @@ Touch Barを搭載していないMacで、Claude Codeのモデル、effort、使
 
 Slashstripは個人が作った非公式のツールで、Anthropic, PBCとは関係がなく、同社の承認や支援も受けていません。
 
-早期版は[Releases](https://github.com/BoxPistols/slashstrip/releases/latest)からダウンロードできます。Developer IDでの署名がまだ無いため、初回の起動時はシステム設定の「プライバシーとセキュリティ」で「このまま開く」を押してください。
+[macOS版をダウンロード](https://github.com/BoxPistols/slashstrip/releases/latest/download/Slashstrip-macos.zip)（macOS 14以降）。まだAppleの公証を受けていないため、初回の起動はmacOSに止められます。開き方は[インストール](#インストール)にあります。
 
 ![Slashstripの帯](docs/images/ja-strip-full.png)
 
@@ -177,17 +237,70 @@ hooksとの連携をアプリに組み込む作業は[#1](https://github.com/Box
 - 連携スクリプトがある環境では、デスクトップアプリのhooksも記録されるので、状態の色はデスクトップアプリのセッションにも追従します。コマンドのボタンは、iTerm2かTerminalが前面のときだけ出ます。デスクトップアプリで許可を求められたときは、応答のボタンがデスクトップアプリを前面に出します
 - 連携スクリプトが無い環境では、デスクトップアプリにstatusLineが無いため、何も更新されません。ターミナルの外で使用率を読む公開された手段は、いまのところありません。[#6](https://github.com/BoxPistols/slashstrip/issues/6)で扱います
 
-### 必要なもの
+### インストール
 
-- macOS 14以降
-- Xcode Command Line Tools（Xcode本体は不要です）
-- iTerm2（コマンドを送る場合）
+1. [Slashstrip-macos.zip](https://github.com/BoxPistols/slashstrip/releases/latest/download/Slashstrip-macos.zip)をダウンロードします。このリンクは常に最新のリリースを指します。macOS 14以降が必要で、コマンドを送るにはiTerm2も必要です
+2. 展開して（Safariでは自動で展開されることがあります）、`Slashstrip.app`をアプリケーションフォルダへ移します
+3. Slashstripを開きます。初回はmacOSに止められるので、次の手順を一度だけ行ってください
 
-### ビルドと起動
+#### 初回の起動：macOSに一度止められます
+
+SlashstripはApp Storeでは配布しておらず、AppleのDeveloper IDでの署名とAppleによる公証もまだ受けていません（[#3](https://github.com/BoxPistols/slashstrip/issues/3)）。macOSは出どころを確かめられないため、初回は開きません。想定どおりの動きで、ダウンロードごとに一度許可すれば済みます。
+
+Appleの手順（[開発元が不明なMacアプリを開く](https://support.apple.com/ja-jp/guide/mac-help/mh40616/mac)）は次のとおりです。
+
+1. Slashstripを開こうとし、表示された警告を閉じます。アプリをゴミ箱には入れないでください
+2. アップルメニュー ＞「システム設定」を選び、サイドバーで「プライバシーとセキュリティ」をクリックします
+3. 「セキュリティ」に移動し、Slashstripについての表示の横にある「開く」（macOSの版によっては「このまま開く」）をクリックします。このボタンは、開こうとしてから約1時間だけ出ます
+4. 「このまま開く」をクリックし、ログインパスワードを入力して「OK」をクリックします
+
+これ以降は、ログイン時の起動も含めて普通に開きます。
+
+ターミナルを使う場合は、macOSがこのコピーに付けた「インターネットからダウンロードした」印を外してから開く方法もあります。
+
+```sh
+xattr -dr com.apple.quarantine /Applications/Slashstrip.app
+open /Applications/Slashstrip.app
+```
+
+これは、このコピーに限って確認を省きます。どちらの方法も、入手元を信頼できる場合にだけ行ってください。
+
+#### 許可する前に
+
+Appleが確認していないアプリを開くかどうかは、使う人の判断です。先に確かめる方法があります。
+
+- ソースはすべてこのリポジトリにあります。[自分でビルド](#ソースからビルド)したアプリは、そのMacでは止められません
+- [リリースのページ](https://github.com/BoxPistols/slashstrip/releases/latest)にあるSHA-256と照合できます: `shasum -a 256 ~/Downloads/Slashstrip-macos.zip`
+- Slashstripはネットワークに接続しません（[データの扱い](#データの扱い)を参照）
+
+#### 求められる権限
+
+- iTerm2の操作（オートメーション）。コマンドのボタンを初めて押したときに尋ねられます。コマンドをターミナルのセッションへ入力するためです。「システム設定」＞「プライバシーとセキュリティ」＞「オートメーション」で変えられます
+- ログイン項目。「ログイン時に起動」を有効にすると、ログイン時に開く旨をmacOSが知らせます。「システム設定」＞「一般」＞「ログイン項目」（新しいmacOSでは「ログイン項目と機能拡張」）で管理できます
+
+まだ決まったDeveloper IDで署名していないため、新しい版に更新すると、もう一度尋ねられることがあります。
+
+#### アンインストール
+
+1. 「ログイン時に起動」を有効にしていた場合は、先にメニューバーの項目から無効にします
+2. メニューバーの項目からSlashstripを終了し、`Slashstrip.app`をゴミ箱に入れます
+3. 設定とログも消す場合は、次を実行します
+
+```sh
+defaults delete dev.local.slashstrip
+rm -rf ~/Library/Logs/Slashstrip ~/"Library/Application Support/Slashstrip"
+```
+
+4. `statusline.sh`を設定していた場合は、`~/.claude/settings.json`のstatusLineから外します
+
+### ソースからビルド
+
+macOS 14以降と、Xcode Command Line Tools（Xcode本体は不要です）が必要です。
 
 ```sh
 scripts/build-app.sh            # build/Slashstrip.appを作る
 scripts/build-app.sh --install  # ~/Applicationsに置いて起動する
+scripts/build-app.sh --zip      # build/Slashstrip-macos.zipとSHA-256も作る
 scripts/test.sh                 # テスト
 ```
 
@@ -195,16 +308,23 @@ scripts/test.sh                 # テスト
 
 ### statusLineの設定（スクリプトが無い環境）
 
-`~/.claude/settings.json`のstatusLineから`scripts/statusline.sh`を呼びます。受け取ったJSONを`~/Library/Application Support/Slashstrip/statusline.json`に保存し、Slashstripはそれを読みます。すでに別のstatusLineを使っている場合は、そのコマンドを引数に渡してください。同じJSONがそのコマンドにも渡り、ステータス行の表示はそのコマンドの出力になります。設定の例は英語の節にあります。
+`statusline.sh`は、Claude CodeがstatusLineに渡すJSONを`~/Library/Application Support/Slashstrip/statusline.json`に保存し、Slashstripはそれを読みます。リリースから入手して（クローンした場合は`scripts/statusline.sh`）、実行できるようにします。
+
+```sh
+curl -L -o ~/.claude/slashstrip-statusline.sh https://github.com/BoxPistols/slashstrip/releases/latest/download/statusline.sh
+chmod +x ~/.claude/slashstrip-statusline.sh
+```
+
+そのうえで、`~/.claude/settings.json`のstatusLineから呼びます。すでに別のstatusLineを使っている場合は、そのコマンドを引数に渡してください。同じJSONがそのコマンドにも渡り、ステータス行の表示はそのコマンドの出力になります。設定の例は英語の節にあります。
 
 使用率（rate_limits）がstatusLineに入るのはPro/Maxのプランで、そのセッションの最初の応答の後からです。
 
-### データの扱いと権限
+### データの扱い
 
 - Slashstripはネットワークに接続しません。読むのは、hooksやstatusLineが書いたローカルのファイルだけです
 - Claude Codeの資格情報（Keychainのトークン）は読みません
 - ボタンを押した操作と、その結果は`~/Library/Logs/Slashstrip/actions.log`に残ります
-- コマンドは、iTerm2のAppleScriptで前面のセッションに入力します。初めて送るときに、macOSが許可を求めます
+- コマンドは、iTerm2のAppleScriptで前面のセッションに入力します
 
 ### 開発への参加
 
