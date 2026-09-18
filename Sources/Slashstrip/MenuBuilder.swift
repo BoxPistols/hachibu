@@ -70,10 +70,7 @@ final class MenuBuilder {
         var items: [NSMenuItem] = [disabled(L10n.thresholdWarningHeader)]
         for p in UsageThresholds.warningChoices {
             let next = UsageThresholds(warning: p, critical: current.critical)
-            let item = choice(L10n.thresholdChoice(p), selected: current.warning == p) { [weak self] in
-                if let next { self?.strip.setThresholds(next) }
-            }
-            item.isEnabled = next != nil
+            let item = thresholdChoice(p, selected: current.warning == p, next: next)
             item.indentationLevel = 1
             items.append(item)
         }
@@ -81,10 +78,7 @@ final class MenuBuilder {
         items.append(disabled(L10n.thresholdCriticalHeader))
         for p in UsageThresholds.criticalChoices {
             let next = UsageThresholds(warning: current.warning, critical: p)
-            let item = choice(L10n.thresholdChoice(p), selected: current.critical == p) { [weak self] in
-                if let next { self?.strip.setThresholds(next) }
-            }
-            item.isEnabled = next != nil
+            let item = thresholdChoice(p, selected: current.critical == p, next: next)
             item.indentationLevel = 1
             items.append(item)
         }
@@ -95,11 +89,12 @@ final class MenuBuilder {
         disabled(L10n.menuSourcePrefix + source.sourceDescription)
     }
 
+    /// 項目に乗せると帯をそのモードで仮に表示し、選ぶと確定する
     func layoutItems() -> [NSMenuItem] {
         StripLayout.allCases.map { layout in
-            choice(L10n.layoutName(layout), selected: strip.restLayout == layout) { [weak self] in
-                self?.strip.setRestLayout(layout)
-            }
+            previewChoice(L10n.layoutName(layout), selected: strip.restLayout == layout,
+                          preview: { [weak self] in self?.strip.preview(layout: layout) },
+                          commit: { [weak self] in self?.strip.setRestLayout(layout) })
         }
     }
 
@@ -109,9 +104,9 @@ final class MenuBuilder {
 
     func opacityMenuItem() -> NSMenuItem {
         submenu(L10n.menuOpacity, Prefs.opacityChoices.map { value in
-            choice(L10n.opacityName(value), selected: strip.opacity == value) { [weak self] in
-                self?.strip.setOpacity(value)
-            }
+            previewChoice(L10n.opacityName(value), selected: strip.opacity == value,
+                          preview: { [weak self] in self?.strip.preview(opacity: value) },
+                          commit: { [weak self] in self?.strip.setOpacity(value) })
         })
     }
 
@@ -160,9 +155,29 @@ final class MenuBuilder {
     func submenu(_ title: String, _ items: [NSMenuItem]) -> NSMenuItem {
         let parent = NSMenuItem(title: title, action: nil, keyEquivalent: "")
         let sub = NSMenu(title: title)
+        // 入れ子の中の項目に乗せたときも仮の表示を出す
+        sub.delegate = strip.menuWatcher
         items.forEach(sub.addItem)
         parent.submenu = sub
         return parent
+    }
+
+    func previewChoice(_ title: String, selected: Bool,
+                       preview: @escaping () -> Void, commit: @escaping () -> Void) -> NSMenuItem {
+        let item = PreviewMenuItem(title: title, preview: preview, handler: commit)
+        item.state = selected ? .on : .off
+        return item
+    }
+
+    private func thresholdChoice(_ percent: Int, selected: Bool, next: UsageThresholds?) -> NSMenuItem {
+        guard let next else {
+            let item = disabled(L10n.thresholdChoice(percent))
+            item.state = selected ? .on : .off
+            return item
+        }
+        return previewChoice(L10n.thresholdChoice(percent), selected: selected,
+                             preview: { [weak self] in self?.strip.preview(thresholds: next) },
+                             commit: { [weak self] in self?.strip.setThresholds(next) })
     }
 
     func choice(_ title: String, selected: Bool, _ action: @escaping () -> Void) -> NSMenuItem {
@@ -199,7 +214,7 @@ final class MenuBuilder {
 }
 
 /// 押したときにクロージャを呼ぶメニュー項目
-final class ClosureMenuItem: NSMenuItem {
+class ClosureMenuItem: NSMenuItem {
     private let handler: () -> Void
 
     init(title: String, handler: @escaping () -> Void) {
@@ -211,4 +226,16 @@ final class ClosureMenuItem: NSMenuItem {
     required init(coder: NSCoder) { fatalError("not used") }
 
     @objc private func fire() { handler() }
+}
+
+/// 乗せたときに仮の表示を出し、押したときに確定するメニュー項目
+final class PreviewMenuItem: ClosureMenuItem {
+    let preview: () -> Void
+
+    init(title: String, preview: @escaping () -> Void, handler: @escaping () -> Void) {
+        self.preview = preview
+        super.init(title: title, handler: handler)
+    }
+
+    required init(coder: NSCoder) { fatalError("not used") }
 }

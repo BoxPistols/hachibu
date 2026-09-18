@@ -56,6 +56,15 @@ final class StripController {
     private(set) var summoned = false
     private(set) var restLayout = Prefs.restLayout
     private(set) var opacity = Prefs.opacity
+    private(set) var thresholds = Prefs.thresholds
+
+    /// メニューの項目にカーソルを乗せている間だけ使う仮の値。選ばずに閉じたら消す
+    private var previewLayout: StripLayout?
+    private var previewOpacity: Double?
+    private var previewThresholds: UsageThresholds?
+    /// メニューで選んだ直後は、カーソルが帯の上に残っていても広げない（選んだモードをすぐ見せる）。
+    /// カーソルが一度帯の外に出たら解く
+    private var hoverSuppressed = false
 
     var onPerform: (Slot) -> Void = { _ in }
     /// 状態ボタンを押したとき（セッションの一覧を出す）
@@ -68,24 +77,45 @@ final class StripController {
     var contextMenu: () -> NSMenu? = { nil } {
         didSet { hosting.contextMenuProvider = { [weak self] in self?.openedMenu(self?.contextMenu()) } }
     }
-    /// メニューを開いている間は、カーソルがメニューへ移っても帯を畳まない
-    private var menuOpen = false
-    private let menuWatcher = MenuWatcher()
+    /// 帯から開いたメニューと、表示を切り替える項目を持つ入れ子のメニューに付ける。
+    /// 開閉を数え、項目に乗せたときに仮の表示を出す
+    let menuWatcher = MenuWatcher()
+    private var openMenus = 0
 
     // 乗せてから広げるまでと、離してから畳むまでの待ち。通りがかりで開閉しないため
     private static let expandDelay: TimeInterval = 0.15
     private static let collapseDelay: TimeInterval = 0.6
+    // メニューが閉じてから、選んだ項目の処理が届くまでの余裕
+    private static let previewGrace: TimeInterval = 0.5
 
     init() {
         hosting = FirstClickHostingView(rootView: StripView(store: store))
         hosting.sizingOptions = [.intrinsicContentSize]
         panel = StripPanel(contentView: hosting)
         placement = StripPlacement(panel: panel)
+        store.thresholds = thresholds
         store.onPerform = { [weak self] slot in self?.performed(slot) }
         tracker.onChange = { [weak self] _ in self?.scheduleHoverCheck() }
-        menuWatcher.onChange = { [weak self] open in
-            self?.menuOpen = open
-            if !open { self?.scheduleHoverCheck() }
+        menuWatcher.onOpen = { [weak self] in self?.openMenus += 1 }
+        menuWatcher.onClose = { [weak self] in
+            guard let self else { return }
+            self.openMenus = max(0, self.openMenus - 1)
+            guard self.openMenus == 0 else { return }
+            // メニューは選んだ項目を短く点滅させてから処理を送るので、閉じた通知の方が先に届く。
+            // ここで仮の表示を消すと「仮の値→元の値→選んだ値」とちらつくため、選ばれなかったときだけ少し待って消す
+            DispatchQueue.main.asyncAfter(deadline: .now() + Self.previewGrace) { [weak self] in
+                guard let self, self.openMenus == 0 else { return }
+                self.clearPreview()
+                self.scheduleHoverCheck()
+            }
+        }
+        menuWatcher.onHighlight = { [weak self] item in
+            if let item = item as? PreviewMenuItem {
+                item.preview()
+            } else if item != nil {
+                self?.clearPreview()
+            }
+            // 項目が無い通知（カーソルがメニューの外へ出た、選んだ項目の点滅）では消さない。点滅のたびにちらつくため
         }
         // アプリが非アクティブのままでも出入りを受け取る
         hosting.addTrackingArea(NSTrackingArea(rect: .zero,
@@ -100,25 +130,55 @@ final class StripController {
         render()
     }
 
+    // MARK: - 設定の変更（メニューから）
+
     func setRestLayout(_ layout: StripLayout) {
         restLayout = layout
         Prefs.restLayout = layout
+        previewLayout = nil
         summoned = false
+        suppressHover()
         render()
     }
 
-    var thresholds: UsageThresholds { store.thresholds }
-
     func setThresholds(_ value: UsageThresholds) {
+        thresholds = value
         Prefs.thresholds = value
-        store.thresholds = value
-        onChange()
+        previewThresholds = nil
+        render()
     }
 
     func setOpacity(_ value: Double) {
         opacity = value
         Prefs.opacity = value
+        previewOpacity = nil
+        suppressHover()
         applyOpacity()
+    }
+
+    // MARK: - 仮の表示（メニューの項目に乗せている間）
+
+    func preview(layout: StripLayout) {
+        previewLayout = layout
+        render()
+    }
+
+    func preview(opacity: Double) {
+        previewOpacity = opacity
+        applyOpacity()
+    }
+
+    func preview(thresholds: UsageThresholds) {
+        previewThresholds = thresholds
+        render()
+    }
+
+    private func clearPreview() {
+        guard previewLayout != nil || previewOpacity != nil || previewThresholds != nil else { return }
+        previewLayout = nil
+        previewOpacity = nil
+        previewThresholds = nil
+        render()
     }
 
     /// ショートカットとメニューから。呼び出し中ならもう一度で元のモードへ戻す
@@ -136,7 +196,7 @@ final class StripController {
     /// このアプリが前面にないと、プログラムから出したメニューは表示されなかった（2026-09-18、
     /// popUp(positioning:at:in:)とpopUpContextMenuのどちらでも）。出している間だけ前面に出し、
     /// 何も選ばずに閉じたら元のアプリへ戻す。選んだ項目は自分で行き先のアプリを前面に出す。
-    /// - Returns: 項目が選ばれたかどうかを受け取るための印。項目の処理から`picked = true`にする
+    /// - picked: 項目が選ばれたかどうか。項目の処理の中で立てる
     func popUp(_ menu: NSMenu, picked: @escaping () -> Bool) {
         guard let window = hosting.window else { return }
         let point = hosting.convert(window.convertPoint(fromScreen: NSEvent.mouseLocation), from: nil)
@@ -170,8 +230,17 @@ final class StripController {
         }
     }
 
+    // MARK: - 描画
+
+    /// マウスを乗せたことによる展開。メニューで選んだ直後と、仮の表示の間は広げない
+    private var hoverExpands: Bool {
+        hovering && !hoverSuppressed && previewLayout == nil && previewOpacity == nil
+    }
+
     private func render() {
-        let layout = LayoutRules.effective(rest: restLayout, expanded: hovering || summoned, slots: allSlots)
+        let rest = previewLayout ?? restLayout
+        let layout = LayoutRules.effective(rest: rest, expanded: hoverExpands || summoned, slots: allSlots)
+        store.thresholds = previewThresholds ?? thresholds
         store.layout = layout
         store.slots = LayoutRules.visibleSlots(allSlots, layout: layout, usageText: usageText())
         onChange()
@@ -193,8 +262,23 @@ final class StripController {
     }
 
     private func applyOpacity() {
-        // 触っている間と呼び出し中は読めるように不透明へ戻す
-        panel.alphaValue = (hovering || summoned) ? 1.0 : CGFloat(opacity)
+        // 触っている間と呼び出し中は読めるように不透明へ戻す。仮の表示の間はその値を見せる
+        let solid = hoverExpands || summoned
+        panel.alphaValue = solid ? 1.0 : CGFloat(previewOpacity ?? opacity)
+    }
+
+    // MARK: - マウスの出入り
+
+    private func suppressHover() {
+        hoverSuppressed = true
+        // 小さくなって帯がカーソルの下から外れた場合、外へ出た通知が来ないことがあるので、置き直した後に確かめる
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) { [weak self] in
+            guard let self else { return }
+            if !self.panel.frame.contains(NSEvent.mouseLocation) {
+                self.hoverSuppressed = false
+                self.hovering = false
+            }
+        }
     }
 
     /// 出入りの通知そのものではなく、待ったあとの実際のカーソル位置で決める。
@@ -203,8 +287,9 @@ final class StripController {
         hoverCheck?.cancel()
         let inside = panel.frame.contains(NSEvent.mouseLocation)
         let work = DispatchWorkItem { [weak self] in
-            guard let self, !self.menuOpen else { return }
+            guard let self, self.openMenus == 0 else { return }
             let now = self.panel.isVisible && self.panel.frame.contains(NSEvent.mouseLocation)
+            if !now { self.hoverSuppressed = false }
             guard now != self.hovering else { return }
             self.hovering = now
             if self.restLayout == .full {
@@ -218,12 +303,15 @@ final class StripController {
     }
 }
 
-/// 帯から開いたメニューの開閉を知らせる
+/// 帯から開いたメニューの開閉と、項目への乗せ替えを知らせる
 final class MenuWatcher: NSObject, NSMenuDelegate {
-    var onChange: (Bool) -> Void = { _ in }
+    var onOpen: () -> Void = {}
+    var onClose: () -> Void = {}
+    var onHighlight: (NSMenuItem?) -> Void = { _ in }
 
-    func menuWillOpen(_ menu: NSMenu) { onChange(true) }
-    func menuDidClose(_ menu: NSMenu) { onChange(false) }
+    func menuWillOpen(_ menu: NSMenu) { onOpen() }
+    func menuDidClose(_ menu: NSMenu) { onClose() }
+    func menu(_ menu: NSMenu, willHighlight item: NSMenuItem?) { onHighlight(item) }
 }
 
 /// NSTrackingAreaの受け手
