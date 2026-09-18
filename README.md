@@ -6,6 +6,8 @@ A small floating strip for Macs without a Touch Bar. It shows Claude Code's mode
 
 Slashstrip is an unofficial tool made by an individual. It is not affiliated with, endorsed by, or sponsored by Anthropic, PBC.
 
+Download the early build from [Releases](https://github.com/BoxPistols/slashstrip/releases/latest). The app is not signed with a Developer ID yet, so on first launch open System Settings › Privacy & Security and click Open Anyway.
+
 [日本語の説明はこちら](#日本語)
 
 ## What it does
@@ -124,6 +126,8 @@ MIT
 Touch Barを搭載していないMacで、Claude Codeのモデル、effort、使用率を画面上の細い帯に常時表示し、スラッシュコマンドをワンクリックで送れるようにするアプリです。
 
 Slashstripは個人が作った非公式のツールで、Anthropic, PBCとは関係がなく、同社の承認や支援も受けていません。
+
+早期版は[Releases](https://github.com/BoxPistols/slashstrip/releases/latest)からダウンロードできます。Developer IDでの署名がまだ無いため、初回の起動時はシステム設定の「プライバシーとセキュリティ」で「このまま開く」を押してください。
 
 ![Slashstripの帯](docs/images/ja-strip-full.png)
 
