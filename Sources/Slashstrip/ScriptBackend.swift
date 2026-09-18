@@ -10,6 +10,7 @@ final class ScriptBackend: DataSource {
     var onSlots: (([Slot]) -> Void)?
     let sourceDescription = L10n.current.sourceScripts
     private(set) var limits: [UsageLimit] = []
+    private(set) var usageAsOf: Date?
 
     private let base: URL
     private let render: URL
@@ -60,7 +61,7 @@ final class ScriptBackend: DataSource {
         let dir = base.appendingPathComponent("sessions")
         let names = (try? FileManager.default.contentsOfDirectory(atPath: dir.path)) ?? []
         let list = names.filter { $0.hasSuffix(".json") }.compactMap { name -> SessionInfo? in
-            guard let json = readJSON(dir.appendingPathComponent(name)),
+            guard let json = JSONFile.object(at: dir.appendingPathComponent(name)),
                   let info = SessionInfo.parse(json) else { return nil }
             // 描画デーモンが毎秒掃除するが、その間に終わったものは自分でも弾く
             if let pid = info.pid, pid > 0, kill(pid, 0) != 0, errno != EPERM { return nil }
@@ -85,8 +86,12 @@ final class ScriptBackend: DataSource {
             lastKeepalive = now
             keepDaemonAlive(now: now)
         }
-        limits = Widgets.limits(usage: readJSON(base.appendingPathComponent("usage.json")),
-                                usageAPI: readJSON(base.appendingPathComponent("usage-api.json")))
+        let usage = JSONFile.object(at: base.appendingPathComponent("usage.json"))
+        let usageAPI = JSONFile.object(at: base.appendingPathComponent("usage-api.json"))
+        limits = Widgets.limits(usage: usage, usageAPI: usageAPI)
+        // 5時間枠と週枠はstatusLineが書くusage.jsonの時刻、無ければモデル別枠の取得時刻
+        usageAsOf = [usage, usageAPI].lazy.compactMap { ($0?["updated_at"] as? NSNumber)?.doubleValue }
+            .first.map { Date(timeIntervalSince1970: $0) }
         let slots = readSlots(now: now)
         if slots != lastSlots {
             lastSlots = slots
@@ -133,22 +138,21 @@ final class ScriptBackend: DataSource {
 
     private func readSlot(_ name: String, now: Date) -> Slot? {
         let url = render.appendingPathComponent(name + ".json")
-        guard let json = readJSON(url) else {
+        guard let json = JSONFile.object(at: url) else {
             return name == Widgets.status ? Widgets.placeholderStatus() : nil
         }
         guard var slot = Widgets.slot(name: name, json: json) else { return nil }
         if name == Widgets.status {
             let modified = (try? FileManager.default.attributesOfItem(atPath: url.path)[.modificationDate]) as? Date
-            let stale = modified.map { now.timeIntervalSince($0) > Self.staleAfter } ?? true
-            slot.dimmed = stale
-            let lines = (stale ? [L10n.current.staleNotice] : []) + limits.map { $0.line() }
+            let daemonStopped = modified.map { now.timeIntervalSince($0) > Self.staleAfter } ?? true
+            slot = Widgets.idleStatus(slot, limits: limits, asOf: usageAsOf, now: now)
+            slot.dimmed = slot.dimmed || daemonStopped
+            var lines = (daemonStopped ? [L10n.current.staleNotice] : []) + limits.map { $0.line() }
+            if Usage.isStale(usageAsOf, now: now), let asOf = usageAsOf {
+                lines.append(L10n.current.usageAsOf(ResetFormatter.text(asOf, now: now)))
+            }
             slot.help = lines.isEmpty ? nil : lines.joined(separator: "\n")
         }
         return slot
-    }
-
-    private func readJSON(_ url: URL) -> [String: Any]? {
-        guard let data = try? Data(contentsOf: url) else { return nil }
-        return (try? JSONSerialization.jsonObject(with: data)) as? [String: Any]
     }
 }

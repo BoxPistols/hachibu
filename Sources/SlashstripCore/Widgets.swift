@@ -3,6 +3,8 @@ import Foundation
 /// ~/.claude/btt/render/<name>.jsonの解釈。ファイルの読み書きはアプリ側で行い、ここは判断だけを持つ。
 public enum Widgets {
     public static let status = "status"
+    /// Touch Bar連携スクリプトが、動いているセッションが無いときに出す文字
+    public static let noSessionText = "CC —"
     private static let permKinds = ["allow", "always", "reject"]
 
     /// Touch Barと同じ並び: 状態 → 許可応答 → 番号 → コマンド。番号は数値順（"cmd-10" を "cmd-2" の前に置かない）
@@ -28,6 +30,16 @@ public enum Widgets {
         return Slot(id: name, text: text,
                     background: RGBA(csv: json["background_color"] as? String) ?? .commandBackground,
                     foreground: RGBA(csv: json["font_color"] as? String) ?? .white)
+    }
+
+    /// セッションが無いときの状態の枠。最後に分かっている使用率を出し、古ければ薄くする。
+    /// 既存スクリプトはセッションが無いと使用率を読みに行かないため、ここで補う
+    public static func idleStatus(_ slot: Slot, limits: [UsageLimit], asOf: Date?, now: Date = Date()) -> Slot {
+        guard slot.text == noSessionText, !limits.isEmpty else { return slot }
+        var s = slot
+        s.text = Usage.statusText(model: nil, effort: nil, limits: limits)
+        s.dimmed = Usage.isStale(asOf, now: now)
+        return s
     }
 
     /// デーモン起動直後でstatus.jsonがまだ無いときの仮表示（cc-widget.shと同じ）

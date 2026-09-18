@@ -2,6 +2,14 @@ import Foundation
 
 /// ステータス文字列の組み立て。
 public enum Usage {
+    /// これより古い使用率は、帯で薄く表示し、いつ時点の値かを添える（既存スクリプトが値を捨てる30分と同じ）
+    public static let staleAfter: TimeInterval = 30 * 60
+
+    public static func isStale(_ asOf: Date?, now: Date = Date()) -> Bool {
+        guard let asOf else { return false }
+        return now.timeIntervalSince(asOf) > staleAfter
+    }
+
     /// Touch Barのステータスと同じ形: "Opus5 1M xhigh · S9 W75 F55"
     /// - model: 表示用に縮めたモデル名（compactDisplayNameの結果）
     public static func statusText(model: String?, effort: String?, limits: [UsageLimit]) -> String {

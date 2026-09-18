@@ -43,6 +43,8 @@ You can also show usage in the menu bar, and summon the strip with a keyboard sh
 
 ![Shortcut recorder](docs/images/recorder-verify.png)
 
+Turn on Launch at Login from the menu bar so the strip comes back after a restart. It keeps running whether or not a terminal is open.
+
 The interface follows your macOS language: Japanese if it comes first in your preferred languages, English otherwise.
 
 ## Current status
@@ -53,6 +55,12 @@ Slashstrip reads state from one of two sources.
 - Without them, Slashstrip shows the model, effort, and usage from Claude Code's statusLine. Command buttons, answer buttons, and the session list are not available in this mode yet
 
 Building the hooks bridge into the app itself is tracked in [#1](https://github.com/BoxPistols/slashstrip/issues/1). Per-model weekly limits are not part of the statusLine data, so they appear only when the bridge scripts provide them.
+
+## Using only the Claude Code desktop app
+
+- The 5-hour and weekly usage come from the statusLine, which only the terminal version of Claude Code has. While you use only the desktop app, these numbers stop updating. The strip keeps showing the last known values, dims them after 30 minutes, and tells you when they were last updated
+- With the bridge scripts, hooks from the desktop app are recorded too, so the state color follows desktop sessions. Command buttons appear only while iTerm2 or Terminal is in front. For a permission request in the desktop app, the answer button brings the app to the front
+- Without the bridge scripts, nothing updates in the desktop app, because there is no statusLine there. There is currently no documented way to read usage limits outside the terminal. See [#6](https://github.com/BoxPistols/slashstrip/issues/6)
 
 ## Requirements
 
@@ -96,6 +104,10 @@ Usage limits (`rate_limits`) appear in the statusLine data on Pro and Max plans,
 - It does not read Claude Code credentials (Keychain tokens)
 - Each button press and its result are logged to `~/Library/Logs/Slashstrip/actions.log`
 - Commands are typed into the front iTerm2 session through AppleScript. macOS asks for permission the first time
+
+## Contributing
+
+Issues and pull requests are welcome. Please run `scripts/test.sh` before sending a pull request. UI text lives in `Sources/SlashstripCore/Strings.swift`; when you change it, update both English and Japanese.
 
 ## Trademarks
 
@@ -142,6 +154,8 @@ Slashstripは個人が作った非公式のツールで、Anthropic, PBCとは�
 
 メニューバーに使用率を出したり、ショートカット（既定は⌥⌘/）で帯を呼び出したりもできます。ショートカットを登録するときは、macOSが使っている組み合わせを弾き、登録後にもう一度押してもらって、実際に届くことを確かめます。
 
+メニューバーの項目で「ログイン時に起動」を有効にすると、Macを再起動しても帯が戻ります。ターミナルを開いているかどうかに関係なく動き続けます。
+
 画面の文言は、macOSの言語設定に合わせて日本語か英語になります。
 
 ### 現時点の前提
@@ -152,6 +166,12 @@ Slashstripは、次のどちらかから状態を読みます。
 - スクリプトが無い環境では、Claude CodeのstatusLineからモデル、effort、使用率を出します。コマンドのボタン、応答のボタン、セッションの一覧は、このモードではまだ使えません
 
 hooksとの連携をアプリに組み込む作業は[#1](https://github.com/BoxPistols/slashstrip/issues/1)で進めます。モデル別の週枠はstatusLineに含まれないため、スクリプトが別に取得している環境でだけ表示されます。
+
+### デスクトップアプリだけで使う場合
+
+- 5時間枠と週枠の使用率は、ターミナル版のClaude Codeだけが持つstatusLineから受け取ります。デスクトップアプリだけを使っている間は、この値が更新されません。帯は最後に分かっている値を出し続け、30分を過ぎると薄く表示して、何時点の値かを添えます
+- 連携スクリプトがある環境では、デスクトップアプリのhooksも記録されるので、状態の色はデスクトップアプリのセッションにも追従します。コマンドのボタンは、iTerm2かTerminalが前面のときだけ出ます。デスクトップアプリで許可を求められたときは、応答のボタンがデスクトップアプリを前面に出します
+- 連携スクリプトが無い環境では、デスクトップアプリにstatusLineが無いため、何も更新されません。ターミナルの外で使用率を読む公開された手段は、いまのところありません。[#6](https://github.com/BoxPistols/slashstrip/issues/6)で扱います
 
 ### 必要なもの
 
@@ -181,6 +201,10 @@ scripts/test.sh                 # テスト
 - Claude Codeの資格情報（Keychainのトークン）は読みません
 - ボタンを押した操作と、その結果は`~/Library/Logs/Slashstrip/actions.log`に残ります
 - コマンドは、iTerm2のAppleScriptで前面のセッションに入力します。初めて送るときに、macOSが許可を求めます
+
+### 開発への参加
+
+issueとプルリクエストを歓迎します。プルリクエストを送る前に`scripts/test.sh`を実行してください。画面の文言は`Sources/SlashstripCore/Strings.swift`にあります。変えるときは英語と日本語の両方を直してください。
 
 ### 商標
 

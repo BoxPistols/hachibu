@@ -48,7 +48,6 @@ public struct Strings {
     public let recorderVerify: (String) -> String
     public let recorderVerified: (String) -> String
     public let recorderMenuProne: String
-    public let recorderClose: String
     /// macOSのショートカットの名前（com.apple.symbolichotkeysの番号から）
     public let systemShortcutName: (String) -> String
     public let recorderDisable: String
@@ -66,6 +65,11 @@ public struct Strings {
     public let limitFiveHour: String
     public let limitWeekly: String
     public let limitLine: (String, Int, String?) -> String
+    /// 使用率が古いときに添える一文（引数は時刻）
+    public let usageAsOf: (String) -> String
+    public let menuLaunchAtLogin: String
+    public let loginItemNeedsApproval: String
+    public let loginItemFailed: (String) -> String
 
     /// リセット時刻の書式。当日は時刻だけ、それ以外は曜日と日付を添える
     public let resetLocale: String
@@ -107,10 +111,9 @@ public struct Strings {
         recorderRejected: "Add Command (⌘), Option (⌥), or Control (⌃) to the key.",
         recorderTaken: { "\($0) is already used by another app." },
         recorderReserved: { "\($0) is assigned to \"\($1)\" in macOS, so it would never reach Slashstrip." },
-        recorderVerify: { "Saved. Press \($0) once more to check that it arrives. If nothing happens, macOS or another app takes it first. Press a different combination to replace it." },
-        recorderVerified: { "\($0) works." },
+        recorderVerify: { "Not saved yet. Press \($0) once more to confirm that it arrives. If nothing happens, macOS or another app takes it first. Press a different combination, or Cancel to keep the previous one." },
+        recorderVerified: { "\($0) works and is saved." },
         recorderMenuProne: "Shortcuts with only ⌘ often collide with app menu shortcuts. Adding ⌥ or ⌃ is safer.",
-        recorderClose: "Close",
         systemShortcutName: { id in
             switch id {
             case "64": return "Show Spotlight search"
@@ -159,6 +162,10 @@ public struct Strings {
             guard let resets else { return head }
             return "\(head) (resets \(resets))"
         },
+        usageAsOf: { "Last updated \($0)" },
+        menuLaunchAtLogin: "Launch at Login",
+        loginItemNeedsApproval: "Allow Slashstrip in System Settings › Login Items",
+        loginItemFailed: { "Could not change the login item: \($0)" },
         resetLocale: "en_US",
         resetSameDay: "H:mm",
         resetOtherDay: "EEE M/d H:mm"
@@ -199,10 +206,9 @@ public struct Strings {
         recorderRejected: "Command（⌘）・Option（⌥）・Control（⌃）のどれかと一緒に押してください",
         recorderTaken: { "\($0)は他のアプリが使っているため登録できません" },
         recorderReserved: { "\($0)はmacOSの「\($1)」に割り当てられているため、押してもSlashstripに届きません" },
-        recorderVerify: { "登録しました。確かめるため、もう一度\($0)を押してください。反応しない場合は、macOSか他のアプリが先に受け取っています。別の組み合わせを押すと置き換えます。" },
-        recorderVerified: { "\($0)が届くことを確認しました" },
+        recorderVerify: { "まだ保存していません。届くかを確かめるため、もう一度\($0)を押してください。反応しない場合は、macOSか他のアプリが先に受け取っています。別の組み合わせを押すか、キャンセルで元の組み合わせに戻してください。" },
+        recorderVerified: { "\($0)が届くことを確かめて保存しました" },
         recorderMenuProne: "⌘だけの組み合わせは、アプリのメニューのショートカットと重なりやすいです。⌥か⌃を加えると安全です。",
-        recorderClose: "閉じる",
         systemShortcutName: { id in
             switch id {
             case "64": return "Spotlight検索を表示"
@@ -253,6 +259,10 @@ public struct Strings {
             guard let resets else { return head }
             return "\(head)（\(resets)にリセット）"
         },
+        usageAsOf: { "\($0)時点の値" },
+        menuLaunchAtLogin: "ログイン時に起動",
+        loginItemNeedsApproval: "システム設定の「ログイン項目」でSlashstripを許可してください",
+        loginItemFailed: { "ログイン項目を変更できませんでした: \($0)" },
         resetLocale: "ja_JP",
         resetSameDay: "H:mm",
         resetOtherDay: "M/d(E) H:mm"

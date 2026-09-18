@@ -22,7 +22,18 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         self.source = source
         self.strip = strip
 
-        hotKeys = HotKeyCenter { [weak strip] in strip?.toggleSummon() }
+        let registrar = CarbonRegistrar()
+        let hotKeys = HotKeyCenter(registrar: registrar, settings: ShortcutSettings(defaults: Prefs.defaults))
+        registrar.onPress = { [weak hotKeys] in hotKeys?.fire() }
+        hotKeys.onPress = { [weak strip] in strip?.toggleSummon() }
+        hotKeys.onEvent = { event in
+            switch event {
+            case .committed(let s): ActionLog.append("ショートカットを\(s.display)にしました（届くことを確認済み）")
+            case .disabled: ActionLog.append("ショートカットを無効にしました")
+            case .registrationFailed(let s): ActionLog.append("ショートカット\(s.display)の登録に失敗しました")
+            }
+        }
+        self.hotKeys = hotKeys
         recorder = ShortcutRecorder(hotKeys: hotKeys)
         builder = MenuBuilder(source: source, strip: strip, hotKeys: hotKeys, recorder: recorder)
         statusItem = StatusItemController(source: source, strip: strip, builder: builder)

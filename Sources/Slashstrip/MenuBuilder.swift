@@ -55,33 +55,33 @@ final class MenuBuilder {
     func usageItems() -> [NSMenuItem] {
         let limits = source.limits
         guard !limits.isEmpty else { return [disabled(L10n.current.menuNoUsage)] }
-        return limits.map { limit in
+        var items = limits.map { limit in
             let item = disabled(limit.line())
             if let color = LevelStyle.background(strip.thresholds.level(limit.percent)) {
                 item.image = Self.dot(color.nsColor)
             }
             return item
         }
+        // ターミナルでClaude Codeを使っていない間は値が更新されない。いつ時点の値かを添える
+        if Usage.isStale(source.usageAsOf), let asOf = source.usageAsOf {
+            items.append(disabled(L10n.current.usageAsOf(ResetFormatter.text(asOf))))
+        }
+        return items
     }
 
     /// 黄と赤の閾値。赤が黄以下になる選択肢は選べなくする
     func thresholdsMenuItem() -> NSMenuItem {
         let current = strip.thresholds
-        var items: [NSMenuItem] = [disabled(L10n.current.thresholdWarningHeader)]
-        for p in UsageThresholds.warningChoices {
-            let next = UsageThresholds(warning: p, critical: current.critical)
-            let item = thresholdChoice(p, selected: current.warning == p, next: next)
-            item.indentationLevel = 1
-            items.append(item)
+        let warning = UsageThresholds.warningChoices.map { p in
+            thresholdChoice(p, selected: current.warning == p,
+                            next: UsageThresholds(warning: p, critical: current.critical))
         }
-        items.append(.separator())
-        items.append(disabled(L10n.current.thresholdCriticalHeader))
-        for p in UsageThresholds.criticalChoices {
-            let next = UsageThresholds(warning: current.warning, critical: p)
-            let item = thresholdChoice(p, selected: current.critical == p, next: next)
-            item.indentationLevel = 1
-            items.append(item)
+        let critical = UsageThresholds.criticalChoices.map { p in
+            thresholdChoice(p, selected: current.critical == p,
+                            next: UsageThresholds(warning: current.warning, critical: p))
         }
+        let items = [disabled(L10n.current.thresholdWarningHeader)] + warning + [.separator()]
+            + [disabled(L10n.current.thresholdCriticalHeader)] + critical
         return submenu(L10n.current.menuThresholds, items)
     }
 
@@ -130,6 +130,30 @@ final class MenuBuilder {
         return items
     }
 
+    /// ログイン時の自動起動。失敗の理由は次にメニューを開いたときに出す
+    private var loginItemError: String?
+
+    func loginItems() -> [NSMenuItem] {
+        let toggle = choice(L10n.current.menuLaunchAtLogin, selected: LoginItem.isEnabled || LoginItem.needsApproval) {
+            [weak self] in
+            let turnOn = !(LoginItem.isEnabled || LoginItem.needsApproval)
+            self?.loginItemError = LoginItem.set(turnOn)
+            if let error = self?.loginItemError {
+                ActionLog.append("ログイン項目を変更できませんでした: \(error)")
+            } else {
+                ActionLog.append(turnOn ? "ログイン時に起動するようにしました" : "ログイン時の起動をやめました")
+            }
+        }
+        var items = [toggle]
+        if LoginItem.needsApproval {
+            items.append(choice(L10n.current.loginItemNeedsApproval, selected: false) { LoginItem.openSettings() })
+        }
+        if let loginItemError {
+            items.append(disabled(L10n.current.loginItemFailed(loginItemError)))
+        }
+        return items
+    }
+
     func resetPositionItem() -> NSMenuItem {
         choice(L10n.current.menuResetPosition, selected: false) { [weak self] in self?.strip.resetPosition() }
     }
@@ -169,15 +193,19 @@ final class MenuBuilder {
         return item
     }
 
+    /// 閾値の1項目。見出しの下に字下げして並べる
     private func thresholdChoice(_ percent: Int, selected: Bool, next: UsageThresholds?) -> NSMenuItem {
-        guard let next else {
-            let item = disabled(L10n.current.thresholdChoice(percent))
+        let item: NSMenuItem
+        if let next {
+            item = previewChoice(L10n.current.thresholdChoice(percent), selected: selected,
+                                 preview: { [weak self] in self?.strip.preview(thresholds: next) },
+                                 commit: { [weak self] in self?.strip.setThresholds(next) })
+        } else {
+            item = disabled(L10n.current.thresholdChoice(percent))
             item.state = selected ? .on : .off
-            return item
         }
-        return previewChoice(L10n.current.thresholdChoice(percent), selected: selected,
-                             preview: { [weak self] in self?.strip.preview(thresholds: next) },
-                             commit: { [weak self] in self?.strip.setThresholds(next) })
+        item.indentationLevel = 1
+        return item
     }
 
     func choice(_ title: String, selected: Bool, _ action: @escaping () -> Void) -> NSMenuItem {

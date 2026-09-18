@@ -10,6 +10,7 @@ final class StatusLineSource: DataSource {
     var onSlots: (([Slot]) -> Void)?
     let sourceDescription = L10n.current.sourceStatusLine
     private(set) var limits: [UsageLimit] = []
+    private(set) var usageAsOf: Date?
 
     static let file = FileManager.default.homeDirectoryForCurrentUser
         .appendingPathComponent("Library/Application Support/Slashstrip/statusline.json")
@@ -37,12 +38,14 @@ final class StatusLineSource: DataSource {
         let modified = (try? FileManager.default.attributesOfItem(atPath: Self.file.path)[.modificationDate]) as? Date
         if modified != lastModified {
             lastModified = modified
-            if let data = try? Data(contentsOf: Self.file),
-               let obj = (try? JSONSerialization.jsonObject(with: data)) as? [String: Any] {
+            if let obj = JSONFile.object(at: Self.file) {
                 let parsed = StatusLine.parse(obj)
                 snapshot = parsed
                 // rate_limitsは最初の応答の前には入らない。直前の値を空で上書きしない
-                if !parsed.limits.isEmpty { limits = parsed.limits }
+                if !parsed.limits.isEmpty {
+                    limits = parsed.limits
+                    usageAsOf = modified
+                }
             }
         }
         publish()
@@ -51,9 +54,13 @@ final class StatusLineSource: DataSource {
     private func publish() {
         let text = snapshot.map { Usage.statusText(model: $0.model, effort: $0.effort, limits: limits) }
             ?? L10n.statusPlaceholder
-        let help = snapshot == nil ? L10n.current.statusLineMissing : limits.map { $0.line() }.joined(separator: "\n")
+        // ターミナルでClaude Codeを使っていない間はstatusLineが書かれず、値が古くなる
+        let stale = Usage.isStale(usageAsOf)
+        var lines = snapshot == nil ? [L10n.current.statusLineMissing] : limits.map { $0.line() }
+        if stale, let asOf = usageAsOf { lines.append(L10n.current.usageAsOf(ResetFormatter.text(asOf))) }
+        let help = lines.joined(separator: "\n")
         let slots = [Slot(id: Widgets.status, text: text, background: .idleBackground, foreground: .idleForeground,
-                          help: help.isEmpty ? nil : help, dimmed: snapshot == nil)]
+                          help: help.isEmpty ? nil : help, dimmed: snapshot == nil || stale)]
         guard slots != lastSlots else { return }
         lastSlots = slots
         onSlots?(slots)

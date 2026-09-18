@@ -2,19 +2,21 @@ import AppKit
 import SlashstripCore
 import SwiftUI
 
-/// 「ショートカットを変更…」で開く小さな窓。押している修飾キーをその場で表示し、キーを押した瞬間に登録する。
+/// 「ショートカットを変更…」で開く小さな窓。押している修飾キーをその場で表示し、キーを押した瞬間に登録を試す。
 ///
 /// 登録できても押したときに届くとは限らない（macOSのショートカットはシステムが先に受け取る）。そのため
-/// macOSに割り当て済みの組み合わせは登録の前に弾き、登録後はもう一度押してもらって実際に届くかを確かめる。
+/// macOSに割り当て済みの組み合わせは登録の前に弾き、登録後はもう一度押してもらって、届いたときに初めて保存する。
+/// 状態の判断はShortcutRecordingが持つ。この窓はキー入力を渡し、結果を表示するだけにする。
 /// キー入力を受けるためにこの窓だけは前面に出す。閉じたら元のアプリへ戻す。
 final class ShortcutRecorder {
     private let hotKeys: HotKeyCenter
     private let model = RecorderModel()
+    private var recording = ShortcutRecording()
     private var panel: RecorderPanel?
     private var monitor: Any?
     private var previousApp: NSRunningApplication?
 
-    // 登録できたことを読めるだけ表示してから閉じる
+    // 保存できたことを読めるだけ表示してから閉じる
     private static let closeDelay: TimeInterval = 0.9
 
     init(hotKeys: HotKeyCenter) {
@@ -27,21 +29,17 @@ final class ShortcutRecorder {
             return
         }
         previousApp = NSWorkspace.shared.frontmostApplication
+        recording = ShortcutRecording()
         hotKeys.suspend()
-        model.current = hotKeys.shortcut?.display
+        // 窓を開いている間に届いたショートカットは、帯の呼び出しではなく確認に回す
+        hotKeys.interceptor = { [weak self] in
+            self?.arrived()
+            return true
+        }
         model.live = ""
-        model.message = L10n.current.recorderPrompt
-        model.result = .waiting
-        model.onDisable = { [weak self] in
-            self?.hotKeys.disable()
-            self?.close(restoreHotKey: false)
-        }
-        model.onCancel = { [weak self] in
-            guard let self else { return }
-            // 登録した後の「閉じる」は新しい組み合わせのまま閉じる。登録前の「キャンセル」は元に戻す
-            let registered = self.model.result == .verifying || self.model.result == .saved
-            self.close(restoreHotKey: !registered)
-        }
+        model.onDisable = { [weak self] in self?.turnOff() }
+        model.onCancel = { [weak self] in self?.cancel() }
+        refresh()
 
         let hosting = NSHostingView(rootView: RecorderView(model: model))
         let panel = RecorderPanel(contentView: hosting)
@@ -55,7 +53,7 @@ final class ShortcutRecorder {
                 self.showHeld(event.modifierFlags)
                 return event
             }
-            self.record(event)
+            self.keyDown(event)
             return nil
         }
         activate()
@@ -80,63 +78,73 @@ final class ShortcutRecorder {
 
     /// 押している修飾キーだけを表示する（キーを押す前の途中経過）
     private func showHeld(_ flags: NSEvent.ModifierFlags) {
-        guard model.result != .saved else { return }
+        guard !recording.isSaved else { return }
         model.live = Shortcut(keyCode: 0, modifiers: modifiers(flags), keyLabel: "").display
     }
 
-    private func record(_ event: NSEvent) {
-        guard model.result != .saved else { return }
+    private func keyDown(_ event: NSEvent) {
+        guard !recording.isSaved else { return }
         let held = modifiers(event.modifierFlags)
-        // 修飾キーなしのEscは取り消し
+        // 修飾キーなしのEscはキャンセルと同じ
         if event.keyCode == 53, held.isEmpty {
-            close(restoreHotKey: true)
+            cancel()
             return
         }
         let keyCode = UInt32(event.keyCode)
-        let shortcut = Shortcut(keyCode: keyCode, modifiers: held,
-                                keyLabel: Shortcut.label(keyCode: keyCode, characters: event.charactersIgnoringModifiers))
-        model.live = shortcut.display
-        guard shortcut.isAcceptable else {
-            reject(L10n.current.recorderRejected)
-            return
-        }
-        if let id = ShortcutConflicts.conflict(for: shortcut, symbolic: Self.systemShortcuts()) {
-            reject(L10n.current.recorderReserved(shortcut.display, L10n.current.systemShortcutName(id)))
-            return
-        }
-        guard hotKeys.change(to: shortcut) else {
-            reject(L10n.current.recorderTaken(shortcut.display))
-            return
-        }
-        model.current = shortcut.display
-        var message = L10n.current.recorderVerify(shortcut.display)
-        if ShortcutConflicts.isAppMenuProne(shortcut) {
-            message += "\n" + L10n.current.recorderMenuProne
-        }
-        model.message = message
-        model.result = .verifying
-        // もう一度押されたら、帯の呼び出しではなく「届いた」の確認に回す
-        hotKeys.interceptor = { [weak self] in
-            self?.verified(shortcut)
-            return true
-        }
+        let candidate = Shortcut(keyCode: keyCode, modifiers: held,
+                                 keyLabel: Shortcut.label(keyCode: keyCode, characters: event.charactersIgnoringModifiers))
+        recording.press(candidate,
+                        reservedID: ShortcutConflicts.conflict(for: candidate, symbolic: Self.systemShortcuts()),
+                        center: hotKeys)
+        refresh()
     }
 
-    private func reject(_ message: String) {
-        // 前に登録を試した組み合わせが残っていれば外し、記録を続ける
-        hotKeys.interceptor = nil
-        hotKeys.suspend()
-        model.message = message
-        model.result = .rejected
-    }
-
-    private func verified(_ shortcut: Shortcut) {
-        hotKeys.interceptor = nil
-        model.message = L10n.current.recorderVerified(shortcut.display)
-        model.result = .saved
-        ActionLog.append("ショートカット\(shortcut.display)が届くことを確認しました")
+    private func arrived() {
+        guard recording.arrived(center: hotKeys) else { return }
+        refresh()
         DispatchQueue.main.asyncAfter(deadline: .now() + Self.closeDelay) { [weak self] in
-            self?.close(restoreHotKey: false)
+            self?.close()
+        }
+    }
+
+    private func cancel() {
+        recording.cancel(center: hotKeys)
+        close()
+    }
+
+    private func turnOff() {
+        recording.turnOff(center: hotKeys)
+        close()
+    }
+
+    /// 状態から表示を作る。「現在」は保存済みの値なので、確かめ終わるまでは窓を開く前のまま
+    private func refresh() {
+        let s = L10n.current
+        model.current = hotKeys.shortcut?.display
+        switch recording.phase {
+        case .waiting:
+            model.message = s.recorderPrompt
+            model.result = .waiting
+        case .rejected(let candidate, let rejection):
+            model.live = candidate.display
+            model.result = .rejected
+            switch rejection {
+            case .needsModifier: model.message = s.recorderRejected
+            case .reserved(let id): model.message = s.recorderReserved(candidate.display, s.systemShortcutName(id))
+            case .taken: model.message = s.recorderTaken(candidate.display)
+            }
+        case .verifying(let candidate):
+            model.live = candidate.display
+            model.result = .verifying
+            var message = s.recorderVerify(candidate.display)
+            if ShortcutConflicts.isAppMenuProne(candidate) {
+                message += "\n" + s.recorderMenuProne
+            }
+            model.message = message
+        case .saved(let candidate):
+            model.live = candidate.display
+            model.result = .saved
+            model.message = s.recorderVerified(candidate.display)
         }
     }
 
@@ -146,12 +154,11 @@ final class ShortcutRecorder {
             as? [String: Any]
     }
 
-    private func close(restoreHotKey: Bool) {
+    private func close() {
         guard panel != nil else { return }
         hotKeys.interceptor = nil
         if let monitor { NSEvent.removeMonitor(monitor) }
         monitor = nil
-        if restoreHotKey { hotKeys.resume() }
         panel?.orderOut(nil)
         panel = nil
         previousApp?.activate()
@@ -163,12 +170,11 @@ final class RecorderModel: ObservableObject {
     enum Result {
         case waiting
         case rejected
-        /// 登録した。もう一度押されるのを待っている
         case verifying
-        /// 押されて届いた
         case saved
     }
 
+    /// 保存済みの組み合わせ
     @Published var current: String?
     /// いま押している組み合わせ（途中経過を含む）
     @Published var live = ""
@@ -209,8 +215,8 @@ struct RecorderView: View {
             HStack {
                 Spacer()
                 Button(L10n.current.recorderDisable, action: model.onDisable)
-                Button(model.result == .verifying || model.result == .saved
-                       ? L10n.current.recorderClose : L10n.current.recorderCancel, action: model.onCancel)
+                // どの段階でも、キャンセルは窓を開く前の組み合わせに戻す（確かめるまで保存しないため）
+                Button(L10n.current.recorderCancel, action: model.onCancel)
             }
             .font(.system(size: 13))
         }

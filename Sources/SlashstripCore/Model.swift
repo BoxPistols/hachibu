@@ -98,6 +98,8 @@ public protocol DataSource: AnyObject {
     var onSlots: (([Slot]) -> Void)? { get set }
     var sourceDescription: String { get }
     var limits: [UsageLimit] { get }
+    /// 使用率（5時間枠・週枠）を最後に受け取った時刻。分からなければnil
+    var usageAsOf: Date? { get }
     func start()
     func perform(_ slot: Slot)
     /// 生きているClaude Codeのセッション（一覧の並び順に並べ済み）と、いま前面にあるもののid
@@ -106,6 +108,8 @@ public protocol DataSource: AnyObject {
 }
 
 public extension DataSource {
+    var usageAsOf: Date? { nil }
+
     func sessions() -> (list: [SessionInfo], focusedID: String?) { ([], nil) }
     func focus(_ session: SessionInfo) {}
 }

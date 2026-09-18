@@ -92,3 +92,36 @@ import Testing
         #expect(Widgets.limits(usage: nil, usageAPI: nil).isEmpty)
     }
 }
+
+@Suite struct IdleStatusTests {
+    let limits = [
+        UsageLimit(kind: .fiveHour, percent: 12, resetsAt: nil),
+        UsageLimit(kind: .weekly, percent: 76, resetsAt: nil),
+        UsageLimit(kind: .model("Examplemodel"), percent: 55, resetsAt: nil),
+    ]
+    let now = Date(timeIntervalSince1970: 2_000_000_000)
+    let idle = Slot(id: "status", text: Widgets.noSessionText, background: .clear, foreground: .idleForeground)
+
+    @Test func showsLastKnownUsageWhenNoSessionIsRunning() {
+        let s = Widgets.idleStatus(idle, limits: limits, asOf: now.addingTimeInterval(-60), now: now)
+        #expect(s.text == "S12 W76 E55")
+        #expect(!s.dimmed)
+        #expect(s.background == .clear)
+    }
+
+    @Test func dimsUsageOlderThanThirtyMinutes() {
+        let s = Widgets.idleStatus(idle, limits: limits, asOf: now.addingTimeInterval(-31 * 60), now: now)
+        #expect(s.dimmed)
+        #expect(!Widgets.idleStatus(idle, limits: limits, asOf: now.addingTimeInterval(-29 * 60), now: now).dimmed)
+    }
+
+    @Test func leavesRunningSessionsAndMissingUsageAlone() {
+        let running = Slot(id: "status", text: "Opus5 1M xhigh · S12 W76", background: .idleBackground, foreground: .white)
+        #expect(Widgets.idleStatus(running, limits: limits, asOf: nil, now: now) == running)
+        #expect(Widgets.idleStatus(idle, limits: [], asOf: nil, now: now) == idle)
+    }
+
+    @Test func unknownTimeIsNotStale() {
+        #expect(!Usage.isStale(nil))
+    }
+}

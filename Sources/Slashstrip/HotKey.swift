@@ -37,82 +37,17 @@ final class HotKey {
     }
 }
 
-/// 呼び出しショートカットの保存と登録。変更に失敗したら元の組み合わせに戻す
-final class HotKeyCenter {
-    private static let shortcutKey = "summonShortcut"
-    private static let disabledKey = "summonShortcutDisabled"
-
+/// HotKeyCenterから使う登録器。同時に登録するのは1つだけ
+final class CarbonRegistrar: HotKeyRegistrar {
+    var onPress: () -> Void = {}
     private var hotKey: HotKey?
-    private let action: () -> Void
-    /// 設定の窓で「届くか」を確かめている間だけ使う。trueを返したら通常の動作（帯の呼び出し）をしない
-    var interceptor: (() -> Bool)?
-    /// いま設定されている組み合わせ。無効にしていればnil
-    private(set) var shortcut: Shortcut?
-    /// 設定はあるが登録できなかった（他のアプリが使用中）
-    private(set) var registrationFailed = false
 
-    init(action: @escaping () -> Void) {
-        self.action = action
-        if Prefs.defaults.bool(forKey: Self.disabledKey) {
-            shortcut = nil
-        } else if let data = Prefs.defaults.data(forKey: Self.shortcutKey),
-                  let saved = try? JSONDecoder().decode(Shortcut.self, from: data) {
-            shortcut = saved
-        } else {
-            shortcut = .defaultSummon
-        }
-        registerCurrent()
+    func register(_ shortcut: Shortcut) -> Bool {
+        hotKey = HotKey(shortcut) { [weak self] in self?.onPress() }
+        return hotKey != nil
     }
 
-    /// 新しい組み合わせにする。登録できなければ元に戻してfalse
-    func change(to new: Shortcut) -> Bool {
-        let old = shortcut
+    func unregister() {
         hotKey = nil
-        guard let registered = HotKey(new, action: { [weak self] in self?.fire() }) else {
-            shortcut = old
-            registerCurrent()
-            return false
-        }
-        hotKey = registered
-        shortcut = new
-        registrationFailed = false
-        Prefs.defaults.set(try? JSONEncoder().encode(new), forKey: Self.shortcutKey)
-        Prefs.defaults.set(false, forKey: Self.disabledKey)
-        ActionLog.append("ショートカットを\(new.display)に変更しました")
-        return true
-    }
-
-    private func fire() {
-        if interceptor?() == true { return }
-        action()
-    }
-
-    func disable() {
-        hotKey = nil
-        shortcut = nil
-        registrationFailed = false
-        Prefs.defaults.set(true, forKey: Self.disabledKey)
-        ActionLog.append("ショートカットを無効にしました")
-    }
-
-    /// 記録中は外す（今の組み合わせを押しても呼び出しが走らず、記録に回るように）
-    func suspend() {
-        hotKey = nil
-    }
-
-    func resume() {
-        registerCurrent()
-    }
-
-    private func registerCurrent() {
-        guard let shortcut else {
-            hotKey = nil
-            return
-        }
-        hotKey = HotKey(shortcut, action: { [weak self] in self?.fire() })
-        registrationFailed = hotKey == nil
-        if registrationFailed {
-            ActionLog.append("ショートカット\(shortcut.display)の登録に失敗しました")
-        }
     }
 }
