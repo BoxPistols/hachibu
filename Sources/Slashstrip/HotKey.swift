@@ -44,6 +44,8 @@ final class HotKeyCenter {
 
     private var hotKey: HotKey?
     private let action: () -> Void
+    /// 設定の窓で「届くか」を確かめている間だけ使う。trueを返したら通常の動作（帯の呼び出し）をしない
+    var interceptor: (() -> Bool)?
     /// いま設定されている組み合わせ。無効にしていればnil
     private(set) var shortcut: Shortcut?
     /// 設定はあるが登録できなかった（他のアプリが使用中）
@@ -66,7 +68,7 @@ final class HotKeyCenter {
     func change(to new: Shortcut) -> Bool {
         let old = shortcut
         hotKey = nil
-        guard let registered = HotKey(new, action: action) else {
+        guard let registered = HotKey(new, action: { [weak self] in self?.fire() }) else {
             shortcut = old
             registerCurrent()
             return false
@@ -78,6 +80,11 @@ final class HotKeyCenter {
         Prefs.defaults.set(false, forKey: Self.disabledKey)
         ActionLog.append("ショートカットを\(new.display)に変更しました")
         return true
+    }
+
+    private func fire() {
+        if interceptor?() == true { return }
+        action()
     }
 
     func disable() {
@@ -102,7 +109,7 @@ final class HotKeyCenter {
             hotKey = nil
             return
         }
-        hotKey = HotKey(shortcut, action: action)
+        hotKey = HotKey(shortcut, action: { [weak self] in self?.fire() })
         registrationFailed = hotKey == nil
         if registrationFailed {
             ActionLog.append("ショートカット\(shortcut.display)の登録に失敗しました")

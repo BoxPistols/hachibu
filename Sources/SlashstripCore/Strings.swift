@@ -44,7 +44,13 @@ public struct Strings {
     public let recorderCurrent: (String?) -> String
     public let recorderRejected: String
     public let recorderTaken: (String) -> String
-    public let recorderSaved: (String) -> String
+    public let recorderReserved: (String, String) -> String
+    public let recorderVerify: (String) -> String
+    public let recorderVerified: (String) -> String
+    public let recorderMenuProne: String
+    public let recorderClose: String
+    /// macOSのショートカットの名前（com.apple.symbolichotkeysの番号から）
+    public let systemShortcutName: (String) -> String
     public let recorderDisable: String
     public let recorderCancel: String
 
@@ -100,7 +106,29 @@ public struct Strings {
         recorderCurrent: { "Current: " + ($0 ?? "none") },
         recorderRejected: "Add Command (⌘), Option (⌥), or Control (⌃) to the key.",
         recorderTaken: { "\($0) is already used by another app." },
-        recorderSaved: { "Saved \($0)" },
+        recorderReserved: { "\($0) is assigned to \"\($1)\" in macOS, so it would never reach Slashstrip." },
+        recorderVerify: { "Saved. Press \($0) once more to check that it arrives. If nothing happens, macOS or another app takes it first. Press a different combination to replace it." },
+        recorderVerified: { "\($0) works." },
+        recorderMenuProne: "Shortcuts with only ⌘ often collide with app menu shortcuts. Adding ⌥ or ⌃ is safer.",
+        recorderClose: "Close",
+        systemShortcutName: { id in
+            switch id {
+            case "64": return "Show Spotlight search"
+            case "65": return "Show Finder search window"
+            case "60": return "Select the previous input source"
+            case "61": return "Select next source in Input menu"
+            case "28", "29", "30", "31", "184": return "Screenshots"
+            case "27": return "Move focus to next window"
+            case "32", "34": return "Mission Control"
+            case "33", "35": return "Application windows"
+            case "79", "80", "81", "82": return "Move between Spaces"
+            case "98": return "Show Help menu"
+            case "builtin:appSwitcher": return "App switcher"
+            case "builtin:forceQuit": return "Force Quit"
+            case "builtin:lockScreen": return "Lock Screen"
+            default: return "a keyboard shortcut (#\(id))"
+            }
+        },
         recorderDisable: "Turn Off",
         recorderCancel: "Cancel",
         layoutName: { layout in
@@ -170,7 +198,29 @@ public struct Strings {
         recorderCurrent: { "現在：" + ($0 ?? "なし") },
         recorderRejected: "Command（⌘）・Option（⌥）・Control（⌃）のどれかと一緒に押してください",
         recorderTaken: { "\($0)は他のアプリが使っているため登録できません" },
-        recorderSaved: { "\($0)を登録しました" },
+        recorderReserved: { "\($0)はmacOSの「\($1)」に割り当てられているため、押してもSlashstripに届きません" },
+        recorderVerify: { "登録しました。確かめるため、もう一度\($0)を押してください。反応しない場合は、macOSか他のアプリが先に受け取っています。別の組み合わせを押すと置き換えます。" },
+        recorderVerified: { "\($0)が届くことを確認しました" },
+        recorderMenuProne: "⌘だけの組み合わせは、アプリのメニューのショートカットと重なりやすいです。⌥か⌃を加えると安全です。",
+        recorderClose: "閉じる",
+        systemShortcutName: { id in
+            switch id {
+            case "64": return "Spotlight検索を表示"
+            case "65": return "Finderの検索ウインドウを表示"
+            case "60": return "前の入力ソースを選択"
+            case "61": return "入力メニューの次のソースを選択"
+            case "28", "29", "30", "31", "184": return "スクリーンショット"
+            case "27": return "次のウインドウを操作対象にする"
+            case "32", "34": return "Mission Control"
+            case "33", "35": return "アプリケーションウインドウ"
+            case "79", "80", "81", "82": return "操作スペースの移動"
+            case "98": return "ヘルプメニューを表示"
+            case "builtin:appSwitcher": return "アプリの切り替え"
+            case "builtin:forceQuit": return "強制終了"
+            case "builtin:lockScreen": return "画面をロック"
+            default: return "キーボードショートカット（番号\(id)）"
+            }
+        },
         recorderDisable: "無効にする",
         recorderCancel: "キャンセル",
         layoutName: { layout in

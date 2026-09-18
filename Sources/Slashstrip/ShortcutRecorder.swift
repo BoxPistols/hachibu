@@ -4,6 +4,8 @@ import SwiftUI
 
 /// 「ショートカットを変更…」で開く小さな窓。押している修飾キーをその場で表示し、キーを押した瞬間に登録する。
 ///
+/// 登録できても押したときに届くとは限らない（macOSのショートカットはシステムが先に受け取る）。そのため
+/// macOSに割り当て済みの組み合わせは登録の前に弾き、登録後はもう一度押してもらって実際に届くかを確かめる。
 /// キー入力を受けるためにこの窓だけは前面に出す。閉じたら元のアプリへ戻す。
 final class ShortcutRecorder {
     private let hotKeys: HotKeyCenter
@@ -34,7 +36,12 @@ final class ShortcutRecorder {
             self?.hotKeys.disable()
             self?.close(restoreHotKey: false)
         }
-        model.onCancel = { [weak self] in self?.close(restoreHotKey: true) }
+        model.onCancel = { [weak self] in
+            guard let self else { return }
+            // 登録した後の「閉じる」は新しい組み合わせのまま閉じる。登録前の「キャンセル」は元に戻す
+            let registered = self.model.result == .verifying || self.model.result == .saved
+            self.close(restoreHotKey: !registered)
+        }
 
         let hosting = NSHostingView(rootView: RecorderView(model: model))
         let panel = RecorderPanel(contentView: hosting)
@@ -90,26 +97,58 @@ final class ShortcutRecorder {
                                 keyLabel: Shortcut.label(keyCode: keyCode, characters: event.charactersIgnoringModifiers))
         model.live = shortcut.display
         guard shortcut.isAcceptable else {
-            model.message = L10n.current.recorderRejected
-            model.result = .rejected
+            reject(L10n.current.recorderRejected)
             return
         }
-        if hotKeys.change(to: shortcut) {
-            model.current = shortcut.display
-            model.message = L10n.current.recorderSaved(shortcut.display)
-            model.result = .saved
-            DispatchQueue.main.asyncAfter(deadline: .now() + Self.closeDelay) { [weak self] in
-                self?.close(restoreHotKey: false)
-            }
-        } else {
-            hotKeys.suspend()
-            model.message = L10n.current.recorderTaken(shortcut.display)
-            model.result = .rejected
+        if let id = ShortcutConflicts.conflict(for: shortcut, symbolic: Self.systemShortcuts()) {
+            reject(L10n.current.recorderReserved(shortcut.display, L10n.current.systemShortcutName(id)))
+            return
         }
+        guard hotKeys.change(to: shortcut) else {
+            reject(L10n.current.recorderTaken(shortcut.display))
+            return
+        }
+        model.current = shortcut.display
+        var message = L10n.current.recorderVerify(shortcut.display)
+        if ShortcutConflicts.isAppMenuProne(shortcut) {
+            message += "\n" + L10n.current.recorderMenuProne
+        }
+        model.message = message
+        model.result = .verifying
+        // もう一度押されたら、帯の呼び出しではなく「届いた」の確認に回す
+        hotKeys.interceptor = { [weak self] in
+            self?.verified(shortcut)
+            return true
+        }
+    }
+
+    private func reject(_ message: String) {
+        // 前に登録を試した組み合わせが残っていれば外し、記録を続ける
+        hotKeys.interceptor = nil
+        hotKeys.suspend()
+        model.message = message
+        model.result = .rejected
+    }
+
+    private func verified(_ shortcut: Shortcut) {
+        hotKeys.interceptor = nil
+        model.message = L10n.current.recorderVerified(shortcut.display)
+        model.result = .saved
+        ActionLog.append("ショートカット\(shortcut.display)が届くことを確認しました")
+        DispatchQueue.main.asyncAfter(deadline: .now() + Self.closeDelay) { [weak self] in
+            self?.close(restoreHotKey: false)
+        }
+    }
+
+    /// macOSのキーボードショートカットの設定。読めなければnil（組み込みの一覧だけで判定する）
+    private static func systemShortcuts() -> [String: Any]? {
+        CFPreferencesCopyAppValue("AppleSymbolicHotKeys" as CFString, "com.apple.symbolichotkeys" as CFString)
+            as? [String: Any]
     }
 
     private func close(restoreHotKey: Bool) {
         guard panel != nil else { return }
+        hotKeys.interceptor = nil
         if let monitor { NSEvent.removeMonitor(monitor) }
         monitor = nil
         if restoreHotKey { hotKeys.resume() }
@@ -124,6 +163,9 @@ final class RecorderModel: ObservableObject {
     enum Result {
         case waiting
         case rejected
+        /// 登録した。もう一度押されるのを待っている
+        case verifying
+        /// 押されて届いた
         case saved
     }
 
@@ -167,7 +209,8 @@ struct RecorderView: View {
             HStack {
                 Spacer()
                 Button(L10n.current.recorderDisable, action: model.onDisable)
-                Button(L10n.current.recorderCancel, action: model.onCancel)
+                Button(model.result == .verifying || model.result == .saved
+                       ? L10n.current.recorderClose : L10n.current.recorderCancel, action: model.onCancel)
             }
             .font(.system(size: 13))
         }
@@ -190,6 +233,7 @@ struct RecorderView: View {
     private var frameColor: Color {
         switch model.result {
         case .waiting: return Color.white.opacity(0.18)
+        case .verifying: return Color.white.opacity(0.45)
         case .rejected: return LevelStyle.background(.critical)!.color
         case .saved: return Color(.sRGB, red: 80 / 255, green: 190 / 255, blue: 120 / 255, opacity: 1)
         }
@@ -197,7 +241,7 @@ struct RecorderView: View {
 
     private var messageColor: Color {
         switch model.result {
-        case .waiting, .saved: return .primary
+        case .waiting, .verifying, .saved: return .primary
         // 赤の札と同じ色は暗い面では文字として読みにくいので、明るめの赤にする
         case .rejected: return Color(.sRGB, red: 1, green: 0.55, blue: 0.5, opacity: 1)
         }
