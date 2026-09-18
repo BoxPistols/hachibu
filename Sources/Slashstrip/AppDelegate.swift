@@ -10,9 +10,14 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private var statusItem: StatusItemController!
 
     func applicationDidFinishLaunching(_ notification: Notification) {
-        // 開発用: SLASHSTRIP_SOURCE=statuslineのときはスクリプトがあってもstatusLineのみで動かす
-        let forceStatusLine = ProcessInfo.processInfo.environment["SLASHSTRIP_SOURCE"] == "statusline"
-        let source: DataSource = (forceStatusLine ? nil : ScriptBackend.detect()) ?? StatusLineSource()
+        // 開発用: SLASHSTRIP_SOURCE=statuslineならスクリプトがあってもstatusLineのみ、demoなら架空の値で動かす
+        let forced = ProcessInfo.processInfo.environment["SLASHSTRIP_SOURCE"]
+        let source: DataSource
+        switch forced {
+        case "demo": source = DemoSource()
+        case "statusline": source = StatusLineSource()
+        default: source = ScriptBackend.detect() ?? StatusLineSource()
+        }
         let strip = StripController()
         self.source = source
         self.strip = strip

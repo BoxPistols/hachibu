@@ -35,10 +35,10 @@ final class MenuBuilder {
         let menu = NSMenu()
         let (list, focusedID) = source.sessions()
         guard !list.isEmpty else {
-            menu.addItem(disabled(L10n.sessionsNone))
+            menu.addItem(disabled(L10n.current.sessionsNone))
             return menu
         }
-        menu.addItem(disabled(L10n.sessionsHeader))
+        menu.addItem(disabled(L10n.current.sessionsHeader))
         for (i, session) in list.enumerated() {
             let item = ClosureMenuItem(title: session.menuTitle(number: i + 1)) { [weak self] in
                 onPick()
@@ -54,9 +54,9 @@ final class MenuBuilder {
     /// 使用率の行。黄や赤の段階にある枠には、その色の点を付ける
     func usageItems() -> [NSMenuItem] {
         let limits = source.limits
-        guard !limits.isEmpty else { return [disabled(L10n.menuNoUsage)] }
+        guard !limits.isEmpty else { return [disabled(L10n.current.menuNoUsage)] }
         return limits.map { limit in
-            let item = disabled(limit.line)
+            let item = disabled(limit.line())
             if let color = LevelStyle.background(strip.thresholds.level(limit.percent)) {
                 item.image = Self.dot(color.nsColor)
             }
@@ -67,7 +67,7 @@ final class MenuBuilder {
     /// 黄と赤の閾値。赤が黄以下になる選択肢は選べなくする
     func thresholdsMenuItem() -> NSMenuItem {
         let current = strip.thresholds
-        var items: [NSMenuItem] = [disabled(L10n.thresholdWarningHeader)]
+        var items: [NSMenuItem] = [disabled(L10n.current.thresholdWarningHeader)]
         for p in UsageThresholds.warningChoices {
             let next = UsageThresholds(warning: p, critical: current.critical)
             let item = thresholdChoice(p, selected: current.warning == p, next: next)
@@ -75,35 +75,35 @@ final class MenuBuilder {
             items.append(item)
         }
         items.append(.separator())
-        items.append(disabled(L10n.thresholdCriticalHeader))
+        items.append(disabled(L10n.current.thresholdCriticalHeader))
         for p in UsageThresholds.criticalChoices {
             let next = UsageThresholds(warning: current.warning, critical: p)
             let item = thresholdChoice(p, selected: current.critical == p, next: next)
             item.indentationLevel = 1
             items.append(item)
         }
-        return submenu(L10n.menuThresholds, items)
+        return submenu(L10n.current.menuThresholds, items)
     }
 
     func sourceItem() -> NSMenuItem {
-        disabled(L10n.menuSourcePrefix + source.sourceDescription)
+        disabled(L10n.current.menuSourcePrefix + source.sourceDescription)
     }
 
     /// 項目に乗せると帯をそのモードで仮に表示し、選ぶと確定する
     func layoutItems() -> [NSMenuItem] {
         StripLayout.allCases.map { layout in
-            previewChoice(L10n.layoutName(layout), selected: strip.restLayout == layout,
+            previewChoice(L10n.current.layoutName(layout), selected: strip.restLayout == layout,
                           preview: { [weak self] in self?.strip.preview(layout: layout) },
                           commit: { [weak self] in self?.strip.setRestLayout(layout) })
         }
     }
 
     func layoutMenuItem() -> NSMenuItem {
-        submenu(L10n.menuLayout, layoutItems())
+        submenu(L10n.current.menuLayout, layoutItems())
     }
 
     func opacityMenuItem() -> NSMenuItem {
-        submenu(L10n.menuOpacity, Prefs.opacityChoices.map { value in
+        submenu(L10n.current.menuOpacity, Prefs.opacityChoices.map { value in
             previewChoice(L10n.opacityName(value), selected: strip.opacity == value,
                           preview: { [weak self] in self?.strip.preview(opacity: value) },
                           commit: { [weak self] in self?.strip.setOpacity(value) })
@@ -111,31 +111,31 @@ final class MenuBuilder {
     }
 
     func shortcutItems() -> [NSMenuItem] {
-        let summon = choice(L10n.menuSummon, selected: strip.summoned) { [weak self] in self?.strip.toggleSummon() }
+        let summon = choice(L10n.current.menuSummon, selected: strip.summoned) { [weak self] in self?.strip.toggleSummon() }
         var items = [summon]
         if let shortcut = hotKeys.shortcut {
             if hotKeys.registrationFailed {
-                items.append(disabled(L10n.menuHotKeyUnavailable(shortcut.display)))
+                items.append(disabled(L10n.current.menuHotKeyUnavailable(shortcut.display)))
             } else if shortcut.keyLabel.count == 1 {
                 // 表示のため。実際に効くのはHotKeyの登録で、メニューのキー割り当てはメニューを開いている間しか効かない
                 summon.keyEquivalent = shortcut.keyLabel.lowercased()
                 summon.keyEquivalentModifierMask = Self.flags(shortcut.modifiers)
             } else {
-                summon.title = "\(L10n.menuSummon)（\(shortcut.display)）"
+                summon.title = "\(L10n.current.menuSummon)（\(shortcut.display)）"
             }
         } else {
-            items.append(disabled(L10n.menuShortcutOff))
+            items.append(disabled(L10n.current.menuShortcutOff))
         }
-        items.append(choice(L10n.menuChangeShortcut, selected: false) { [weak self] in self?.recorder.show() })
+        items.append(choice(L10n.current.menuChangeShortcut, selected: false) { [weak self] in self?.recorder.show() })
         return items
     }
 
     func resetPositionItem() -> NSMenuItem {
-        choice(L10n.menuResetPosition, selected: false) { [weak self] in self?.strip.resetPosition() }
+        choice(L10n.current.menuResetPosition, selected: false) { [weak self] in self?.strip.resetPosition() }
     }
 
     func openLogItem() -> NSMenuItem {
-        choice(L10n.menuOpenLog, selected: false) {
+        choice(L10n.current.menuOpenLog, selected: false) {
             ActionLog.append("操作ログを開きました")
             // 追記は非同期なので、ファイルができるのを待たずに開くと「見つからない」になりうる
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
@@ -171,11 +171,11 @@ final class MenuBuilder {
 
     private func thresholdChoice(_ percent: Int, selected: Bool, next: UsageThresholds?) -> NSMenuItem {
         guard let next else {
-            let item = disabled(L10n.thresholdChoice(percent))
+            let item = disabled(L10n.current.thresholdChoice(percent))
             item.state = selected ? .on : .off
             return item
         }
-        return previewChoice(L10n.thresholdChoice(percent), selected: selected,
+        return previewChoice(L10n.current.thresholdChoice(percent), selected: selected,
                              preview: { [weak self] in self?.strip.preview(thresholds: next) },
                              commit: { [weak self] in self?.strip.setThresholds(next) })
     }

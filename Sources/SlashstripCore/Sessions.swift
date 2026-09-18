@@ -81,9 +81,9 @@ public struct SessionInfo: Equatable {
         }
     }
 
-    /// 一覧の1行: "1. example-project（実行中・Bash）"
-    public func menuTitle(number: Int) -> String {
-        let detail = [L10n.sessionStateName(state), state == .busy ? tool : nil].compactMap { $0 }.joined(separator: "・")
-        return "\(number). \(project)（\(detail)）"
+    /// 一覧の1行: "1. example-project（実行中・Bash）" / "1. example-project (running, Bash)"
+    public func menuTitle(number: Int, strings: Strings = L10n.current) -> String {
+        let detail = [strings.sessionStateName(state), state == .busy ? tool : nil].compactMap { $0 }
+        return strings.sessionTitle(number, project, detail)
     }
 }

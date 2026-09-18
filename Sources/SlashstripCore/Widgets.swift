@@ -59,16 +59,16 @@ public enum Widgets {
         var out: [UsageLimit] = []
         if let u = usage {
             if let p = (u["session"] as? NSNumber)?.intValue {
-                out.append(UsageLimit(name: L10n.limitFiveHour, percent: p, resetsAt: epoch(u["session_resets_at"])))
+                out.append(UsageLimit(kind: .fiveHour, percent: p, resetsAt: epoch(u["session_resets_at"])))
             }
             if let p = (u["week"] as? NSNumber)?.intValue {
-                out.append(UsageLimit(name: L10n.limitWeekly, percent: p, resetsAt: epoch(u["week_resets_at"])))
+                out.append(UsageLimit(kind: .weekly, percent: p, resetsAt: epoch(u["week_resets_at"])))
             }
         }
         for s in (usageAPI?["scoped"] as? [[String: Any]]) ?? [] {
             guard let name = s["name"] as? String, !name.isEmpty,
                   let p = (s["pct"] as? NSNumber)?.intValue else { continue }
-            out.append(UsageLimit(name: name, percent: p, resetsAt: ResetFormatter.parseISO(s["resets_at"] as? String)))
+            out.append(UsageLimit(kind: .model(name), percent: p, resetsAt: ResetFormatter.parseISO(s["resets_at"] as? String)))
         }
         return out
     }

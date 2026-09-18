@@ -58,8 +58,8 @@ final class StatusItemController: NSObject, NSMenuDelegate {
         menu.addItem(builder.layoutMenuItem())
         menu.addItem(builder.opacityMenuItem())
         menu.addItem(builder.thresholdsMenuItem())
-        menu.addItem(builder.submenu(L10n.menuMenuBar, MenuBarStyle.allCases.map { style in
-            builder.choice(L10n.menuBarStyleName(style), selected: self.style == style) { [weak self] in
+        menu.addItem(builder.submenu(L10n.current.menuMenuBar, MenuBarStyle.allCases.map { style in
+            builder.choice(L10n.current.menuBarStyleName(style), selected: self.style == style) { [weak self] in
                 self?.style = style
                 Prefs.menuBarStyle = style
                 self?.refreshTitle()
@@ -72,6 +72,6 @@ final class StatusItemController: NSObject, NSMenuDelegate {
         menu.addItem(builder.openLogItem())
 
         menu.addItem(.separator())
-        menu.addItem(NSMenuItem(title: L10n.menuQuit, action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q"))
+        menu.addItem(NSMenuItem(title: L10n.current.menuQuit, action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q"))
     }
 }

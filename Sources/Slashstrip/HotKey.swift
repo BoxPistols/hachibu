@@ -51,9 +51,9 @@ final class HotKeyCenter {
 
     init(action: @escaping () -> Void) {
         self.action = action
-        if UserDefaults.standard.bool(forKey: Self.disabledKey) {
+        if Prefs.defaults.bool(forKey: Self.disabledKey) {
             shortcut = nil
-        } else if let data = UserDefaults.standard.data(forKey: Self.shortcutKey),
+        } else if let data = Prefs.defaults.data(forKey: Self.shortcutKey),
                   let saved = try? JSONDecoder().decode(Shortcut.self, from: data) {
             shortcut = saved
         } else {
@@ -74,8 +74,8 @@ final class HotKeyCenter {
         hotKey = registered
         shortcut = new
         registrationFailed = false
-        UserDefaults.standard.set(try? JSONEncoder().encode(new), forKey: Self.shortcutKey)
-        UserDefaults.standard.set(false, forKey: Self.disabledKey)
+        Prefs.defaults.set(try? JSONEncoder().encode(new), forKey: Self.shortcutKey)
+        Prefs.defaults.set(false, forKey: Self.disabledKey)
         ActionLog.append("ショートカットを\(new.display)に変更しました")
         return true
     }
@@ -84,7 +84,7 @@ final class HotKeyCenter {
         hotKey = nil
         shortcut = nil
         registrationFailed = false
-        UserDefaults.standard.set(true, forKey: Self.disabledKey)
+        Prefs.defaults.set(true, forKey: Self.disabledKey)
         ActionLog.append("ショートカットを無効にしました")
     }
 

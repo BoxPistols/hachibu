@@ -44,8 +44,8 @@ import Testing
 
 @Suite struct MenuBarStyleTests {
     let limits = [
-        UsageLimit(name: L10n.limitFiveHour, percent: 11, resetsAt: nil),
-        UsageLimit(name: L10n.limitWeekly, percent: 75, resetsAt: nil),
+        UsageLimit(kind: .fiveHour, percent: 11, resetsAt: nil),
+        UsageLimit(kind: .weekly, percent: 75, resetsAt: nil),
     ]
 
     @Test func titles() {

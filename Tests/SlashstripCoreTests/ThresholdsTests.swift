@@ -34,8 +34,8 @@ import Testing
 
     @Test func worstOfLimits() {
         let limits = [
-            UsageLimit(name: L10n.limitFiveHour, percent: 12, resetsAt: nil),
-            UsageLimit(name: L10n.limitWeekly, percent: 76, resetsAt: nil),
+            UsageLimit(kind: .fiveHour, percent: 12, resetsAt: nil),
+            UsageLimit(kind: .weekly, percent: 76, resetsAt: nil),
         ]
         #expect(UsageThresholds.default.worst(limits) == .warning)
         #expect(UsageThresholds.default.worst([]) == .normal)

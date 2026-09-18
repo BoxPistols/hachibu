@@ -3,6 +3,11 @@ import SlashstripCore
 
 /// 利用者の設定。UserDefaultsのキーはここにだけ書く
 enum Prefs {
+    /// 撮影用モード（SLASHSTRIP_SOURCE=demo）では、利用者の設定に触れないよう別の保存先を使う
+    static let defaults: UserDefaults = ProcessInfo.processInfo.environment["SLASHSTRIP_SOURCE"] == "demo"
+        ? (UserDefaults(suiteName: "dev.local.slashstrip.demo") ?? .standard)
+        : .standard
+
     private static let layoutKey = "restLayout"
     private static let opacityKey = "opacity"
     private static let menuBarKey = "menuBarStyle"
@@ -12,33 +17,33 @@ enum Prefs {
     static let opacityChoices: [Double] = [1.0, 0.85, 0.7, 0.5, 0.3]
 
     static var restLayout: StripLayout {
-        get { StripLayout(rawValue: UserDefaults.standard.string(forKey: layoutKey) ?? "") ?? .full }
-        set { UserDefaults.standard.set(newValue.rawValue, forKey: layoutKey) }
+        get { StripLayout(rawValue: Prefs.defaults.string(forKey: layoutKey) ?? "") ?? .full }
+        set { Prefs.defaults.set(newValue.rawValue, forKey: layoutKey) }
     }
 
     static var opacity: Double {
         get {
-            let v = UserDefaults.standard.double(forKey: opacityKey)
+            let v = Prefs.defaults.double(forKey: opacityKey)
             return opacityChoices.contains(v) ? v : 1.0
         }
-        set { UserDefaults.standard.set(newValue, forKey: opacityKey) }
+        set { Prefs.defaults.set(newValue, forKey: opacityKey) }
     }
 
     static var thresholds: UsageThresholds {
         get {
-            let d = UserDefaults.standard
+            let d = Prefs.defaults
             return UsageThresholds(warning: d.integer(forKey: warningKey), critical: d.integer(forKey: criticalKey))
                 ?? .default
         }
         set {
-            UserDefaults.standard.set(newValue.warning, forKey: warningKey)
-            UserDefaults.standard.set(newValue.critical, forKey: criticalKey)
+            Prefs.defaults.set(newValue.warning, forKey: warningKey)
+            Prefs.defaults.set(newValue.critical, forKey: criticalKey)
         }
     }
 
     static var menuBarStyle: MenuBarStyle {
-        get { MenuBarStyle(rawValue: UserDefaults.standard.string(forKey: menuBarKey) ?? "") ?? .icon }
-        set { UserDefaults.standard.set(newValue.rawValue, forKey: menuBarKey) }
+        get { MenuBarStyle(rawValue: Prefs.defaults.string(forKey: menuBarKey) ?? "") ?? .icon }
+        set { Prefs.defaults.set(newValue.rawValue, forKey: menuBarKey) }
     }
 }
 

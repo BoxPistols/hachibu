@@ -51,19 +51,45 @@ public struct Slot: Identifiable, Equatable {
 }
 
 /// 使用率の枠1つ（5時間枠・週枠・モデル別枠）。
+/// 枠の種類は表示名ではなくkindで見分ける（表示名は言語で変わる）
 public struct UsageLimit: Equatable {
-    public let name: String
+    public enum Kind: Equatable {
+        case fiveHour
+        case weekly
+        /// モデル別の週枠。値はサーバが返すモデルの表示名
+        case model(String)
+    }
+
+    public let kind: Kind
     public let percent: Int
     public let resetsAt: Date?
 
-    public init(name: String, percent: Int, resetsAt: Date?) {
-        self.name = name
+    public init(kind: Kind, percent: Int, resetsAt: Date?) {
+        self.kind = kind
         self.percent = percent
         self.resetsAt = resetsAt
     }
 
-    public var line: String {
-        L10n.limitLine(name: name, percent: percent, resets: resetsAt.map { ResetFormatter.text($0) })
+    public func name(_ strings: Strings = L10n.current) -> String {
+        switch kind {
+        case .fiveHour: return strings.limitFiveHour
+        case .weekly: return strings.limitWeekly
+        case .model(let name): return name
+        }
+    }
+
+    /// 帯での略号（Touch Barと同じ）: S=5時間枠、W=週枠、モデル別は名前の頭文字
+    public var letter: String {
+        switch kind {
+        case .fiveHour: return "S"
+        case .weekly: return "W"
+        case .model(let name): return String(name.prefix(1))
+        }
+    }
+
+    public func line(_ strings: Strings = L10n.current, now: Date = Date(), calendar: Calendar = .current) -> String {
+        strings.limitLine(name(strings), percent,
+                          resetsAt.map { ResetFormatter.text($0, now: now, calendar: calendar, strings: strings) })
     }
 }
 
@@ -85,19 +111,12 @@ public extension DataSource {
 }
 
 public enum ResetFormatter {
-    private static func make(_ format: String) -> DateFormatter {
+    public static func text(_ date: Date, now: Date = Date(), calendar: Calendar = .current,
+                            strings: Strings = L10n.current) -> String {
         let f = DateFormatter()
-        f.locale = Locale(identifier: "ja_JP")
-        f.dateFormat = format
-        return f
-    }
-
-    private static let sameDay = make("H:mm")
-    private static let otherDay = make("M/d(E) H:mm")
-
-    public static func text(_ date: Date, now: Date = Date(), calendar: Calendar = .current) -> String {
-        let f = calendar.isDate(date, inSameDayAs: now) ? sameDay : otherDay
+        f.locale = Locale(identifier: strings.resetLocale)
         f.timeZone = calendar.timeZone
+        f.dateFormat = calendar.isDate(date, inSameDayAs: now) ? strings.resetSameDay : strings.resetOtherDay
         return f.string(from: date)
     }
 

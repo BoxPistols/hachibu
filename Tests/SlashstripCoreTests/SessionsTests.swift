@@ -52,8 +52,8 @@ import Testing
     @Test func menuTitleShowsToolOnlyWhileBusy() {
         let busy = SessionInfo.parse(Self.json("a", cwd: "/tmp/example-app", state: "busy", tool: "Bash"))!
         let idle = SessionInfo.parse(Self.json("b", cwd: "/tmp/example-app", state: "idle", tool: "Bash"))!
-        #expect(busy.menuTitle(number: 1) == "1. example-app（実行中・Bash）")
-        #expect(idle.menuTitle(number: 2) == "2. example-app（待機中）")
+        #expect(busy.menuTitle(number: 1, strings: .ja) == "1. example-app（実行中・Bash）")
+        #expect(idle.menuTitle(number: 2, strings: .ja) == "2. example-app（待機中）")
     }
 }
 

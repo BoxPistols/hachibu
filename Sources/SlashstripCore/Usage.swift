@@ -6,13 +6,7 @@ public enum Usage {
     /// - model: 表示用に縮めたモデル名（compactDisplayNameの結果）
     public static func statusText(model: String?, effort: String?, limits: [UsageLimit]) -> String {
         let head = [model, effort].compactMap { $0 }.filter { !$0.isEmpty }
-        let tail = limits.map { limit -> String in
-            switch limit.name {
-            case L10n.limitFiveHour: return "S\(limit.percent)"
-            case L10n.limitWeekly: return "W\(limit.percent)"
-            default: return "\(limit.name.prefix(1))\(limit.percent)"
-            }
-        }
+        let tail = limits.map { "\($0.letter)\($0.percent)" }
         let text = [head.joined(separator: " "), tail.joined(separator: " ")]
             .filter { !$0.isEmpty }
             .joined(separator: " · ")
@@ -54,11 +48,11 @@ public enum StatusLine {
         let effort = (obj["effort"] as? [String: Any])?["level"] as? String
         var limits: [UsageLimit] = []
         let rates = obj["rate_limits"] as? [String: Any]
-        for (key, name) in [("five_hour", L10n.limitFiveHour), ("seven_day", L10n.limitWeekly)] {
+        for (key, kind) in [("five_hour", UsageLimit.Kind.fiveHour), ("seven_day", .weekly)] {
             guard let item = rates?[key] as? [String: Any],
                   let pct = (item["used_percentage"] as? NSNumber)?.doubleValue else { continue }
             let resets = (item["resets_at"] as? NSNumber).map { Date(timeIntervalSince1970: $0.doubleValue) }
-            limits.append(UsageLimit(name: name, percent: Int(pct.rounded()), resetsAt: resets))
+            limits.append(UsageLimit(kind: kind, percent: Int(pct.rounded()), resetsAt: resets))
         }
         return Snapshot(model: model, effort: effort, limits: limits)
     }

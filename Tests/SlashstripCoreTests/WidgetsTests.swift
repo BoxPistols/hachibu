@@ -76,7 +76,7 @@ import Testing
         // statusLine由来の値は0〜100。1を比率と見て100%にしてはいけない
         let limits = Widgets.limits(usage: ["session": 1, "week": 75, "session_resets_at": 1_800_000_000], usageAPI: nil)
         #expect(limits.map(\.percent) == [1, 75])
-        #expect(limits.map(\.name) == [L10n.limitFiveHour, L10n.limitWeekly])
+        #expect(limits.map(\.kind) == [.fiveHour, .weekly])
         #expect(limits[0].resetsAt == Date(timeIntervalSince1970: 1_800_000_000))
         #expect(limits[1].resetsAt == nil)
     }
@@ -84,7 +84,7 @@ import Testing
     @Test func appendsModelScopedLimits() {
         let limits = Widgets.limits(usage: ["session": 9, "week": 75],
                                     usageAPI: ["scoped": [["name": "Examplemodel", "pct": 55, "resets_at": "2030-01-02T03:04:05.123456+00:00"]]])
-        #expect(limits.map(\.name) == [L10n.limitFiveHour, L10n.limitWeekly, "Examplemodel"])
+        #expect(limits.map(\.kind) == [.fiveHour, .weekly, .model("Examplemodel")])
         #expect(limits[2].resetsAt == ResetFormatter.parseISO("2030-01-02T03:04:05+00:00"))
     }
 

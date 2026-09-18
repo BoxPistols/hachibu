@@ -17,7 +17,7 @@ import Testing
         let s = StatusLine.parse(Self.payload)
         #expect(s.model == "Opus5 1M")
         #expect(s.effort == "xhigh")
-        #expect(s.limits.map(\.name) == [L10n.limitFiveHour, L10n.limitWeekly])
+        #expect(s.limits.map(\.kind) == [.fiveHour, .weekly])
         #expect(s.limits.map(\.percent) == [9, 75])
         #expect(s.limits[0].resetsAt == Date(timeIntervalSince1970: 1_900_000_000))
     }
@@ -40,9 +40,9 @@ import Testing
 
     @Test func buildsTouchBarStyleStatus() {
         let limits = [
-            UsageLimit(name: L10n.limitFiveHour, percent: 9, resetsAt: nil),
-            UsageLimit(name: L10n.limitWeekly, percent: 75, resetsAt: nil),
-            UsageLimit(name: "Examplemodel", percent: 55, resetsAt: nil),
+            UsageLimit(kind: .fiveHour, percent: 9, resetsAt: nil),
+            UsageLimit(kind: .weekly, percent: 75, resetsAt: nil),
+            UsageLimit(kind: .model("Examplemodel"), percent: 55, resetsAt: nil),
         ]
         #expect(Usage.statusText(model: "Opus5 1M", effort: "xhigh", limits: limits) == "Opus5 1M xhigh · S9 W75 E55")
         #expect(Usage.statusText(model: nil, effort: nil, limits: limits) == "S9 W75 E55")
@@ -66,14 +66,55 @@ import Testing
         let now = cal.date(from: DateComponents(year: 2030, month: 1, day: 2, hour: 9))!
         let sameDay = cal.date(from: DateComponents(year: 2030, month: 1, day: 2, hour: 23, minute: 5))!
         let later = cal.date(from: DateComponents(year: 2030, month: 1, day: 5, hour: 7, minute: 30))!
-        #expect(ResetFormatter.text(sameDay, now: now, calendar: cal) == "23:05")
-        #expect(ResetFormatter.text(later, now: now, calendar: cal) == "1/5(土) 7:30")
+        #expect(ResetFormatter.text(sameDay, now: now, calendar: cal, strings: .ja) == "23:05")
+        #expect(ResetFormatter.text(later, now: now, calendar: cal, strings: .ja) == "1/5(土) 7:30")
     }
 }
 
 @Suite struct LimitLineTests {
     @Test func noSpaceBetweenJapaneseAndDigits() {
-        #expect(UsageLimit(name: L10n.limitWeekly, percent: 75, resetsAt: nil).line == "週枠75%")
-        #expect(UsageLimit(name: "Examplemodel", percent: 55, resetsAt: nil).line == "Examplemodel 55%")
+        #expect(UsageLimit(kind: .weekly, percent: 75, resetsAt: nil).line(.ja) == "週枠75%")
+        #expect(UsageLimit(kind: .model("Examplemodel"), percent: 55, resetsAt: nil).line(.ja) == "Examplemodel 55%")
+    }
+}
+
+@Suite struct EnglishStringsTests {
+    @Test func limitLinesInEnglish() {
+        #expect(UsageLimit(kind: .weekly, percent: 75, resetsAt: nil).line(.en) == "Weekly 75%")
+        #expect(UsageLimit(kind: .fiveHour, percent: 9, resetsAt: nil).line(.en) == "5-hour 9%")
+    }
+
+    @Test func resetTimeInEnglish() {
+        var cal = Calendar(identifier: .gregorian)
+        cal.timeZone = TimeZone(identifier: "UTC")!
+        let now = cal.date(from: DateComponents(year: 2030, month: 1, day: 2, hour: 9))!
+        let later = cal.date(from: DateComponents(year: 2030, month: 1, day: 5, hour: 7, minute: 30))!
+        let limit = UsageLimit(kind: .weekly, percent: 80, resetsAt: later)
+        #expect(limit.line(.en, now: now, calendar: cal) == "Weekly 80% (resets Sat 1/5 7:30)")
+        #expect(limit.line(.ja, now: now, calendar: cal) == "週枠80%（1/5(土) 7:30にリセット）")
+    }
+
+    @Test func sessionTitleInEnglish() {
+        let s = SessionInfo(id: "a", project: "example-app", state: .busy, tool: "Bash", termGUID: nil,
+                            hostBundle: nil, pid: nil, processStart: nil)
+        #expect(s.menuTitle(number: 1, strings: .en) == "1. example-app (running, Bash)")
+    }
+
+    @Test func picksLanguageFromPreferencesAndOverride() {
+        #expect(Language.detect(preferred: ["ja-JP", "en-US"], override: nil) == .ja)
+        #expect(Language.detect(preferred: ["en-US", "ja-JP"], override: nil) == .en)
+        #expect(Language.detect(preferred: ["fr-FR"], override: nil) == .en)
+        #expect(Language.detect(preferred: ["ja-JP"], override: "en") == .en)
+        #expect(Language.detect(preferred: ["en-US"], override: "xx") == .en)
+    }
+
+    @Test func everyModeAndStyleHasAnEnglishName() {
+        for layout in StripLayout.allCases {
+            #expect(!Strings.en.layoutName(layout).isEmpty)
+            #expect(Strings.en.layoutName(layout) != Strings.ja.layoutName(layout))
+        }
+        for style in MenuBarStyle.allCases {
+            #expect(Strings.en.menuBarStyleName(style) != Strings.ja.menuBarStyleName(style))
+        }
     }
 }

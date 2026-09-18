@@ -8,7 +8,7 @@ import SlashstripCore
 /// Keychainの資格情報を読んだり、公開されていないエンドポイントを呼んだりはしない。
 final class StatusLineSource: DataSource {
     var onSlots: (([Slot]) -> Void)?
-    let sourceDescription = L10n.sourceStatusLine
+    let sourceDescription = L10n.current.sourceStatusLine
     private(set) var limits: [UsageLimit] = []
 
     static let file = FileManager.default.homeDirectoryForCurrentUser
@@ -51,7 +51,7 @@ final class StatusLineSource: DataSource {
     private func publish() {
         let text = snapshot.map { Usage.statusText(model: $0.model, effort: $0.effort, limits: limits) }
             ?? L10n.statusPlaceholder
-        let help = snapshot == nil ? L10n.statusLineMissing : limits.map(\.line).joined(separator: "\n")
+        let help = snapshot == nil ? L10n.current.statusLineMissing : limits.map { $0.line() }.joined(separator: "\n")
         let slots = [Slot(id: Widgets.status, text: text, background: .idleBackground, foreground: .idleForeground,
                           help: help.isEmpty ? nil : help, dimmed: snapshot == nil)]
         guard slots != lastSlots else { return }

@@ -8,7 +8,7 @@ import SlashstripCore
 /// タップ時もBTTのウィジェットと同じスクリプトを同じ引数で呼ぶ。
 final class ScriptBackend: DataSource {
     var onSlots: (([Slot]) -> Void)?
-    let sourceDescription = L10n.sourceScripts
+    let sourceDescription = L10n.current.sourceScripts
     private(set) var limits: [UsageLimit] = []
 
     private let base: URL
@@ -141,7 +141,7 @@ final class ScriptBackend: DataSource {
             let modified = (try? FileManager.default.attributesOfItem(atPath: url.path)[.modificationDate]) as? Date
             let stale = modified.map { now.timeIntervalSince($0) > Self.staleAfter } ?? true
             slot.dimmed = stale
-            let lines = (stale ? [L10n.staleNotice] : []) + limits.map(\.line)
+            let lines = (stale ? [L10n.current.staleNotice] : []) + limits.map { $0.line() }
             slot.help = lines.isEmpty ? nil : lines.joined(separator: "\n")
         }
         return slot

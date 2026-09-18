@@ -95,8 +95,8 @@ final class StripPlacement {
     }
 
     func reset() {
-        UserDefaults.standard.removeObject(forKey: Self.anchorKey)
-        UserDefaults.standard.removeObject(forKey: Self.edgeKey)
+        Prefs.defaults.removeObject(forKey: Self.anchorKey)
+        Prefs.defaults.removeObject(forKey: Self.edgeKey)
         setFrame(clamped(frame(for: panel.frame.size)))
     }
 
@@ -119,13 +119,13 @@ final class StripPlacement {
         case .center: x = frame.midX
         case .right: x = frame.maxX
         }
-        UserDefaults.standard.set(NSStringFromPoint(NSPoint(x: x, y: frame.minY)), forKey: Self.anchorKey)
-        UserDefaults.standard.set(edge.rawValue, forKey: Self.edgeKey)
+        Prefs.defaults.set(NSStringFromPoint(NSPoint(x: x, y: frame.minY)), forKey: Self.anchorKey)
+        Prefs.defaults.set(edge.rawValue, forKey: Self.edgeKey)
     }
 
     private func frame(for size: NSSize) -> NSRect {
-        if let saved = UserDefaults.standard.string(forKey: Self.anchorKey),
-           let edge = Edge(rawValue: UserDefaults.standard.string(forKey: Self.edgeKey) ?? "") {
+        if let saved = Prefs.defaults.string(forKey: Self.anchorKey),
+           let edge = Edge(rawValue: Prefs.defaults.string(forKey: Self.edgeKey) ?? "") {
             let anchor = NSPointFromString(saved)
             let x: CGFloat
             switch edge {

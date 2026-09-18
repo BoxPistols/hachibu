@@ -241,7 +241,7 @@ final class DragHandleView: NSView {
     override init(frame: NSRect) {
         super.init(frame: frame)
         setAccessibilityRole(.handle)
-        setAccessibilityLabel(L10n.dragHandle)
+        setAccessibilityLabel(L10n.current.dragHandle)
     }
 
     required init?(coder: NSCoder) { nil }
