@@ -21,6 +21,8 @@ enum Snapshot {
                         background: .idleBackground, foreground: .idleForeground, help: "")
         let usageText = MenuBarStyle.title(style: .usage, statusText: nil, limits: limits)
 
+        writeMenuBarIcon(to: dir.appendingPathComponent("menubar-icon.png"))
+
         for language in Language.allCases {
             L10n.current = .for(language)
             let tag = language.rawValue
@@ -49,6 +51,31 @@ enum Snapshot {
                 write(RecorderView(model: model), to: dir.appendingPathComponent("recorder-\(name)-\(tag).png"))
             }
         }
+    }
+
+    /// メニューバーの絵を、明るい地と暗い地の両方に、実寸と8倍で並べる
+    private static func writeMenuBarIcon(to url: URL) {
+        let icon = MenuBarIcon.image()
+        let scale: CGFloat = 8
+        let cell = NSSize(width: icon.size.width * scale + 60, height: icon.size.height * scale + 24)
+        let canvas = NSImage(size: NSSize(width: cell.width * 2, height: cell.height), flipped: false) { _ in
+            for (i, dark) in [false, true].enumerated() {
+                let origin = NSPoint(x: CGFloat(i) * cell.width, y: 0)
+                (dark ? NSColor(white: 0.12, alpha: 1) : NSColor(white: 0.93, alpha: 1)).setFill()
+                NSRect(origin: origin, size: cell).fill()
+                let tinted = NSImage(size: icon.size, flipped: false) { r in
+                    icon.draw(in: r)
+                    (dark ? NSColor.white : NSColor.black).set()
+                    r.fill(using: .sourceAtop)
+                    return true
+                }
+                tinted.draw(in: NSRect(x: origin.x + 8, y: 12, width: icon.size.width * scale, height: icon.size.height * scale))
+                tinted.draw(in: NSRect(x: origin.x + icon.size.width * scale + 24, y: 12, width: icon.size.width, height: icon.size.height))
+            }
+            return true
+        }
+        guard let tiff = canvas.tiffRepresentation, let rep = NSBitmapImageRep(data: tiff) else { return }
+        try? rep.representation(using: .png, properties: [:])?.write(to: url)
     }
 
     /// 画面に出していない窓に載せて描く（載せないとSwiftUIの一部が描かれない）。窓は画面の外に作り、表示しない

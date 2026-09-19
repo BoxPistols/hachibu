@@ -17,8 +17,8 @@ final class StatusItemController: NSObject, NSMenuDelegate {
         self.builder = builder
         super.init()
         if let button = item.button {
-            button.image = NSImage(systemSymbolName: "slash.circle", accessibilityDescription: L10n.appName)
-            button.image?.isTemplate = true
+            button.image = MenuBarIcon.image()
+            button.image?.accessibilityDescription = L10n.appName
             button.imagePosition = .imageLeading
         }
         menu.delegate = self
