@@ -9,6 +9,8 @@ enum MenuBarIcon {
     // 絵はバッテリーの表示に近い大きさにする。太くしすぎると帯ではなく2つの塊に見えるので、アプリのアイコンの比率（太さ1：長さ約4）に寄せる
     // 横幅はバッテリーの表示と同じくらいに抑える
     private static let iconWidth: CGFloat = 22
+    // 目盛りのときは、使用率の差が見分けられるように長くする
+    private static let gaugeWidth: CGFloat = 32
     private static let glyphThickness: CGFloat = 8
     /// 絵と文字をひとまとまりに見せる薄い面。隣のアプリの項目と見分けられるようにする
     private static let groupInset: CGFloat = 1.5
@@ -25,6 +27,12 @@ enum MenuBarIcon {
         case dot
     }
 
+    /// 目盛りの表示。絵の切れ目が使用率の位置へ動き、左（使った分）が段階の色になる。数字を1つ添える
+    static func gaugeImage(label: String, percent: Int, level: UsageLevel) -> NSImage {
+        // 段階の色は目盛りが持つので、数字には札を付けない
+        image(pieces: [.text(label, .normal)], gauge: (percent, level))
+    }
+
     /// - segments: 使用率の段階を付けた文字の部品。空ならアイコンだけ
     static func image(segments: [TextSegment] = []) -> NSImage {
         var pieces: [Piece] = []
@@ -35,10 +43,15 @@ enum MenuBarIcon {
                 pieces.append(.text(segment.text, segment.level))
             }
         }
+        return image(pieces: pieces, gauge: nil)
+    }
+
+    private static func image(pieces: [Piece], gauge: (percent: Int, level: UsageLevel)?) -> NSImage {
         let widths = pieces.map(width)
         let textWidth = widths.reduce(0, +)
         let grouped = !pieces.isEmpty
         let lead = grouped ? groupPadding : 0
+        let iconWidth = gauge == nil ? Self.iconWidth : gaugeWidth
         let total = lead + iconWidth + (grouped ? gapAfterIcon + textWidth + groupPadding : 0)
 
         // 描く時点のメニューバーの明暗で色が決まるよう、描画は都度呼ばれる形にする
@@ -52,7 +65,7 @@ enum MenuBarIcon {
                 face.lineWidth = 1
                 face.stroke()
             }
-            drawGlyph(in: NSRect(x: lead, y: 0, width: iconWidth, height: height))
+            drawGlyph(in: NSRect(x: lead, y: 0, width: iconWidth, height: height), gauge: gauge)
             var x = lead + iconWidth + gapAfterIcon
             for (piece, w) in zip(pieces, widths) {
                 draw(piece, at: x, width: w)
@@ -96,13 +109,16 @@ enum MenuBarIcon {
         }
     }
 
-    private static func drawGlyph(in rect: NSRect) {
+    private static func drawGlyph(in rect: NSRect, gauge: (percent: Int, level: UsageLevel)? = nil) {
         let t = glyphThickness
         let gap = t / 3
         let slant = t * 0.6
         let x0 = rect.minX + 1, x1 = rect.maxX - 1
         let y = (rect.height - t) / 2
-        let cut = x0 + (x1 - x0) * 0.62
+        // 目盛りのときは切れ目を使用率の位置へ動かす。両端でも左右の部分が消えないよう、端から3ptは残す
+        let fraction = gauge.map { CGFloat(min(max($0.percent, 0), 100)) / 100 } ?? 0.62
+        let reach = slant / 2 + gap / 2 + 3
+        let cut = min(max(x0 + (x1 - x0) * fraction, x0 + reach), x1 - reach)
 
         let left = NSBezierPath()
         left.move(to: NSPoint(x: x0, y: y))
@@ -118,9 +134,17 @@ enum MenuBarIcon {
         right.line(to: NSPoint(x: cut + gap / 2 + slant / 2, y: y + t))
         right.close()
 
-        NSColor.labelColor.withAlphaComponent(0.55).setFill()
-        left.fill()
-        accent.setFill()
-        right.fill()
+        if let gauge {
+            // 左が使った分。平常は文字色、黄と赤の段階ではその色。右（残り）は淡くする
+            (LevelStyle.background(gauge.level)?.nsColor ?? NSColor.labelColor.withAlphaComponent(0.85)).setFill()
+            left.fill()
+            NSColor.labelColor.withAlphaComponent(0.28).setFill()
+            right.fill()
+        } else {
+            NSColor.labelColor.withAlphaComponent(0.55).setFill()
+            left.fill()
+            accent.setFill()
+            right.fill()
+        }
     }
 }

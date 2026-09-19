@@ -181,6 +181,7 @@ public struct Strings {
         menuBarStyleName: { style in
             switch style {
             case .icon: return "Icon only"
+            case .gauge: return "Weekly gauge"
             case .usage: return "Usage"
             case .status: return "Full status"
             }
@@ -294,6 +295,7 @@ public struct Strings {
         menuBarStyleName: { style in
             switch style {
             case .icon: return "アイコンのみ"
+            case .gauge: return "週枠のメーター"
             case .usage: return "使用率"
             case .status: return "状態の全文"
             }

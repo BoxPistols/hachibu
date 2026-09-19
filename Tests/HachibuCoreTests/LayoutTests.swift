@@ -61,4 +61,16 @@ import Testing
         #expect(LayoutRules.next(after: .tab) == .full)
         #expect(LayoutRules.next(after: .hidden) == .full)
     }
+
+    @Test func theGaugeReadsTheWeeklyLimit() {
+        let limits = [UsageLimit(kind: .fiveHour, percent: 38, resetsAt: nil),
+                      UsageLimit(kind: .weekly, percent: 68, resetsAt: nil),
+                      UsageLimit(kind: .model("Examplemodel"), percent: 90, resetsAt: nil)]
+        #expect(GaugeReading.from(limits) == GaugeReading(label: "W68", percent: 68))
+        // 週枠が無ければ最初の枠。何も無ければ出さない
+        #expect(GaugeReading.from([limits[0]]) == GaugeReading(label: "S38", percent: 38))
+        #expect(GaugeReading.from([]) == nil)
+        // 目盛りは絵で示すので、文字は返さない
+        #expect(MenuBarStyle.title(style: .gauge, statusText: "Examplemodel5 · S38 W68", limits: limits) == nil)
+    }
 }

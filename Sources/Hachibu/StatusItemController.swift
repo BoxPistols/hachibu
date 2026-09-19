@@ -37,8 +37,14 @@ final class StatusItemController: NSObject, NSMenuDelegate {
         let text = MenuBarStyle.title(style: style, statusText: strip.statusSlot?.text, limits: source.limits)
         // 帯と同じく、黄や赤の段階にある使用率の語だけ色の札で囲む。絵と文字は1枚の画像にまとめて描く
         let segments = text.map { UsageMarkup.segments($0, thresholds: strip.thresholds) } ?? []
-        button.image = MenuBarIcon.image(segments: segments)
-        button.image?.accessibilityDescription = [L10n.appName, text].compactMap { $0 }.joined(separator: " ")
+        if style == .gauge, let reading = GaugeReading.from(source.limits) {
+            button.image = MenuBarIcon.gaugeImage(label: reading.label, percent: reading.percent,
+                                                  level: strip.thresholds.level(reading.percent))
+            button.image?.accessibilityDescription = "\(L10n.appName) \(reading.label)"
+        } else {
+            button.image = MenuBarIcon.image(segments: segments)
+            button.image?.accessibilityDescription = [L10n.appName, text].compactMap { $0 }.joined(separator: " ")
+        }
         button.attributedTitle = NSAttributedString(string: "")
     }
 

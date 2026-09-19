@@ -48,9 +48,22 @@ public enum LayoutRules {
     }
 }
 
+/// 目盛りの表示に使う値。週枠があれば週枠、無ければ最初の枠
+public struct GaugeReading: Equatable {
+    public let label: String
+    public let percent: Int
+
+    public static func from(_ limits: [UsageLimit]) -> GaugeReading? {
+        guard let limit = limits.first(where: { $0.kind == .weekly }) ?? limits.first else { return nil }
+        return GaugeReading(label: "\(limit.letter)\(limit.percent)", percent: limit.percent)
+    }
+}
+
 /// メニューバーの項目に何を出すか。
 public enum MenuBarStyle: String, CaseIterable {
     case icon
+    /// 絵そのものを週枠の目盛りにし、数字を1つだけ添える（いちばん幅を取らない表示）
+    case gauge
     case usage
     case status
 
@@ -58,7 +71,7 @@ public enum MenuBarStyle: String, CaseIterable {
     /// - status: 帯の状態の枠と同じ全文
     public static func title(style: MenuBarStyle, statusText: String?, limits: [UsageLimit]) -> String? {
         switch style {
-        case .icon:
+        case .icon, .gauge:
             return nil
         case .usage:
             return limits.isEmpty ? nil : Usage.statusText(model: nil, effort: nil, limits: limits)

@@ -57,9 +57,10 @@ enum Snapshot {
     private static func writeMenuBarIcon(to url: URL) {
         let segments = UsageMarkup.segments("Opus5 1M xhigh · S42 W76 F93", thresholds: UsageThresholds(warning: 70, critical: 90)!)
         let images = [MenuBarIcon.image(), MenuBarIcon.image(segments: segments)]
+            + [8, 42, 76, 93].map { MenuBarIcon.gaugeImage(label: "W\($0)", percent: $0, level: UsageThresholds(warning: 70, critical: 90)!.level($0)) }
         let width = (images.map(\.size.width).max() ?? 0) + 24
         let rowHeight: CGFloat = 30
-        let size = NSSize(width: width, height: rowHeight * 4)
+        let size = NSSize(width: width, height: rowHeight * CGFloat(images.count) * 2)
         guard let rep = NSBitmapImageRep(bitmapDataPlanes: nil, pixelsWide: Int(size.width * 2), pixelsHigh: Int(size.height * 2),
                                          bitsPerSample: 8, samplesPerPixel: 4, hasAlpha: true, isPlanar: false,
                                          colorSpaceName: .deviceRGB, bytesPerRow: 0, bitsPerPixel: 0) else { return }
