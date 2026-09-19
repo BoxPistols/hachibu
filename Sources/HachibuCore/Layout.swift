@@ -15,6 +15,15 @@ public enum StripLayout: String, CaseIterable {
 /// 今どのモードで描くかと、そのモードで何を並べるかの判断。
 public enum LayoutRules {
     /// - expanded: マウスが乗っている、またはショートカットで呼び出し中
+    /// ショートカットで順に切り替える並び。「隠す」は含めない（切り替えた結果が見えなくなるため）
+    public static func next(after layout: StripLayout) -> StripLayout {
+        switch layout {
+        case .full: return .usage
+        case .usage: return .tab
+        case .tab, .hidden: return .full
+        }
+    }
+
     public static func effective(rest: StripLayout, expanded: Bool) -> StripLayout {
         expanded ? .full : rest
     }

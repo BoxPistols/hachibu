@@ -116,12 +116,32 @@ final class MenuBuilder {
     }
 
     /// 項目に乗せると帯をそのモードで仮に表示し、選ぶと確定する
+    /// 表示を順に切り替えるショートカット（AppDelegateが後から渡す）
+    var cycleKeys: HotKeyCenter?
+    var cycleRecorder: ShortcutRecorder?
+
     func layoutItems() -> [NSMenuItem] {
         StripLayout.allCases.map { layout in
             previewChoice(L10n.current.layoutName(layout), selected: strip.restLayout == layout,
                           preview: { [weak self] in self?.strip.preview(layout: layout) },
                           commit: { [weak self] in self?.strip.setRestLayout(layout) })
+        } + cycleItems()
+    }
+
+    /// 「次の表示に切り替える」と、そのショートカットの設定
+    private func cycleItems() -> [NSMenuItem] {
+        guard let cycleKeys, let cycleRecorder else { return [] }
+        let cycle = choice(L10n.current.menuCycleLayout, selected: false) { [weak self] in self?.strip.cycleLayout() }
+        if let shortcut = cycleKeys.shortcut, !cycleKeys.registrationFailed {
+            if shortcut.keyLabel.count == 1 {
+                cycle.keyEquivalent = shortcut.keyLabel.lowercased()
+                cycle.keyEquivalentModifierMask = Self.flags(shortcut.modifiers)
+            } else {
+                cycle.title = "\(L10n.current.menuCycleLayout)（\(shortcut.display)）"
+            }
         }
+        return [.separator(), cycle,
+                choice(L10n.current.menuSetCycleShortcut, selected: false) { cycleRecorder.show() }]
     }
 
     func layoutMenuItem() -> NSMenuItem {

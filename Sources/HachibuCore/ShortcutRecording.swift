@@ -36,11 +36,14 @@ public struct ShortcutRecording: Equatable {
 
     /// 窓が組み合わせを受け取った
     /// - reservedID: macOSが使っている組み合わせならその番号（ShortcutConflicts.conflict）
-    public mutating func press(_ candidate: Shortcut, reservedID: String?, center: HotKeyCenter) {
+    /// - usedElsewhere: このアプリの別の操作に割り当て済みの組み合わせならtrue
+    public mutating func press(_ candidate: Shortcut, reservedID: String?, usedElsewhere: Bool = false, center: HotKeyCenter) {
         guard !isSaved else { return }
         let rejection: Rejection?
         if !candidate.isAcceptable {
             rejection = .needsModifier
+        } else if usedElsewhere {
+            rejection = .taken
         } else if let reservedID {
             rejection = .reserved(reservedID)
         } else if !center.tryOut(candidate) {

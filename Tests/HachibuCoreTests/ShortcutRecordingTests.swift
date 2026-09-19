@@ -143,6 +143,29 @@ func freshDefaults() -> SettingsStore {
         #expect(settings.load() == a)
     }
 
+    @Test func aComboUsedByAnotherActionOfThisAppIsRejected() {
+        let (center, settings, registrar) = opened(with: a)
+        var rec = ShortcutRecording()
+        rec.press(b, reservedID: nil, usedElsewhere: true, center: center)
+        #expect(rec.phase == .rejected(b, .taken))
+        #expect(registrar.registered == nil)
+        #expect(settings.load() == a)
+    }
+
+    @Test func theLayoutCycleShortcutHasNoDefaultAndItsOwnStorage() {
+        let store = MemoryStore()
+        let summon = ShortcutSettings(defaults: store)
+        let cycle = ShortcutSettings.layoutCycle(defaults: store)
+        #expect(summon.load() == .defaultSummon)
+        #expect(cycle.load() == nil)
+        cycle.save(b)
+        #expect(cycle.load() == b)
+        // 呼び出しのショートカットには影響しない
+        #expect(summon.load() == .defaultSummon)
+        summon.saveDisabled()
+        #expect(cycle.load() == b)
+    }
+
     @Test func arrivalIsIgnoredUnlessVerifying() {
         let (center, settings, _) = opened(with: a)
         var rec = ShortcutRecording()

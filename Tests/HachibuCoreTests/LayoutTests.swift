@@ -54,4 +54,11 @@ import Testing
         #expect(MenuBarStyle.title(style: .status, statusText: "Opus5 xhigh · S11 W75", limits: limits) == "Opus5 xhigh · S11 W75")
         #expect(MenuBarStyle.title(style: .usage, statusText: nil, limits: []) == nil)
     }
+
+    @Test func cyclingSkipsHidden() {
+        #expect(LayoutRules.next(after: .full) == .usage)
+        #expect(LayoutRules.next(after: .usage) == .tab)
+        #expect(LayoutRules.next(after: .tab) == .full)
+        #expect(LayoutRules.next(after: .hidden) == .full)
+    }
 }

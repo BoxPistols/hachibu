@@ -8,17 +8,17 @@ enum MenuBarIcon {
     private static let height: CGFloat = 22
     // 絵はバッテリーの表示に近い大きさにする。太くしすぎると帯ではなく2つの塊に見えるので、アプリのアイコンの比率（太さ1：長さ約4）に寄せる
     // 横幅はバッテリーの表示と同じくらいに抑える
-    private static let iconWidth: CGFloat = 24
+    private static let iconWidth: CGFloat = 22
     private static let glyphThickness: CGFloat = 8
     /// 絵と文字をひとまとまりに見せる薄い面。隣のアプリの項目と見分けられるようにする
     private static let groupInset: CGFloat = 1.5
-    private static let groupPadding: CGFloat = 6
+    private static let groupPadding: CGFloat = 4
     private static let groupRadius: CGFloat = 6
     private static let accent = NSColor(srgbRed: 242 / 255, green: 201 / 255, blue: 76 / 255, alpha: 1)
     // 数字の幅を揃え、値が変わっても幅が揺れないようにする
     private static let font = NSFont.monospacedDigitSystemFont(ofSize: NSFont.systemFontSize, weight: .regular)
     private static let tagPadding: CGFloat = 3
-    private static let gapAfterIcon: CGFloat = 6
+    private static let gapAfterIcon: CGFloat = 4
 
     private enum Piece {
         case text(String, UsageLevel)

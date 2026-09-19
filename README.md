@@ -54,7 +54,7 @@ Right-click the strip to switch modes, opacity, and color thresholds. Hovering o
 
 ![Right-click menu](docs/images/menu-context.png)
 
-You can also show usage in the menu bar, and summon the strip with a keyboard shortcut (⌥⌘/ by default). When you record a new shortcut, Hachibu rejects combinations that macOS already uses. Press the new combination once more to confirm that it arrives, then click Save.
+You can also show usage in the menu bar, and summon the strip with a keyboard shortcut (⌥⌘/ by default). A second shortcut, which you set from Shortcut for Switching Display in the menu, steps through Standard, Usage only, and Tucked. When you record a new shortcut, Hachibu rejects combinations that macOS already uses. Press the new combination once more to confirm that it arrives, then click Save.
 
 If the menu bar item does not appear, macOS is hiding it: turn Hachibu on in System Settings > Menu Bar. The strip's right-click menu shows a shortcut to that setting when this happens, and everything in the menu bar item is also in that menu.
 
@@ -239,7 +239,7 @@ Hachibuだけで動きます。ほかの道具は要りません。
 
 ![右クリックメニュー](docs/images/ja-menu-context.png)
 
-メニューバーに使用率を出したり、ショートカット（既定は⌥⌘/）でバーを呼び出したりもできます。ショートカットを登録するときは、macOSが使っている組み合わせを弾きます。新しい組み合わせをもう一度押して届くことを確かめてから、「保存」を押します。
+メニューバーに使用率を出したり、ショートカット（既定は⌥⌘/）でバーを呼び出したりもできます。メニューの「表示切り替えのショートカット…」で2つ目のショートカットを設定すると、標準、使用率だけ、端に収納を順に切り替えられます。ショートカットを登録するときは、macOSが使っている組み合わせを弾きます。新しい組み合わせをもう一度押して届くことを確かめてから、「保存」を押します。
 
 メニューバーに項目が出ないときは、macOSが隠しています。「システム設定」＞「メニューバー」でHachibuをオンにしてください。このときバーの右クリックメニューに、その設定を開く項目が出ます。メニューバーの項目でできることは、すべてバーの右クリックメニューからもできます。
 

@@ -19,8 +19,15 @@ final class ShortcutRecorder {
     // 保存できたことを読めるだけ表示してから閉じる
     private static let closeDelay: TimeInterval = 0.9
 
-    init(hotKeys: HotKeyCenter) {
+    private let title: () -> String
+    /// このアプリの別の操作に割り当て済みの組み合わせ（同じものは弾く）
+    private let usedElsewhere: () -> Shortcut?
+
+    init(hotKeys: HotKeyCenter, title: @escaping () -> String = { L10n.current.recorderTitle },
+         usedElsewhere: @escaping () -> Shortcut? = { nil }) {
         self.hotKeys = hotKeys
+        self.title = title
+        self.usedElsewhere = usedElsewhere
     }
 
     func show() {
@@ -37,6 +44,7 @@ final class ShortcutRecorder {
             return true
         }
         model.live = ""
+        model.title = title()
         model.onDisable = { [weak self] in self?.turnOff() }
         model.onCancel = { [weak self] in self?.cancel() }
         model.onSave = { [weak self] in self?.save() }
@@ -106,6 +114,7 @@ final class ShortcutRecorder {
                                  keyLabel: Shortcut.label(keyCode: keyCode, characters: event.charactersIgnoringModifiers))
         recording.press(candidate,
                         reservedID: ShortcutConflicts.conflict(for: candidate, symbolic: Self.systemShortcuts()),
+                        usedElsewhere: usedElsewhere() == candidate,
                         center: hotKeys)
         refresh()
     }
@@ -197,6 +206,7 @@ final class RecorderModel: ObservableObject {
     }
 
     /// 保存済みの組み合わせ
+    @Published var title = ""
     @Published var current: String?
     /// いま押している組み合わせ（途中経過を含む）
     @Published var live = ""
@@ -214,7 +224,7 @@ struct RecorderView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text(L10n.current.recorderTitle)
+            Text(model.title)
                 .font(.system(size: 15, weight: .semibold))
             Text(L10n.current.recorderCurrent(model.current))
                 .font(.system(size: 13).monospacedDigit())

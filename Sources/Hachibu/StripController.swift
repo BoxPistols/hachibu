@@ -145,6 +145,11 @@ final class StripController {
         render()
     }
 
+    /// ショートカットとメニューから。標準→使用率だけ→端に収納→標準の順に切り替える
+    func cycleLayout() {
+        setRestLayout(LayoutRules.next(after: restLayout))
+    }
+
     /// アプリをもう一度開いたとき。隠すモードでも帯を出す（戻すのはショートカットかメニューから）
     func showSummoned() {
         summoned = true

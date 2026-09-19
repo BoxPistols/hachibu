@@ -36,6 +36,9 @@ public struct Strings {
     public let thresholdChoice: (Int) -> String
     public let menuSummon: String
     public let menuChangeShortcut: String
+    public let menuCycleLayout: String
+    public let menuSetCycleShortcut: String
+    public let recorderCycleTitle: String
     public let menuShortcutOff: String
     public let menuResetPosition: String
     public let menuOpenLog: String
@@ -127,6 +130,9 @@ public struct Strings {
         thresholdChoice: { "\($0)% or more (\(100 - $0)% left)" },
         menuSummon: "Show Strip",
         menuChangeShortcut: "Change Shortcut…",
+        menuCycleLayout: "Switch to Next Display",
+        menuSetCycleShortcut: "Shortcut for Switching Display…",
+        recorderCycleTitle: "Shortcut to switch the display",
         menuShortcutOff: "Shortcut is off",
         menuResetPosition: "Reset Position",
         menuOpenLog: "Open Action Log",
@@ -237,6 +243,9 @@ public struct Strings {
         thresholdChoice: { "\($0)%以上（残り\(100 - $0)%以下）" },
         menuSummon: "バーを呼び出す",
         menuChangeShortcut: "ショートカットを変更…",
+        menuCycleLayout: "次の表示に切り替える",
+        menuSetCycleShortcut: "表示切り替えのショートカット…",
+        recorderCycleTitle: "表示を切り替えるショートカット",
         menuShortcutOff: "ショートカットは無効です",
         menuResetPosition: "位置を初期状態に戻す",
         menuOpenLog: "操作ログを開く",

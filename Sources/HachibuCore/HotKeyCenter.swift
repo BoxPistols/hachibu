@@ -22,28 +22,41 @@ public final class ShortcutSettings {
     public static let disabledKey = "summonShortcutDisabled"
 
     private let defaults: SettingsStore
+    private let shortcutKey: String
+    private let disabledKey: String
+    private let fallback: Shortcut?
 
-    public init(defaults: SettingsStore) {
+    /// 既定はバーの呼び出し用。別の操作に使うときは保存先のキーを変え、既定の組み合わせを持たせない（fallbackをnil）
+    public init(defaults: SettingsStore, shortcutKey: String = ShortcutSettings.shortcutKey,
+                disabledKey: String = ShortcutSettings.disabledKey, fallback: Shortcut? = .defaultSummon) {
         self.defaults = defaults
+        self.shortcutKey = shortcutKey
+        self.disabledKey = disabledKey
+        self.fallback = fallback
     }
 
-    /// 無効にしていればnil。一度も設定していなければ既定（⌥⌘/）
+    /// 表示を順に切り替えるショートカットの保存先。利用者が設定するまでは無し
+    public static func layoutCycle(defaults: SettingsStore) -> ShortcutSettings {
+        ShortcutSettings(defaults: defaults, shortcutKey: "cycleShortcut", disabledKey: "cycleShortcutDisabled", fallback: nil)
+    }
+
+    /// 無効にしていればnil。一度も設定していなければ既定（呼び出しは⌥⌘/、それ以外は無し）
     public func load() -> Shortcut? {
-        if defaults.bool(forKey: Self.disabledKey) { return nil }
-        guard let data = defaults.data(forKey: Self.shortcutKey),
+        if defaults.bool(forKey: disabledKey) { return nil }
+        guard let data = defaults.data(forKey: shortcutKey),
               let saved = try? JSONDecoder().decode(Shortcut.self, from: data) else {
-            return .defaultSummon
+            return fallback
         }
         return saved
     }
 
     public func save(_ shortcut: Shortcut) {
-        defaults.set(try? JSONEncoder().encode(shortcut), forKey: Self.shortcutKey)
-        defaults.set(false, forKey: Self.disabledKey)
+        defaults.set(try? JSONEncoder().encode(shortcut), forKey: shortcutKey)
+        defaults.set(false, forKey: disabledKey)
     }
 
     public func saveDisabled() {
-        defaults.set(true, forKey: Self.disabledKey)
+        defaults.set(true, forKey: disabledKey)
     }
 }
 
