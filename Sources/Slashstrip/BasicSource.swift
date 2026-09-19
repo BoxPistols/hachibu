@@ -127,6 +127,8 @@ final class BasicSource: DataSource {
             DispatchQueue.main.async {
                 guard let self else { return }
                 self.fetching = false
+                // 取得中に無効にされていたら、届いた値は使わずに捨てる
+                guard Prefs.usageAPIConsent == true else { return }
                 switch result {
                 case .success(let limits):
                     self.apiLimits = limits

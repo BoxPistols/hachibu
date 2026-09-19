@@ -23,11 +23,13 @@ VERSION="0.2.0"
 cd "$ROOT"
 # アプリのリリースビルドはテスト（swift test）と別の作業ディレクトリで行い、構成の違うビルドが.buildを取り合わないようにする
 SCRATCH="$ROOT/.build-release"
-swift build -c release --product Slashstrip --scratch-path "$SCRATCH"
+# Apple SiliconとIntelの両方で動くように、2つのCPU向けを1つのバイナリにまとめる
+ARCHS=(--arch arm64 --arch x86_64)
+swift build -c release --product Slashstrip --scratch-path "$SCRATCH" "${ARCHS[@]}"
 
 rm -rf "$APP"
 mkdir -p "$APP/Contents/MacOS" "$APP/Contents/Resources"
-cp "$(swift build -c release --scratch-path "$SCRATCH" --show-bin-path)/Slashstrip" "$APP/Contents/MacOS/Slashstrip"
+cp "$(swift build -c release --scratch-path "$SCRATCH" "${ARCHS[@]}" --show-bin-path)/Slashstrip" "$APP/Contents/MacOS/Slashstrip"
 # アイコンはscripts/make-icon.swiftで描いたもの（形を変えるときはそちらを直して作り直す）
 cp "$ROOT/Resources/AppIcon.icns" "$APP/Contents/Resources/AppIcon.icns"
 

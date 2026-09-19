@@ -22,6 +22,8 @@ final class MenuBuilder {
     func contextMenu() -> NSMenu {
         let menu = NSMenu()
         usageItems().forEach(menu.addItem)
+        // 使用率APIはメニューバーからだけでなく、帯からもいつでも止められるようにする
+        usageAPIItems().forEach(menu.addItem)
         menu.addItem(.separator())
         layoutItems().forEach(menu.addItem)
         menu.addItem(opacityMenuItem())

@@ -8,7 +8,7 @@ A small strip that stays on top of your Mac's screen and shows Claude Code's mod
 
 Slashstrip is an unofficial tool made by an individual. It is not affiliated with, endorsed by, or sponsored by Anthropic, PBC.
 
-[Download Slashstrip for macOS](https://github.com/BoxPistols/slashstrip/releases/latest/download/Slashstrip-macos.zip) (macOS 14 or later). macOS blocks the first launch because the app is not notarized yet. [Install](#install) explains how to open it.
+[Download Slashstrip for macOS](https://github.com/BoxPistols/slashstrip/releases/latest/download/Slashstrip-macos.zip) (macOS 14 or later, Apple Silicon or Intel). macOS blocks the first launch because the app is not notarized yet. [Install](#install) explains how to open it.
 
 [日本語の説明はこちら](#日本語)
 
@@ -31,7 +31,7 @@ Slashstrip works on its own. No other tools are needed.
 1. Usage API (optional). The first time Slashstrip opens, it asks whether to use it. If you turn it on, Slashstrip uses the login that Claude Code saved in your keychain to ask Anthropic's usage endpoint every 5 minutes. S, W, and F then stay up to date even when you are not using the terminal. This endpoint is not publicly documented, and we found nothing showing that Anthropic allows third-party apps to use it. It may stop working, or Anthropic may consider it against its terms; any consequence would fall on your account. The login is used only for this request and is not saved or logged
 2. statusLine (official). Claude Code's statusLine passes the 5-hour and weekly usage to a command you choose. It updates only while you use Claude Code in the terminal, and it does not include per-model limits. See [statusLine setup](#statusline-setup)
 
-You can switch the usage API on or off at any time from the menu bar item.
+You can switch the usage API on or off at any time from the menu bar item or the strip's right-click menu. Turning it off takes effect immediately: Slashstrip stops reading the keychain and sending requests, and drops the values it got from the API. Slashstrip does not create a login of its own, so there is nothing to revoke on Anthropic's side.
 
 ## Stays out of the way
 
@@ -58,7 +58,7 @@ The interface follows your macOS language: Japanese if it comes first in your pr
 
 ## Install
 
-1. Download [Slashstrip-macos.zip](https://github.com/BoxPistols/slashstrip/releases/latest/download/Slashstrip-macos.zip). It always points to the latest release. Slashstrip needs macOS 14 or later
+1. Download [Slashstrip-macos.zip](https://github.com/BoxPistols/slashstrip/releases/latest/download/Slashstrip-macos.zip). It always points to the latest release. Slashstrip needs macOS 14 or later and runs on both Apple Silicon and Intel Macs
 2. Unzip it (Safari may already have done this) and move `Slashstrip.app` to your Applications folder
 3. Open Slashstrip. The first time, macOS stops it. Follow the next section once
 
@@ -186,7 +186,7 @@ Slashstripは個人が作った非公式のツールで、Anthropic, PBCとは�
 
 ![Slashstripの帯](docs/images/ja-strip-basic.png)
 
-[macOS版をダウンロード](https://github.com/BoxPistols/slashstrip/releases/latest/download/Slashstrip-macos.zip)（macOS 14以降）。まだAppleの公証を受けていないため、初回の起動はmacOSに止められます。開き方は[インストール](#インストール)にあります。
+[macOS版をダウンロード](https://github.com/BoxPistols/slashstrip/releases/latest/download/Slashstrip-macos.zip)（macOS 14以降、Apple SiliconとIntelの両方）。まだAppleの公証を受けていないため、初回の起動はmacOSに止められます。開き方は[インストール](#インストール)にあります。
 
 ### 表示の読み方
 
@@ -207,7 +207,7 @@ Slashstripだけで動きます。ほかの道具は要りません。
 1. 使用率API（任意）。初めて起動したときに、使うかどうかを尋ねます。有効にすると、Claude Codeがキーチェーンに保存したログイン情報を使い、5分ごとにAnthropicの使用率のエンドポイントへ問い合わせます。S、W、Fが、ターミナルを使っていないときも更新されます。このエンドポイントは公開されていないもので、Anthropicがサードパーティのアプリからの利用を認めているという根拠は見つかっていません。使えなくなることや、規約に反すると判断されることがありえ、その場合の影響はあなたのアカウントに及びます。ログイン情報はこの問い合わせにだけ使い、保存も記録もしません
 2. statusLine（公式）。Claude CodeのstatusLineが、5時間枠と週枠の使用率を指定したコマンドに渡します。更新されるのはターミナルでClaude Codeを使っている間だけで、モデル別の枠は含まれません。[statusLineの設定](#statuslineの設定)を参照してください
 
-使用率APIは、メニューバーの項目からいつでも有効・無効を切り替えられます。
+使用率APIは、メニューバーの項目か帯の右クリックメニューから、いつでも有効・無効を切り替えられます。無効にするとすぐに、キーチェーンの読み取りと問い合わせをやめ、APIから得た値も捨てます。Slashstripは独自のログインを作らないので、Anthropic側で取り消すものはありません。
 
 ### 表示を控えめにする
 
@@ -232,7 +232,7 @@ Slashstripだけで動きます。ほかの道具は要りません。
 
 ### インストール
 
-1. [Slashstrip-macos.zip](https://github.com/BoxPistols/slashstrip/releases/latest/download/Slashstrip-macos.zip)をダウンロードします。このリンクは常に最新のリリースを指します。macOS 14以降が必要です
+1. [Slashstrip-macos.zip](https://github.com/BoxPistols/slashstrip/releases/latest/download/Slashstrip-macos.zip)をダウンロードします。このリンクは常に最新のリリースを指します。macOS 14以降が必要です。Apple SiliconとIntelのどちらのMacでも動きます
 2. 展開して（Safariでは自動で展開されることがあります）、`Slashstrip.app`をアプリケーションフォルダへ移します
 3. Slashstripを開きます。初回はmacOSに止められるので、次の手順を一度だけ行ってください
 
