@@ -12,7 +12,7 @@ Hachibu is an unofficial tool made by an individual. It is not affiliated with, 
 
 [Download Hachibu for macOS](https://github.com/BoxPistols/hachibu/releases/latest/download/Hachibu-macos.zip) (macOS 14 or later, Apple Silicon or Intel). macOS blocks the first launch because the app is not notarized yet. You need to allow it once in System Settings > Privacy & Security; [First launch](#first-launch-allow-it-once-in-system-settings) shows each step.
 
-[日本語の説明はこちら](#日本語)
+[Site](https://cc-hachibu.vercel.app/) · [日本語の説明はこちら](#日本語)
 
 ## What it shows
 
@@ -199,7 +199,7 @@ Hachibuは個人が作った非公式のツールで、Anthropic, PBCとは関�
 
 ![Hachibuのバー](docs/images/ja-strip-basic.png)
 
-[macOS版をダウンロード](https://github.com/BoxPistols/hachibu/releases/latest/download/Hachibu-macos.zip)（macOS 14以降、Apple SiliconとIntelの両方）。まだAppleの公証を受けていないため、初回の起動はmacOSに止められます。「システム設定」＞「プライバシーとセキュリティ」で一度だけ許可してください。手順は[インストール](#インストール)にあります。
+[サイト](https://cc-hachibu.vercel.app/)。[macOS版をダウンロード](https://github.com/BoxPistols/hachibu/releases/latest/download/Hachibu-macos.zip)（macOS 14以降、Apple SiliconとIntelの両方）。まだAppleの公証を受けていないため、初回の起動はmacOSに止められます。「システム設定」＞「プライバシーとセキュリティ」で一度だけ許可してください。手順は[インストール](#インストール)にあります。
 
 ### 表示の読み方
 
