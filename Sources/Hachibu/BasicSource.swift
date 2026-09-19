@@ -38,7 +38,8 @@ final class BasicSource: DataSource {
     private static let transcriptScanInterval: TimeInterval = 30
     // 表示のために頻繁に叩かない。失敗しても次の周期まで再試行しない
     private static let fetchInterval: TimeInterval = 300
-    private static let transcriptTailBytes = 64 * 1024
+    // 画像などの大きな行が続くと、末尾にモデル名が無いことがある。見つかるまで読む範囲を広げる
+    private static let transcriptTailSizes: [UInt64] = [64 * 1024, 512 * 1024, 4 * 1024 * 1024]
 
     func start() {
         tick()
@@ -103,10 +104,15 @@ final class BasicSource: DataSource {
         guard let handle = try? FileHandle(forReadingFrom: file) else { return }
         defer { try? handle.close() }
         let size = (try? handle.seekToEnd()) ?? 0
-        try? handle.seek(toOffset: size > UInt64(Self.transcriptTailBytes) ? size - UInt64(Self.transcriptTailBytes) : 0)
-        let text = String(decoding: handle.readDataToEndOfFile(), as: UTF8.self)
-        if let id = ModelInfo.lastModelID(inTranscriptTail: text) {
-            transcriptModelID = id
+        for tail in Self.transcriptTailSizes {
+            let length = min(tail, size)
+            try? handle.seek(toOffset: size - length)
+            let text = String(decoding: handle.readData(ofLength: Int(length)), as: UTF8.self)
+            if let id = ModelInfo.lastModelID(inTranscriptTail: text) {
+                transcriptModelID = id
+                return
+            }
+            if length == size { return }
         }
     }
 

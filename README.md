@@ -10,7 +10,7 @@ The name comes from hara hachi bu (腹八分), the Japanese habit of eating unti
 
 Hachibu is an unofficial tool made by an individual. It is not affiliated with, endorsed by, or sponsored by Anthropic, PBC.
 
-[Download Hachibu for macOS](https://github.com/BoxPistols/hachibu/releases/latest/download/Hachibu-macos.zip) (macOS 14 or later, Apple Silicon or Intel). macOS blocks the first launch because the app is not notarized yet. [Install](#install) explains how to open it.
+[Download Hachibu for macOS](https://github.com/BoxPistols/hachibu/releases/latest/download/Hachibu-macos.zip) (macOS 14 or later, Apple Silicon or Intel). macOS blocks the first launch because the app is not notarized yet. You need to allow it once in System Settings > Privacy & Security; [First launch](#first-launch-allow-it-once-in-system-settings) shows each step.
 
 [日本語の説明はこちら](#日本語)
 
@@ -66,18 +66,23 @@ The interface follows your macOS language: Japanese if it comes first in your pr
 
 Hachibu was called Slashstrip up to v0.2.0. If you installed Slashstrip, turn off its Launch at Login, quit it, and move it to the Trash first. Its settings are not carried over.
 
-### First launch: macOS blocks it once
+### First launch: allow it once in System Settings
 
-Hachibu is not distributed through the App Store, and it is not yet signed with an Apple Developer ID or notarized by Apple ([#3](https://github.com/BoxPistols/hachibu/issues/3)). macOS cannot check where it came from, so it refuses to open it the first time. This is expected, and you only need to allow it once per download.
+You need to do this once for each download. Hachibu is not from the App Store and is not yet notarized by Apple ([#3](https://github.com/BoxPistols/hachibu/issues/3)), so macOS does not open it until you allow it yourself. These steps follow Apple's [Open a Mac app from an unknown developer](https://support.apple.com/guide/mac-help/open-a-mac-app-from-an-unknown-developer-mh40616/mac). The screenshots show macOS in Japanese; the layout is the same in English.
 
-These are Apple's own steps from [Open a Mac app from an unknown developer](https://support.apple.com/guide/mac-help/open-a-mac-app-from-an-unknown-developer-mh40616/mac):
+1. Open Hachibu. macOS shows "“Hachibu.app” Not Opened". Click Done. Do not click Move to Trash
 
-1. Try to open Hachibu, then close the warning. Do not move the app to the Trash
+   <img src="docs/images/first-launch-blocked.png" width="300" alt="The dialog macOS shows the first time, with Move to Trash and Done">
+
 2. Choose Apple menu > System Settings, then click Privacy & Security in the sidebar
-3. Go to Security. Next to the message about Hachibu, click Open (Open Anyway on some versions of macOS). The button appears for about an hour after you tried to open the app
-4. Click Open Anyway, enter your login password, then click OK
+3. Scroll down to Security. It says "“Hachibu.app” was blocked to protect your Mac." Click Open Anyway next to it. The button stays for about an hour after step 1. If it is not there, do step 1 again
 
-From then on Hachibu opens normally, including at login.
+   <img src="docs/images/first-launch-open-anyway.png" width="600" alt="The blocked message and the Open Anyway button in Privacy & Security">
+
+4. Enter your login password (or use Touch ID), then click OK
+5. If Hachibu does not open by itself, open it again. On its first run it asks whether to use the usage API (see [Where the numbers come from](#where-the-numbers-come-from))
+
+From then on Hachibu opens normally, including at login. When you download a new version, you need to do this again.
 
 If you prefer Terminal, you can remove the "downloaded from the internet" flag that macOS put on this copy, then open it:
 
@@ -192,7 +197,7 @@ Hachibuは個人が作った非公式のツールで、Anthropic, PBCとは関�
 
 ![Hachibuの帯](docs/images/ja-strip-basic.png)
 
-[macOS版をダウンロード](https://github.com/BoxPistols/hachibu/releases/latest/download/Hachibu-macos.zip)（macOS 14以降、Apple SiliconとIntelの両方）。まだAppleの公証を受けていないため、初回の起動はmacOSに止められます。開き方は[インストール](#インストール)にあります。
+[macOS版をダウンロード](https://github.com/BoxPistols/hachibu/releases/latest/download/Hachibu-macos.zip)（macOS 14以降、Apple SiliconとIntelの両方）。まだAppleの公証を受けていないため、初回の起動はmacOSに止められます。「システム設定」＞「プライバシーとセキュリティ」で一度だけ許可してください。手順は[インストール](#インストール)にあります。
 
 ### 表示の読み方
 
@@ -244,18 +249,23 @@ Hachibuだけで動きます。ほかの道具は要りません。
 
 v0.2.0まではSlashstripという名前でした。Slashstripを入れていた場合は、先に「ログイン時に起動」を無効にしてから終了し、ゴミ箱に入れてください。設定は引き継がれません。
 
-#### 初回の起動：macOSに一度止められます
+#### 初回の起動：システム設定で一度だけ許可する
 
-HachibuはApp Storeでは配布しておらず、AppleのDeveloper IDでの署名とAppleによる公証もまだ受けていません（[#3](https://github.com/BoxPistols/hachibu/issues/3)）。macOSは出どころを確かめられないため、初回は開きません。想定どおりの動きで、ダウンロードごとに一度許可すれば済みます。
+ダウンロードするたびに一度だけ必要な手順です。HachibuはApp Storeで配布しておらず、Appleの公証もまだ受けていないため（[#3](https://github.com/BoxPistols/hachibu/issues/3)）、利用者が自分で許可するまでmacOSは開きません。手順はAppleの[開発元が不明なMacアプリを開く](https://support.apple.com/ja-jp/guide/mac-help/mh40616/mac)に沿っています。
 
-Appleの手順（[開発元が不明なMacアプリを開く](https://support.apple.com/ja-jp/guide/mac-help/mh40616/mac)）は次のとおりです。
+1. Hachibuを開きます。「“Hachibu.app”は開いていません」と出るので、「完了」をクリックします。「ゴミ箱に入れる」は押さないでください
 
-1. Hachibuを開こうとし、表示された警告を閉じます。アプリをゴミ箱には入れないでください
-2. アップルメニュー ＞「システム設定」を選び、サイドバーで「プライバシーとセキュリティ」をクリックします
-3. 「セキュリティ」に移動し、Hachibuについての表示の横にある「開く」（macOSの版によっては「このまま開く」）をクリックします。このボタンは、開こうとしてから約1時間だけ出ます
-4. 「このまま開く」をクリックし、ログインパスワードを入力して「OK」をクリックします
+   <img src="docs/images/first-launch-blocked.png" width="300" alt="初回に出るダイアログ。「ゴミ箱に入れる」と「完了」">
 
-これ以降は、ログイン時の起動も含めて普通に開きます。
+2. アップルメニュー＞「システム設定」を選び、サイドバーで「プライバシーとセキュリティ」をクリックします
+3. 下へスクロールして「セキュリティ」の欄を見ると、「お使いのMacを保護するために“Hachibu.app”がブロックされました。」と出ています。その横の「このまま開く」をクリックします。このボタンは手順1から約1時間だけ出ます。見当たらなければ手順1からやり直してください
+
+   <img src="docs/images/first-launch-open-anyway.png" width="600" alt="「プライバシーとセキュリティ」のブロックの表示と「このまま開く」">
+
+4. ログインパスワードを入力するか、Touch IDを使い、「OK」をクリックします
+5. 自動で開かなかった場合は、もう一度Hachibuを開きます。初回は、使用率APIを使うかを尋ねます（[値の出どころ](#値の出どころ)）
+
+これ以降は、ログイン時の起動も含めて普通に開きます。新しい版をダウンロードしたときは、もう一度この手順が要ります。
 
 ターミナルを使う場合は、macOSがこのコピーに付けた「インターネットからダウンロードした」印を外してから開く方法もあります。
 

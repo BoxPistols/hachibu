@@ -11,6 +11,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private var statusItem: StatusItemController!
 
     func applicationDidFinishLaunching(_ notification: Notification) {
+        // 同じアプリの別のコピーがすでに動いていれば、そちらに帯を出させて終わる（帯を重ねて出さない）
+        if SingleInstance.handOff() {
+            NSApp.terminate(nil)
+            return
+        }
         // 文言を読む部品を作る前に、メニューで選んだ言語にしておく
         L10n.apply(saved: Prefs.language)
         // 開発用: HACHIBU_SOURCE=demoのときは架空の値で動かす（撮影用）
@@ -41,6 +46,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             MenuBarStyle.title(style: .usage, statusText: nil, limits: source?.limits ?? [])
         }
         strip.contextMenu = { [weak self] in self?.builder.contextMenu() }
+        SingleInstance.observe { [weak strip] in strip?.showSummoned() }
 
         source.onSlots = { [weak strip] slots in strip?.update(slots) }
         source.start()
