@@ -17,9 +17,7 @@ final class StatusItemController: NSObject, NSMenuDelegate {
         self.builder = builder
         super.init()
         if let button = item.button {
-            button.image = MenuBarIcon.image()
-            button.image?.accessibilityDescription = L10n.appName
-            button.imagePosition = .imageLeading
+            button.imagePosition = .imageOnly
         }
         menu.delegate = self
         item.menu = menu
@@ -37,23 +35,11 @@ final class StatusItemController: NSObject, NSMenuDelegate {
     func refreshTitle() {
         guard let button = item.button else { return }
         let text = MenuBarStyle.title(style: style, statusText: strip.statusSlot?.text, limits: source.limits)
-        if let text {
-            // 数字の幅を揃え、値が変わってもアイコンの位置が揺れないようにする
-            let font = NSFont.monospacedDigitSystemFont(ofSize: NSFont.systemFontSize, weight: .regular)
-            let title = NSMutableAttributedString(string: " ", attributes: [.font: font])
-            // 帯と同じく、黄や赤の段階にある使用率の語だけ色の札で囲む
-            for segment in UsageMarkup.segments(text, thresholds: strip.thresholds) {
-                var attrs: [NSAttributedString.Key: Any] = [.font: font]
-                if let bg = LevelStyle.background(segment.level) {
-                    attrs[.backgroundColor] = bg.nsColor
-                    attrs[.foregroundColor] = LevelStyle.foreground(segment.level).nsColor
-                }
-                title.append(NSAttributedString(string: segment.text, attributes: attrs))
-            }
-            button.attributedTitle = title
-        } else {
-            button.attributedTitle = NSAttributedString(string: "")
-        }
+        // 帯と同じく、黄や赤の段階にある使用率の語だけ色の札で囲む。絵と文字は1枚の画像にまとめて描く
+        let segments = text.map { UsageMarkup.segments($0, thresholds: strip.thresholds) } ?? []
+        button.image = MenuBarIcon.image(segments: segments)
+        button.image?.accessibilityDescription = [L10n.appName, text].compactMap { $0 }.joined(separator: " ")
+        button.attributedTitle = NSAttributedString(string: "")
     }
 
     func menuNeedsUpdate(_ menu: NSMenu) {

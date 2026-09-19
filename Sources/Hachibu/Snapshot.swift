@@ -53,28 +53,33 @@ enum Snapshot {
         }
     }
 
-    /// メニューバーの絵を、明るい地と暗い地の両方に、実寸と8倍で並べる
+    /// メニューバーの絵を、明るい地と暗い地の両方に2倍の解像度で描く
     private static func writeMenuBarIcon(to url: URL) {
-        let icon = MenuBarIcon.image()
-        let scale: CGFloat = 8
-        let cell = NSSize(width: icon.size.width * scale + 60, height: icon.size.height * scale + 24)
-        let canvas = NSImage(size: NSSize(width: cell.width * 2, height: cell.height), flipped: false) { _ in
-            for (i, dark) in [false, true].enumerated() {
-                let origin = NSPoint(x: CGFloat(i) * cell.width, y: 0)
-                (dark ? NSColor(white: 0.12, alpha: 1) : NSColor(white: 0.93, alpha: 1)).setFill()
-                NSRect(origin: origin, size: cell).fill()
-                let tinted = NSImage(size: icon.size, flipped: false) { r in
-                    icon.draw(in: r)
-                    (dark ? NSColor.white : NSColor.black).set()
-                    r.fill(using: .sourceAtop)
-                    return true
+        let segments = UsageMarkup.segments("Opus5 1M xhigh · S42 W76 F93", thresholds: UsageThresholds(warning: 70, critical: 90)!)
+        let images = [MenuBarIcon.image(), MenuBarIcon.image(segments: segments)]
+        let width = (images.map(\.size.width).max() ?? 0) + 24
+        let rowHeight: CGFloat = 30
+        let size = NSSize(width: width, height: rowHeight * 4)
+        guard let rep = NSBitmapImageRep(bitmapDataPlanes: nil, pixelsWide: Int(size.width * 2), pixelsHigh: Int(size.height * 2),
+                                         bitsPerSample: 8, samplesPerPixel: 4, hasAlpha: true, isPlanar: false,
+                                         colorSpaceName: .deviceRGB, bytesPerRow: 0, bitsPerPixel: 0) else { return }
+        rep.size = size
+        NSGraphicsContext.saveGraphicsState()
+        NSGraphicsContext.current = NSGraphicsContext(bitmapImageRep: rep)
+        var row: CGFloat = 0
+        for dark in [true, false] {
+            let appearance = NSAppearance(named: dark ? .darkAqua : .aqua)!
+            appearance.performAsCurrentDrawingAppearance {
+                for image in images {
+                    (dark ? NSColor(white: 0.13, alpha: 1) : NSColor(white: 0.9, alpha: 1)).setFill()
+                    NSRect(x: 0, y: row * rowHeight, width: size.width, height: rowHeight).fill()
+                    image.draw(in: NSRect(x: 12, y: row * rowHeight + (rowHeight - image.size.height) / 2,
+                                          width: image.size.width, height: image.size.height))
+                    row += 1
                 }
-                tinted.draw(in: NSRect(x: origin.x + 8, y: 12, width: icon.size.width * scale, height: icon.size.height * scale))
-                tinted.draw(in: NSRect(x: origin.x + icon.size.width * scale + 24, y: 12, width: icon.size.width, height: icon.size.height))
             }
-            return true
         }
-        guard let tiff = canvas.tiffRepresentation, let rep = NSBitmapImageRep(data: tiff) else { return }
+        NSGraphicsContext.restoreGraphicsState()
         try? rep.representation(using: .png, properties: [:])?.write(to: url)
     }
 

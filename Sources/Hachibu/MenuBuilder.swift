@@ -53,8 +53,10 @@ final class MenuBuilder {
     /// 使用率の行。黄や赤の段階にある枠には、その色の点を付ける
     func usageItems() -> [NSMenuItem] {
         let limits = source.limits
-        guard !limits.isEmpty else { return [disabled(L10n.current.menuNoUsage)] }
-        var items = limits.map { limit in
+        // 帯では点で示しているコンテキスト長を、ここでは文字で書く
+        let header = strip.statusSlot.flatMap { ContextMark.spelledOut($0.text) }.map { [disabled($0)] } ?? []
+        guard !limits.isEmpty else { return header + [disabled(L10n.current.menuNoUsage)] }
+        var items = header + limits.map { limit in
             let item = disabled(limit.line())
             if let color = LevelStyle.background(strip.thresholds.level(limit.percent)) {
                 item.image = Self.dot(color.nsColor)

@@ -65,18 +65,9 @@ struct ConsentView: View {
         }
         .padding(20)
         .frame(width: 460)
-        .background(
-            ZStack {
-                GlassBackground()
-                // 利用者の規約: オーバーレイは80〜90%の不透明度＋背景ぼかし
-                Color(white: 0.1).opacity(0.88)
-            }
-        )
-        .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
-        .overlay(
-            RoundedRectangle(cornerRadius: 14, style: .continuous)
-                .strokeBorder(Color.white.opacity(0.1), lineWidth: 1)
-        )
+        .background(GlassSurface())
+        .clipShape(RoundedRectangle(cornerRadius: Metrics.panelRadius, style: .continuous))
+        .overlay(GlassRim(cornerRadius: Metrics.panelRadius))
     }
 }
 

@@ -27,28 +27,21 @@ struct StripView: View {
             if store.layout == .tab {
                 DockTab(status: store.slots.first, level: worstLevel)
             } else {
-                HStack(spacing: 5) {
+                HStack(spacing: 2) {
                     DragHandle()
-                        .frame(width: 14, height: Metrics.chipHeight)
+                        .frame(width: 12, height: Metrics.chipHeight)
                     ForEach(store.slots) { slot in
                         StatusChip(slot: slot, segments: segments(for: slot))
                     }
                 }
-                .padding(Metrics.inset)
+                .padding(.leading, Metrics.inset)
+                .padding(.trailing, Metrics.inset + 4)
+                .padding(.vertical, Metrics.inset)
             }
         }
-        .background(
-            ZStack {
-                GlassBackground()
-                // 利用者の規約: オーバーレイは80〜90%の不透明度＋背景ぼかし
-                Color(white: 0.09).opacity(0.84)
-            }
-        )
+        .background(GlassSurface())
         .clipShape(RoundedRectangle(cornerRadius: Metrics.cornerRadius, style: .continuous))
-        .overlay(
-            RoundedRectangle(cornerRadius: Metrics.cornerRadius, style: .continuous)
-                .strokeBorder(Color.white.opacity(0.1), lineWidth: 1)
-        )
+        .overlay(GlassRim(cornerRadius: Metrics.cornerRadius))
         .fixedSize()
     }
 }
@@ -81,9 +74,13 @@ enum LevelStyle {
 }
 
 enum Metrics {
-    static let chipHeight: CGFloat = 26
-    static let inset: CGFloat = 5
-    static let cornerRadius: CGFloat = 12
+    static let chipHeight: CGFloat = 22
+    static let inset: CGFloat = 3
+    /// 角丸は2段だけ。面（帯、窓）は8、面の中の札は3。メニューバーの札も同じ3にする
+    static let cornerRadius: CGFloat = 8
+    static let tagRadius: CGFloat = 3
+    /// 大きい窓（同意画面、ショートカットの窓）の角丸
+    static let panelRadius: CGFloat = 12
     // 12px未満は使わない
     static let fontSize: CGFloat = 13
     // つまみの幅。高さは帯と揃え、広げたときに上下へ跳ばないようにする
@@ -133,15 +130,12 @@ struct StatusChip: View {
         }
         .font(.system(size: Metrics.fontSize, weight: .medium).monospacedDigit())
         .lineLimit(1)
-        .padding(.horizontal, 10)
+        .padding(.leading, 4)
         .frame(height: Metrics.chipHeight)
-        .background(
-            RoundedRectangle(cornerRadius: 7, style: .continuous)
-                .fill(slot.background.color)
-        )
+        // 帯の面の中にもう1つ枠を重ねない（角丸が入れ子になり、高さも取るため）
         .opacity(slot.dimmed ? 0.5 : 1)
         // 見えている文字と同じ説明は出さない。出すのはリセット時刻など、帯に載っていない情報だけ
-        .help(slot.help ?? "")
+        .help(([ContextMark.spelledOut(slot.text)].compactMap { $0 } + [slot.help ?? ""]).filter { !$0.isEmpty }.joined(separator: "\n"))
     }
 }
 
@@ -162,14 +156,64 @@ struct SegmentText: View {
             Text(verbatim: text)
                 .foregroundStyle(LevelStyle.foreground(segment.level).color)
                 .fixedSize(horizontal: true, vertical: false)
-                .padding(.horizontal, 4)
+                .padding(.horizontal, 3)
                 .padding(.vertical, 1)
-                .background(RoundedRectangle(cornerRadius: 4, style: .continuous).fill(bg.color))
+                .background(RoundedRectangle(cornerRadius: Metrics.tagRadius, style: .continuous).fill(bg.color))
+        } else if let split = ContextMark.split(segment.text) {
+            // コンテキスト長は文字で書かず、モデル名の肩に小さな点で示す（文字はメニューとツールチップに出す）
+            HStack(alignment: .top, spacing: 1.5) {
+                Text(verbatim: split.model)
+                ContextDot()
+                    .padding(.top, 2)
+                    .accessibilityLabel(Text(verbatim: "\(split.context) context"))
+                Text(verbatim: split.rest.replacingOccurrences(of: " ", with: "\u{00A0}"))
+                    .padding(.leading, -1.5)
+            }
+            .foregroundStyle(normalColor.color)
+            .fixedSize(horizontal: true, vertical: false)
         } else {
             Text(verbatim: text)
                 .foregroundStyle(normalColor.color)
                 .fixedSize(horizontal: true, vertical: false)
         }
+    }
+}
+
+/// コンテキスト長の印。モデル名の肩に付く小さな点
+struct ContextDot: View {
+    static let diameter: CGFloat = 4
+
+    var body: some View {
+        Circle()
+            .fill(Color(.sRGB, red: 242 / 255, green: 201 / 255, blue: 76 / 255, opacity: 1))
+            .frame(width: Self.diameter, height: Self.diameter)
+    }
+}
+
+/// ガラスの面。背景ぼかしの上に、上が明るく下が暗い色を重ねる。
+/// 利用者の規約: オーバーレイは80〜90%の不透明度＋背景ぼかし
+struct GlassSurface: View {
+    var body: some View {
+        ZStack {
+            GlassBackground()
+            LinearGradient(colors: [Color(white: 0.17).opacity(0.80), Color(white: 0.07).opacity(0.88)],
+                           startPoint: .top, endPoint: .bottom)
+        }
+    }
+}
+
+/// ガラスの縁。上の辺が光を受け、下へ向かって消える
+struct GlassRim: View {
+    let cornerRadius: CGFloat
+
+    var body: some View {
+        RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
+            .strokeBorder(
+                LinearGradient(colors: [Color.white.opacity(0.34), Color.white.opacity(0.08), Color.white.opacity(0.14)],
+                               startPoint: .top, endPoint: .bottom),
+                lineWidth: 1
+            )
+            .allowsHitTesting(false)
     }
 }
 

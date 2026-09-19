@@ -225,11 +225,11 @@ struct RecorderView: View {
                 .font(.system(size: 24, weight: .semibold).monospacedDigit())
                 .frame(maxWidth: .infinity, minHeight: 48)
                 .background(
-                    RoundedRectangle(cornerRadius: 10, style: .continuous)
+                    RoundedRectangle(cornerRadius: Metrics.cornerRadius, style: .continuous)
                         .fill(Color.white.opacity(0.08))
                 )
                 .overlay(
-                    RoundedRectangle(cornerRadius: 10, style: .continuous)
+                    RoundedRectangle(cornerRadius: Metrics.cornerRadius, style: .continuous)
                         .strokeBorder(frameColor, lineWidth: 1.5)
                 )
 
@@ -249,18 +249,9 @@ struct RecorderView: View {
         }
         .padding(18)
         .frame(width: 380)
-        .background(
-            ZStack {
-                GlassBackground()
-                // 利用者の規約: オーバーレイは80〜90%の不透明度＋背景ぼかし
-                Color(white: 0.1).opacity(0.86)
-            }
-        )
-        .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
-        .overlay(
-            RoundedRectangle(cornerRadius: 14, style: .continuous)
-                .strokeBorder(Color.white.opacity(0.1), lineWidth: 1)
-        )
+        .background(GlassSurface())
+        .clipShape(RoundedRectangle(cornerRadius: Metrics.panelRadius, style: .continuous))
+        .overlay(GlassRim(cornerRadius: Metrics.panelRadius))
     }
 
     private var frameColor: Color {
