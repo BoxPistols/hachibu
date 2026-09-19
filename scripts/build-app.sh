@@ -38,7 +38,7 @@ cat > "$APP/Contents/Info.plist" <<PLIST
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-  <key>CFBundleIdentifier</key><string>dev.local.hachibu</string>
+  <key>CFBundleIdentifier</key><string>io.github.boxpistols.hachibu</string>
   <key>CFBundleName</key><string>Hachibu</string>
   <key>CFBundleDisplayName</key><string>Hachibu</string>
   <key>CFBundleExecutable</key><string>Hachibu</string>
@@ -73,6 +73,11 @@ if [ "$INSTALL" = 1 ]; then
   mkdir -p "$HOME/Applications"
   rm -rf "$DEST"
   cp -R "$APP" "$DEST"
-  open "$DEST"
+  # ターミナルの中から開くと、macOSはメニューバーの項目をターミナルのものとして覚え、
+  # ターミナルの許可が切られていると項目が出なくなる。launchd経由で、ターミナルを親に持たない形で開く
+  launchctl remove io.github.boxpistols.hachibu.install 2>/dev/null || true
+  launchctl submit -l io.github.boxpistols.hachibu.install -- /usr/bin/open "$DEST"
+  sleep 2
+  launchctl remove io.github.boxpistols.hachibu.install 2>/dev/null || true
   echo "installed: $DEST"
 fi

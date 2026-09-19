@@ -6,7 +6,7 @@ enum Prefs {
     /// 撮影用モード（HACHIBU_SOURCE=demo）と試験用（HACHIBU_SUITE=名前）では、利用者の設定に触れないよう別の保存先を使う
     static let defaults: UserDefaults = {
         let env = ProcessInfo.processInfo.environment
-        let suite = env["HACHIBU_SUITE"] ?? (env["HACHIBU_SOURCE"] == "demo" ? "dev.local.hachibu.demo" : nil)
+        let suite = env["HACHIBU_SUITE"] ?? (env["HACHIBU_SOURCE"] == "demo" ? "io.github.boxpistols.hachibu.demo" : nil)
         return suite.flatMap { UserDefaults(suiteName: $0) } ?? .standard
     }()
 

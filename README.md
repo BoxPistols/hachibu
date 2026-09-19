@@ -117,7 +117,7 @@ After you update to a new version, macOS may ask again, because the app is not s
 3. To remove its settings and logs as well:
 
 ```sh
-defaults delete dev.local.hachibu
+defaults delete io.github.boxpistols.hachibu
 rm -rf ~/Library/Logs/Hachibu ~/"Library/Application Support/Hachibu"
 ```
 
@@ -302,7 +302,7 @@ Appleが確認していないアプリを開くかどうかは、使う人の判
 3. 設定とログも消す場合は、次を実行します
 
 ```sh
-defaults delete dev.local.hachibu
+defaults delete io.github.boxpistols.hachibu
 rm -rf ~/Library/Logs/Hachibu ~/"Library/Application Support/Hachibu"
 ```
 
