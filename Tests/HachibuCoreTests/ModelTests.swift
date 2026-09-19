@@ -1,6 +1,6 @@
 import Foundation
 import Testing
-@testable import SlashstripCore
+@testable import HachibuCore
 
 @Suite struct RGBATests {
     @Test func rejectsOutOfRangeColorComponents() {

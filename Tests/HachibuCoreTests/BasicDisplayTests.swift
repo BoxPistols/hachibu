@@ -1,6 +1,6 @@
 import Foundation
 import Testing
-@testable import SlashstripCore
+@testable import HachibuCore
 
 @Suite struct UsageAPIParseTests {
     /// 2026-09-18に実際の応答で確認した形。値は架空

@@ -1,13 +1,13 @@
 #!/bin/bash
-# Claude CodeのstatusLineから呼ぶ。受け取ったJSONをSlashstripが読む場所へ書く。
+# Claude CodeのstatusLineから呼ぶ。受け取ったJSONをHachibuが読む場所へ書く。
 # 引数にコマンドを渡すと、同じJSONをそのコマンドにも渡し、その出力をステータス行に使う（既存のstatusLineと併用するため）。
 #
 # ~/.claude/settings.jsonの例:
-#   "statusLine": {"type": "command", "command": "/path/to/slashstrip/scripts/statusline.sh"}
-#   "statusLine": {"type": "command", "command": "/path/to/slashstrip/scripts/statusline.sh ~/.claude/my-statusline.sh"}
+#   "statusLine": {"type": "command", "command": "/path/to/hachibu/scripts/statusline.sh"}
+#   "statusLine": {"type": "command", "command": "/path/to/hachibu/scripts/statusline.sh ~/.claude/my-statusline.sh"}
 set -u
 
-DIR="$HOME/Library/Application Support/Slashstrip"
+DIR="$HOME/Library/Application Support/Hachibu"
 /bin/mkdir -p "$DIR"
 TMP="$(/usr/bin/mktemp "$DIR/.statusline.XXXXXX")"
 /bin/cat > "$TMP"

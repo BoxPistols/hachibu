@@ -1,14 +1,16 @@
 <img src="docs/images/app-icon.png" width="96" alt="">
 
-# Slashstrip
+# Hachibu
 
-A small strip that stays on top of your Mac's screen and shows Claude Code's model, effort, and usage limits at a glance.
+I spend a worrying amount of my life checking my Claude Code usage, so I made it stay on screen. Hachibu is a small strip on top of your Mac's screen that shows Claude Code's model, effort, and usage limits. One glance is enough, and you can get back to your work.
 
-![Slashstrip](docs/images/strip-basic.png)
+The name comes from hara hachi bu (腹八分), the Japanese habit of eating until you are 80% full.
 
-Slashstrip is an unofficial tool made by an individual. It is not affiliated with, endorsed by, or sponsored by Anthropic, PBC.
+![Hachibu](docs/images/strip-basic.png)
 
-[Download Slashstrip for macOS](https://github.com/BoxPistols/slashstrip/releases/latest/download/Slashstrip-macos.zip) (macOS 14 or later, Apple Silicon or Intel). macOS blocks the first launch because the app is not notarized yet. [Install](#install) explains how to open it.
+Hachibu is an unofficial tool made by an individual. It is not affiliated with, endorsed by, or sponsored by Anthropic, PBC.
+
+[Download Hachibu for macOS](https://github.com/BoxPistols/hachibu/releases/latest/download/Hachibu-macos.zip) (macOS 14 or later, Apple Silicon or Intel). macOS blocks the first launch because the app is not notarized yet. [Install](#install) explains how to open it.
 
 [日本語の説明はこちら](#日本語)
 
@@ -19,19 +21,19 @@ Slashstrip is an unofficial tool made by an individual. It is not affiliated wit
 - A usage number turns yellow at 70% and red at 90% by default. You can change both thresholds
 - Hover over the strip or open the menu bar item to see when each limit resets
 - The strip never takes focus. It stays above other windows, including full-screen apps
-- It keeps running whether or not a terminal is open. Turn on Launch at Login from the menu bar to bring it back after a restart
+- It keeps running whether or not a terminal is open. Turn on Launch at Login from the menu bar item or the strip's right-click menu to bring it back after a restart
 
 ## Where the numbers come from
 
-Slashstrip works on its own. No other tools are needed.
+Hachibu works on its own. No other tools are needed.
 
 - Model and effort: the conversation Claude Code saved most recently on this Mac, and `~/.claude/settings.json`. If you set up the statusLine below, its values are used when they are newer
 - Usage: you choose one of two sources
 
-1. Usage API (optional). The first time Slashstrip opens, it asks whether to use it. If you turn it on, Slashstrip uses the login that Claude Code saved in your keychain to ask Anthropic's usage endpoint every 5 minutes. S, W, and F then stay up to date even when you are not using the terminal. This endpoint is not publicly documented, and we found nothing showing that Anthropic allows third-party apps to use it. It may stop working, or Anthropic may consider it against its terms; any consequence would fall on your account. The login is used only for this request and is not saved or logged
+1. Usage API (optional). The first time Hachibu opens, it asks whether to use it. If you turn it on, Hachibu uses the login that Claude Code saved in your keychain to ask Anthropic's usage endpoint every 5 minutes. S, W, and F then stay up to date even when you are not using the terminal. Anthropic's [terms for Claude Code](https://code.claude.com/docs/en/legal-and-compliance) say that its OAuth login is designed to support "ordinary use of Claude Code and other native Anthropic applications", and that developers "may not collect, store, or intermediate Claude.ai credentials or session tokens". Hachibu is not an Anthropic application, so using this may be treated as a violation of those terms. Anthropic says it may enforce them without prior notice, and any measures would apply to your account. The endpoint is also not publicly documented and may stop working. The login is used only for this request and is not saved or logged
 2. statusLine (official). Claude Code's statusLine passes the 5-hour and weekly usage to a command you choose. It updates only while you use Claude Code in the terminal, and it does not include per-model limits. See [statusLine setup](#statusline-setup)
 
-You can switch the usage API on or off at any time from the menu bar item or the strip's right-click menu. Turning it off takes effect immediately: Slashstrip stops reading the keychain and sending requests, and drops the values it got from the API. Slashstrip does not create a login of its own, so there is nothing to revoke on Anthropic's side.
+You can switch the usage API on or off at any time from the menu bar item or the strip's right-click menu. Turning it off takes effect immediately: Hachibu stops reading the keychain and sending requests, and drops the values it got from the API. Hachibu does not create a login of its own, so there is nothing to revoke on Anthropic's side.
 
 ## Stays out of the way
 
@@ -52,34 +54,36 @@ Right-click the strip to switch modes, opacity, and color thresholds. Hovering o
 
 ![Right-click menu](docs/images/menu-context.png)
 
-You can also show usage in the menu bar, and summon the strip with a keyboard shortcut (⌥⌘/ by default). When you record a new shortcut, Slashstrip rejects combinations that macOS already uses, and saves it only after you press it once more and it arrives.
+You can also show usage in the menu bar, and summon the strip with a keyboard shortcut (⌥⌘/ by default). When you record a new shortcut, Hachibu rejects combinations that macOS already uses, and saves it only after you press it once more and it arrives.
 
 The interface follows your macOS language: Japanese if it comes first in your preferred languages, English otherwise. You can also pick English or Japanese from Language in the menu. The action log is written in the language shown at the time.
 
 ## Install
 
-1. Download [Slashstrip-macos.zip](https://github.com/BoxPistols/slashstrip/releases/latest/download/Slashstrip-macos.zip). It always points to the latest release. Slashstrip needs macOS 14 or later and runs on both Apple Silicon and Intel Macs
-2. Unzip it (Safari may already have done this) and move `Slashstrip.app` to your Applications folder
-3. Open Slashstrip. The first time, macOS stops it. Follow the next section once
+1. Download [Hachibu-macos.zip](https://github.com/BoxPistols/hachibu/releases/latest/download/Hachibu-macos.zip). It always points to the latest release. Hachibu needs macOS 14 or later and runs on both Apple Silicon and Intel Macs
+2. Unzip it (Safari may already have done this) and move `Hachibu.app` to your Applications folder
+3. Open Hachibu. The first time, macOS stops it. Follow the next section once
+
+Hachibu was called Slashstrip up to v0.2.0. If you installed Slashstrip, turn off its Launch at Login, quit it, and move it to the Trash first. Its settings are not carried over.
 
 ### First launch: macOS blocks it once
 
-Slashstrip is not distributed through the App Store, and it is not yet signed with an Apple Developer ID or notarized by Apple ([#3](https://github.com/BoxPistols/slashstrip/issues/3)). macOS cannot check where it came from, so it refuses to open it the first time. This is expected, and you only need to allow it once per download.
+Hachibu is not distributed through the App Store, and it is not yet signed with an Apple Developer ID or notarized by Apple ([#3](https://github.com/BoxPistols/hachibu/issues/3)). macOS cannot check where it came from, so it refuses to open it the first time. This is expected, and you only need to allow it once per download.
 
 These are Apple's own steps from [Open a Mac app from an unknown developer](https://support.apple.com/guide/mac-help/open-a-mac-app-from-an-unknown-developer-mh40616/mac):
 
-1. Try to open Slashstrip, then close the warning. Do not move the app to the Trash
+1. Try to open Hachibu, then close the warning. Do not move the app to the Trash
 2. Choose Apple menu > System Settings, then click Privacy & Security in the sidebar
-3. Go to Security. Next to the message about Slashstrip, click Open (Open Anyway on some versions of macOS). The button appears for about an hour after you tried to open the app
+3. Go to Security. Next to the message about Hachibu, click Open (Open Anyway on some versions of macOS). The button appears for about an hour after you tried to open the app
 4. Click Open Anyway, enter your login password, then click OK
 
-From then on Slashstrip opens normally, including at login.
+From then on Hachibu opens normally, including at login.
 
 If you prefer Terminal, you can remove the "downloaded from the internet" flag that macOS put on this copy, then open it:
 
 ```sh
-xattr -dr com.apple.quarantine /Applications/Slashstrip.app
-open /Applications/Slashstrip.app
+xattr -dr com.apple.quarantine /Applications/Hachibu.app
+open /Applications/Hachibu.app
 ```
 
 This skips the check only for this copy. Do either of these only if you trust where the file came from.
@@ -89,25 +93,25 @@ This skips the check only for this copy. Do either of these only if you trust wh
 Allowing an app that Apple has not checked is a decision you make. Some ways to check this one first:
 
 - The source is all in this repository. You can [build it yourself](#build-from-source), and macOS does not block an app you built on your own Mac
-- Compare the checksum with the SHA-256 on the [release page](https://github.com/BoxPistols/slashstrip/releases/latest): `shasum -a 256 ~/Downloads/Slashstrip-macos.zip`
+- Compare the checksum with the SHA-256 on the [release page](https://github.com/BoxPistols/hachibu/releases/latest): `shasum -a 256 ~/Downloads/Hachibu-macos.zip`
 - Read [Data](#data) for what the app reads and sends
 
 ### Permissions it may ask for
 
 - Keychain. If you turn on the usage API, macOS may ask whether to allow access to the "Claude Code-credentials" item
-- Login Items. When you turn on Launch at Login, macOS tells you that Slashstrip will open at login. You can manage it in System Settings > General > Login Items (Login Items & Extensions on newer versions of macOS)
+- Login Items. When you turn on Launch at Login, macOS tells you that Hachibu will open at login. You can manage it in System Settings > General > Login Items (Login Items & Extensions on newer versions of macOS)
 
 After you update to a new version, macOS may ask again, because the app is not signed with a fixed Developer ID yet.
 
 ### Uninstall
 
 1. If you turned on Launch at Login, turn it off from the menu bar item first
-2. Quit Slashstrip from the menu bar item, and move `Slashstrip.app` to the Trash
+2. Quit Hachibu from the menu bar item, and move `Hachibu.app` to the Trash
 3. To remove its settings and logs as well:
 
 ```sh
-defaults delete dev.local.slashstrip
-rm -rf ~/Library/Logs/Slashstrip ~/"Library/Application Support/Slashstrip"
+defaults delete dev.local.hachibu
+rm -rf ~/Library/Logs/Hachibu ~/"Library/Application Support/Hachibu"
 ```
 
 4. If you set up `statusline.sh`, remove it from the statusLine in `~/.claude/settings.json`
@@ -116,18 +120,18 @@ rm -rf ~/Library/Logs/Slashstrip ~/"Library/Application Support/Slashstrip"
 
 This is optional. Use it if you leave the usage API off, or if you want the model and effort of the session you are working in.
 
-`statusline.sh` saves the JSON that Claude Code passes to the statusLine to `~/Library/Application Support/Slashstrip/statusline.json`, which Slashstrip reads. Download it from the release (or use `scripts/statusline.sh` in a clone) and make it executable:
+`statusline.sh` saves the JSON that Claude Code passes to the statusLine to `~/Library/Application Support/Hachibu/statusline.json`, which Hachibu reads. Download it from the release (or use `scripts/statusline.sh` in a clone) and make it executable:
 
 ```sh
-curl -L -o ~/.claude/slashstrip-statusline.sh https://github.com/BoxPistols/slashstrip/releases/latest/download/statusline.sh
-chmod +x ~/.claude/slashstrip-statusline.sh
+curl -L -o ~/.claude/hachibu-statusline.sh https://github.com/BoxPistols/hachibu/releases/latest/download/statusline.sh
+chmod +x ~/.claude/hachibu-statusline.sh
 ```
 
 Then call it from the statusLine in `~/.claude/settings.json`:
 
 ```json
 {
-  "statusLine": { "type": "command", "command": "~/.claude/slashstrip-statusline.sh" }
+  "statusLine": { "type": "command", "command": "~/.claude/hachibu-statusline.sh" }
 }
 ```
 
@@ -135,7 +139,7 @@ If you already use a statusLine command, pass it as an argument. It receives the
 
 ```json
 {
-  "statusLine": { "type": "command", "command": "~/.claude/slashstrip-statusline.sh ~/.claude/my-statusline.sh" }
+  "statusLine": { "type": "command", "command": "~/.claude/hachibu-statusline.sh ~/.claude/my-statusline.sh" }
 }
 ```
 
@@ -144,29 +148,29 @@ Usage limits (`rate_limits`) appear in the statusLine data on Pro and Max plans,
 ## Using only the Claude Code desktop app
 
 - With the usage API turned on, usage keeps updating whether you use the terminal or the desktop app
-- With the usage API off, usage comes only from the terminal's statusLine, so it stops updating while you use only the desktop app. The strip keeps showing the last known values, dims them after 30 minutes, and tells you when they were last updated. See [#6](https://github.com/BoxPistols/slashstrip/issues/6)
+- With the usage API off, usage comes only from the terminal's statusLine, so it stops updating while you use only the desktop app. The strip keeps showing the last known values, dims them after 30 minutes, and tells you when they were last updated. See [#6](https://github.com/BoxPistols/hachibu/issues/6)
 
 ## Data
 
-- Slashstrip reads local files: Claude Code's saved conversations (only to find the most recently used model), `~/.claude/settings.json`, and the statusLine file above
+- Hachibu reads local files: Claude Code's saved conversations (only to find the most recently used model), `~/.claude/settings.json`, and the statusLine file above
 - It connects to the network only if you turn on the usage API, and then only to `api.anthropic.com`
 - It reads the Claude Code login from the keychain only for that request, and does not save or log it
-- Settings changes and failed usage requests are logged to `~/Library/Logs/Slashstrip/actions.log`
+- Settings changes and failed usage requests are logged to `~/Library/Logs/Hachibu/actions.log`
 
 ## Build from source
 
 You need macOS 14 or later and the Xcode Command Line Tools (the full Xcode app is not needed).
 
 ```sh
-scripts/build-app.sh            # builds build/Slashstrip.app
+scripts/build-app.sh            # builds build/Hachibu.app
 scripts/build-app.sh --install  # copies it to ~/Applications and launches it
-scripts/build-app.sh --zip      # also writes build/Slashstrip-macos.zip and its SHA-256
+scripts/build-app.sh --zip      # also writes build/Hachibu-macos.zip and its SHA-256
 scripts/test.sh                 # runs the tests
 ```
 
 ## Contributing
 
-Issues and pull requests are welcome. Please run `scripts/test.sh` before sending a pull request. UI text lives in `Sources/SlashstripCore/Strings.swift`; when you change it, update both English and Japanese.
+Issues and pull requests are welcome. Please run `scripts/test.sh` before sending a pull request. UI text lives in `Sources/HachibuCore/Strings.swift`; when you change it, update both English and Japanese.
 
 ## Trademarks
 
@@ -180,13 +184,15 @@ MIT
 
 ## 日本語
 
-Macの画面の最前面に小さな帯を常駐させ、Claude Codeのモデル、effort、使用率をひと目で確かめられるようにするアプリです。
+人生のけっこうな時間を、Claude Codeのトークンの残量確認に使っています。なので画面に出しっぱなしにしました。Hachibuは、Macの画面の最前面に小さな帯を常駐させ、Claude Codeのモデル、effort、使用率を出すアプリです。ひと目で済むので、すぐ手元の作業に戻れます。
 
-Slashstripは個人が作った非公式のツールで、Anthropic, PBCとは関係がなく、同社の承認や支援も受けていません。
+名前は「腹八分」から取りました。
 
-![Slashstripの帯](docs/images/ja-strip-basic.png)
+Hachibuは個人が作った非公式のツールで、Anthropic, PBCとは関係がなく、同社の承認や支援も受けていません。
 
-[macOS版をダウンロード](https://github.com/BoxPistols/slashstrip/releases/latest/download/Slashstrip-macos.zip)（macOS 14以降、Apple SiliconとIntelの両方）。まだAppleの公証を受けていないため、初回の起動はmacOSに止められます。開き方は[インストール](#インストール)にあります。
+![Hachibuの帯](docs/images/ja-strip-basic.png)
+
+[macOS版をダウンロード](https://github.com/BoxPistols/hachibu/releases/latest/download/Hachibu-macos.zip)（macOS 14以降、Apple SiliconとIntelの両方）。まだAppleの公証を受けていないため、初回の起動はmacOSに止められます。開き方は[インストール](#インストール)にあります。
 
 ### 表示の読み方
 
@@ -194,20 +200,20 @@ Slashstripは個人が作った非公式のツールで、Anthropic, PBCとは�
 
 - 使用率が既定で70%以上なら黄、90%以上なら赤の札で数字を囲みます。閾値はどちらも変えられます
 - 帯にマウスを乗せるか、メニューバーの項目を開くと、各枠がいつリセットされるかが分かります
-- 帯を押してもSlashstripは前面に出ません。フルスクリーンのアプリを含め、ほかの窓の上に出ます
-- ターミナルを開いているかどうかに関係なく動き続けます。メニューバーの項目で「ログイン時に起動」を有効にすると、Macを再起動しても戻ります
+- 帯を押してもHachibuは前面に出ません。フルスクリーンのアプリを含め、ほかの窓の上に出ます
+- ターミナルを開いているかどうかに関係なく動き続けます。メニューバーの項目か帯の右クリックメニューで「ログイン時に起動」を有効にすると、Macを再起動しても戻ります
 
 ### 値の出どころ
 
-Slashstripだけで動きます。ほかの道具は要りません。
+Hachibuだけで動きます。ほかの道具は要りません。
 
 - モデルとeffort: このMacでClaude Codeが最後に保存した会話と、`~/.claude/settings.json`から読みます。下のstatusLineを設定していれば、そちらが新しいときはそちらを使います
 - 使用率: 次の2つから選べます
 
-1. 使用率API（任意）。初めて起動したときに、使うかどうかを尋ねます。有効にすると、Claude Codeがキーチェーンに保存したログイン情報を使い、5分ごとにAnthropicの使用率のエンドポイントへ問い合わせます。S、W、Fが、ターミナルを使っていないときも更新されます。このエンドポイントは公開されていないもので、Anthropicがサードパーティのアプリからの利用を認めているという根拠は見つかっていません。使えなくなることや、規約に反すると判断されることがありえ、その場合の影響はあなたのアカウントに及びます。ログイン情報はこの問い合わせにだけ使い、保存も記録もしません
+1. 使用率API（任意）。初めて起動したときに、使うかどうかを尋ねます。有効にすると、Claude Codeがキーチェーンに保存したログイン情報を使い、5分ごとにAnthropicの使用率のエンドポイントへ問い合わせます。S、W、Fが、ターミナルを使っていないときも更新されます。[Claude Codeの規約](https://code.claude.com/docs/en/legal-and-compliance)は、OAuthによるログインを「ordinary use of Claude Code and other native Anthropic applications」（Claude Codeと、Anthropic純正のアプリの通常の利用）のためのものとし、開発者は「may not collect, store, or intermediate Claude.ai credentials or session tokens」（Claude.aiのログイン情報やセッショントークンを収集、保存、仲介してはならない）としています。HachibuはAnthropicのアプリではないため、この機能を使うと規約違反と判断されるおそれがあります。Anthropicは予告なく制限を執行しうるとしており、その措置はあなたのアカウントに及びます。エンドポイント自体も公開されておらず、使えなくなることがあります。ログイン情報はこの問い合わせにだけ使い、保存も記録もしません
 2. statusLine（公式）。Claude CodeのstatusLineが、5時間枠と週枠の使用率を指定したコマンドに渡します。更新されるのはターミナルでClaude Codeを使っている間だけで、モデル別の枠は含まれません。[statusLineの設定](#statuslineの設定)を参照してください
 
-使用率APIは、メニューバーの項目か帯の右クリックメニューから、いつでも有効・無効を切り替えられます。無効にするとすぐに、キーチェーンの読み取りと問い合わせをやめ、APIから得た値も捨てます。Slashstripは独自のログインを作らないので、Anthropic側で取り消すものはありません。
+使用率APIは、メニューバーの項目か帯の右クリックメニューから、いつでも有効・無効を切り替えられます。無効にするとすぐに、キーチェーンの読み取りと問い合わせをやめ、APIから得た値も捨てます。Hachibuは独自のログインを作らないので、Anthropic側で取り消すものはありません。
 
 ### 表示を控えめにする
 
@@ -232,19 +238,21 @@ Slashstripだけで動きます。ほかの道具は要りません。
 
 ### インストール
 
-1. [Slashstrip-macos.zip](https://github.com/BoxPistols/slashstrip/releases/latest/download/Slashstrip-macos.zip)をダウンロードします。このリンクは常に最新のリリースを指します。macOS 14以降が必要です。Apple SiliconとIntelのどちらのMacでも動きます
-2. 展開して（Safariでは自動で展開されることがあります）、`Slashstrip.app`をアプリケーションフォルダへ移します
-3. Slashstripを開きます。初回はmacOSに止められるので、次の手順を一度だけ行ってください
+1. [Hachibu-macos.zip](https://github.com/BoxPistols/hachibu/releases/latest/download/Hachibu-macos.zip)をダウンロードします。このリンクは常に最新のリリースを指します。macOS 14以降が必要です。Apple SiliconとIntelのどちらのMacでも動きます
+2. 展開して（Safariでは自動で展開されることがあります）、`Hachibu.app`をアプリケーションフォルダへ移します
+3. Hachibuを開きます。初回はmacOSに止められるので、次の手順を一度だけ行ってください
+
+v0.2.0まではSlashstripという名前でした。Slashstripを入れていた場合は、先に「ログイン時に起動」を無効にしてから終了し、ゴミ箱に入れてください。設定は引き継がれません。
 
 #### 初回の起動：macOSに一度止められます
 
-SlashstripはApp Storeでは配布しておらず、AppleのDeveloper IDでの署名とAppleによる公証もまだ受けていません（[#3](https://github.com/BoxPistols/slashstrip/issues/3)）。macOSは出どころを確かめられないため、初回は開きません。想定どおりの動きで、ダウンロードごとに一度許可すれば済みます。
+HachibuはApp Storeでは配布しておらず、AppleのDeveloper IDでの署名とAppleによる公証もまだ受けていません（[#3](https://github.com/BoxPistols/hachibu/issues/3)）。macOSは出どころを確かめられないため、初回は開きません。想定どおりの動きで、ダウンロードごとに一度許可すれば済みます。
 
 Appleの手順（[開発元が不明なMacアプリを開く](https://support.apple.com/ja-jp/guide/mac-help/mh40616/mac)）は次のとおりです。
 
-1. Slashstripを開こうとし、表示された警告を閉じます。アプリをゴミ箱には入れないでください
+1. Hachibuを開こうとし、表示された警告を閉じます。アプリをゴミ箱には入れないでください
 2. アップルメニュー ＞「システム設定」を選び、サイドバーで「プライバシーとセキュリティ」をクリックします
-3. 「セキュリティ」に移動し、Slashstripについての表示の横にある「開く」（macOSの版によっては「このまま開く」）をクリックします。このボタンは、開こうとしてから約1時間だけ出ます
+3. 「セキュリティ」に移動し、Hachibuについての表示の横にある「開く」（macOSの版によっては「このまま開く」）をクリックします。このボタンは、開こうとしてから約1時間だけ出ます
 4. 「このまま開く」をクリックし、ログインパスワードを入力して「OK」をクリックします
 
 これ以降は、ログイン時の起動も含めて普通に開きます。
@@ -252,8 +260,8 @@ Appleの手順（[開発元が不明なMacアプリを開く](https://support.ap
 ターミナルを使う場合は、macOSがこのコピーに付けた「インターネットからダウンロードした」印を外してから開く方法もあります。
 
 ```sh
-xattr -dr com.apple.quarantine /Applications/Slashstrip.app
-open /Applications/Slashstrip.app
+xattr -dr com.apple.quarantine /Applications/Hachibu.app
+open /Applications/Hachibu.app
 ```
 
 これは、このコピーに限って確認を省きます。どちらの方法も、入手元を信頼できる場合にだけ行ってください。
@@ -263,7 +271,7 @@ open /Applications/Slashstrip.app
 Appleが確認していないアプリを開くかどうかは、使う人の判断です。先に確かめる方法があります。
 
 - ソースはすべてこのリポジトリにあります。[自分でビルド](#ソースからビルド)したアプリは、そのMacでは止められません
-- [リリースのページ](https://github.com/BoxPistols/slashstrip/releases/latest)にあるSHA-256と照合できます: `shasum -a 256 ~/Downloads/Slashstrip-macos.zip`
+- [リリースのページ](https://github.com/BoxPistols/hachibu/releases/latest)にあるSHA-256と照合できます: `shasum -a 256 ~/Downloads/Hachibu-macos.zip`
 - アプリが何を読み、何を送るかは[データの扱い](#データの扱い)にあります
 
 #### 求められることがある権限
@@ -276,12 +284,12 @@ Appleが確認していないアプリを開くかどうかは、使う人の判
 #### アンインストール
 
 1. 「ログイン時に起動」を有効にしていた場合は、先にメニューバーの項目から無効にします
-2. メニューバーの項目からSlashstripを終了し、`Slashstrip.app`をゴミ箱に入れます
+2. メニューバーの項目からHachibuを終了し、`Hachibu.app`をゴミ箱に入れます
 3. 設定とログも消す場合は、次を実行します
 
 ```sh
-defaults delete dev.local.slashstrip
-rm -rf ~/Library/Logs/Slashstrip ~/"Library/Application Support/Slashstrip"
+defaults delete dev.local.hachibu
+rm -rf ~/Library/Logs/Hachibu ~/"Library/Application Support/Hachibu"
 ```
 
 4. `statusline.sh`を設定していた場合は、`~/.claude/settings.json`のstatusLineから外します
@@ -290,11 +298,11 @@ rm -rf ~/Library/Logs/Slashstrip ~/"Library/Application Support/Slashstrip"
 
 任意です。使用率APIを使わない場合や、作業中のセッションのモデルとeffortを出したい場合に設定します。
 
-`statusline.sh`は、Claude CodeがstatusLineに渡すJSONを`~/Library/Application Support/Slashstrip/statusline.json`に保存し、Slashstripはそれを読みます。リリースから入手して（クローンした場合は`scripts/statusline.sh`）、実行できるようにします。
+`statusline.sh`は、Claude CodeがstatusLineに渡すJSONを`~/Library/Application Support/Hachibu/statusline.json`に保存し、Hachibuはそれを読みます。リリースから入手して（クローンした場合は`scripts/statusline.sh`）、実行できるようにします。
 
 ```sh
-curl -L -o ~/.claude/slashstrip-statusline.sh https://github.com/BoxPistols/slashstrip/releases/latest/download/statusline.sh
-chmod +x ~/.claude/slashstrip-statusline.sh
+curl -L -o ~/.claude/hachibu-statusline.sh https://github.com/BoxPistols/hachibu/releases/latest/download/statusline.sh
+chmod +x ~/.claude/hachibu-statusline.sh
 ```
 
 そのうえで、`~/.claude/settings.json`のstatusLineから呼びます。すでに別のstatusLineを使っている場合は、そのコマンドを引数に渡してください。同じJSONがそのコマンドにも渡り、ステータス行の表示はそのコマンドの出力になります。設定の例は英語の節にあります。
@@ -304,29 +312,29 @@ chmod +x ~/.claude/slashstrip-statusline.sh
 ### デスクトップアプリだけで使う場合
 
 - 使用率APIを有効にしていれば、ターミナルとデスクトップアプリのどちらを使っていても使用率は更新されます
-- 使用率APIを使わない場合、使用率はターミナルのstatusLineからしか届かないため、デスクトップアプリだけを使っている間は更新されません。帯は最後に分かっている値を出し続け、30分を過ぎると薄く表示して、何時点の値かを添えます。[#6](https://github.com/BoxPistols/slashstrip/issues/6)を参照してください
+- 使用率APIを使わない場合、使用率はターミナルのstatusLineからしか届かないため、デスクトップアプリだけを使っている間は更新されません。帯は最後に分かっている値を出し続け、30分を過ぎると薄く表示して、何時点の値かを添えます。[#6](https://github.com/BoxPistols/hachibu/issues/6)を参照してください
 
 ### データの扱い
 
 - 読むのはローカルのファイルです。Claude Codeが保存した会話（最後に使われたモデルを知るためだけ）、`~/.claude/settings.json`、上のstatusLineのファイル
 - ネットワークに接続するのは使用率APIを有効にした場合だけで、接続先は`api.anthropic.com`だけです
 - キーチェーンのログイン情報は、その問い合わせのときだけ読み、保存も記録もしません
-- 設定の変更と、使用率の取得に失敗したことは`~/Library/Logs/Slashstrip/actions.log`に残ります
+- 設定の変更と、使用率の取得に失敗したことは`~/Library/Logs/Hachibu/actions.log`に残ります
 
 ### ソースからビルド
 
 macOS 14以降と、Xcode Command Line Tools（Xcode本体は不要です）が必要です。
 
 ```sh
-scripts/build-app.sh            # build/Slashstrip.appを作る
+scripts/build-app.sh            # build/Hachibu.appを作る
 scripts/build-app.sh --install  # ~/Applicationsに置いて起動する
-scripts/build-app.sh --zip      # build/Slashstrip-macos.zipとSHA-256も作る
+scripts/build-app.sh --zip      # build/Hachibu-macos.zipとSHA-256も作る
 scripts/test.sh                 # テスト
 ```
 
 ### 開発への参加
 
-issueとプルリクエストを歓迎します。プルリクエストを送る前に`scripts/test.sh`を実行してください。画面の文言は`Sources/SlashstripCore/Strings.swift`にあります。変えるときは英語と日本語の両方を直してください。
+issueとプルリクエストを歓迎します。プルリクエストを送る前に`scripts/test.sh`を実行してください。画面の文言は`Sources/HachibuCore/Strings.swift`にあります。変えるときは英語と日本語の両方を直してください。
 
 ### 商標
 

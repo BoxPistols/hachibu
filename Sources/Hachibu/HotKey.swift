@@ -1,6 +1,6 @@
 import Carbon
 import Foundation
-import SlashstripCore
+import HachibuCore
 
 /// どのアプリが前面でも効くショートカット。CarbonのRegisterEventHotKeyを使うので、アクセシビリティ権限は要らない。
 final class HotKey {

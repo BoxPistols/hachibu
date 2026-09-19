@@ -1,12 +1,12 @@
 import Foundation
-import SlashstripCore
+import HachibuCore
 
 /// 利用者の設定。UserDefaultsのキーはここにだけ書く
 enum Prefs {
-    /// 撮影用モード（SLASHSTRIP_SOURCE=demo）と試験用（SLASHSTRIP_SUITE=名前）では、利用者の設定に触れないよう別の保存先を使う
+    /// 撮影用モード（HACHIBU_SOURCE=demo）と試験用（HACHIBU_SUITE=名前）では、利用者の設定に触れないよう別の保存先を使う
     static let defaults: UserDefaults = {
         let env = ProcessInfo.processInfo.environment
-        let suite = env["SLASHSTRIP_SUITE"] ?? (env["SLASHSTRIP_SOURCE"] == "demo" ? "dev.local.slashstrip.demo" : nil)
+        let suite = env["HACHIBU_SUITE"] ?? (env["HACHIBU_SOURCE"] == "demo" ? "dev.local.hachibu.demo" : nil)
         return suite.flatMap { UserDefaults(suiteName: $0) } ?? .standard
     }()
 

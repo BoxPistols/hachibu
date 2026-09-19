@@ -1,6 +1,6 @@
 import Foundation
 import Testing
-@testable import SlashstripCore
+@testable import HachibuCore
 
 @Suite struct StatusLineTests {
     /// 公式ドキュメントのstatusLineのJSONの形。値は架空

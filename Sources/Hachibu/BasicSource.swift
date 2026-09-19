@@ -1,5 +1,5 @@
 import Foundation
-import SlashstripCore
+import HachibuCore
 
 /// 基本表示の供給元。ほかの道具に頼らず、状態の枠1つ（"Opus5 1M xhigh · S2 W81 F55"）だけを出す。
 ///
@@ -13,7 +13,7 @@ final class BasicSource: DataSource {
     private(set) var apiFailure: UsageAPIClient.Failure?
 
     static let statusLineFile = FileManager.default.homeDirectoryForCurrentUser
-        .appendingPathComponent("Library/Application Support/Slashstrip/statusline.json")
+        .appendingPathComponent("Library/Application Support/Hachibu/statusline.json")
     private static let claudeDir = FileManager.default.homeDirectoryForCurrentUser.appendingPathComponent(".claude")
 
     private var timer: Timer?

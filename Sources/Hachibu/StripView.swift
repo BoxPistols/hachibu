@@ -1,5 +1,5 @@
 import AppKit
-import SlashstripCore
+import HachibuCore
 import SwiftUI
 
 final class StripStore: ObservableObject {

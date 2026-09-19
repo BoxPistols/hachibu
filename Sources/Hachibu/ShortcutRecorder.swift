@@ -1,5 +1,5 @@
 import AppKit
-import SlashstripCore
+import HachibuCore
 import SwiftUI
 
 /// 「ショートカットを変更…」で開く小さな窓。押している修飾キーをその場で表示し、キーを押した瞬間に登録を試す。

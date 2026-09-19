@@ -1,5 +1,5 @@
 import AppKit
-import SlashstripCore
+import HachibuCore
 
 /// メニューバーの項目と、帯の右クリックで共通に使うメニュー項目
 final class MenuBuilder {

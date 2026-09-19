@@ -1,13 +1,13 @@
 import Foundation
-import SlashstripCore
+import HachibuCore
 
 /// 撮影と見た目の確認用。架空の値だけを出す。
-/// SLASHSTRIP_SOURCE=demoで起動する。SLASHSTRIP_DEMO=criticalで5時間枠が赤の場面になる
+/// HACHIBU_SOURCE=demoで起動する。HACHIBU_DEMO=criticalで5時間枠が赤の場面になる
 final class DemoSource: DataSource {
     var onSlots: (([Slot]) -> Void)?
     private(set) var limits: [UsageLimit] = []
 
-    private let scene = ProcessInfo.processInfo.environment["SLASHSTRIP_DEMO"] ?? ""
+    private let scene = ProcessInfo.processInfo.environment["HACHIBU_DEMO"] ?? ""
 
     func start() {
         let now = Date()

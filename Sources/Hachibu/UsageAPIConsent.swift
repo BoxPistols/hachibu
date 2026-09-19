@@ -1,5 +1,5 @@
 import AppKit
-import SlashstripCore
+import HachibuCore
 import SwiftUI
 
 /// 使用率APIを使うかを尋ねる窓。何を使い、どんなリスクがあるかを先に示し、利用者が選んだときだけ有効にする
@@ -37,6 +37,9 @@ final class UsageAPIConsent {
 }
 
 struct ConsentView: View {
+    /// 注意書きで引用している規約の出典
+    static let termsURL = URL(string: "https://code.claude.com/docs/en/legal-and-compliance")!
+
     let onEnable: () -> Void
     let onDecline: () -> Void
 
@@ -50,6 +53,8 @@ struct ConsentView: View {
                     .font(.system(size: 13))
                     .fixedSize(horizontal: false, vertical: true)
             }
+            Link(s.consentTerms, destination: Self.termsURL)
+                .font(.system(size: 13))
             HStack {
                 Spacer()
                 Button(s.consentDecline, action: onDecline)

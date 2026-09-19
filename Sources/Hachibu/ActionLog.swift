@@ -1,15 +1,15 @@
 import Foundation
 
-/// ~/Library/Logs/Slashstrip/actions.logに1行ずつ追記する。256KBを超えたら後半だけ残す。
+/// ~/Library/Logs/Hachibu/actions.logに1行ずつ追記する。256KBを超えたら後半だけ残す。
 /// 設定の変更や使用率の取得の失敗など、画面に出ない出来事の理由を残す
 enum ActionLog {
     static let url: URL = {
-        let dir = FileManager.default.homeDirectoryForCurrentUser.appendingPathComponent("Library/Logs/Slashstrip")
+        let dir = FileManager.default.homeDirectoryForCurrentUser.appendingPathComponent("Library/Logs/Hachibu")
         try? FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
         return dir.appendingPathComponent("actions.log")
     }()
 
-    private static let queue = DispatchQueue(label: "slashstrip.actionlog")
+    private static let queue = DispatchQueue(label: "hachibu.actionlog")
     private static let maxBytes = 256 * 1024
     private static let stamp: DateFormatter = {
         let f = DateFormatter()

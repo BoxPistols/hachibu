@@ -1,6 +1,6 @@
 import Foundation
 import Testing
-@testable import SlashstripCore
+@testable import HachibuCore
 
 @Suite struct ShortcutConflictsTests {
     /// com.apple.symbolichotkeysの形。修飾キーの値にはテンキー（1<<21）やfn（1<<23）のビットが混ざる

@@ -1,5 +1,5 @@
 import Testing
-@testable import SlashstripCore
+@testable import HachibuCore
 
 @Suite struct LayoutRulesTests {
     static func status(_ text: String = "Opus5 1M xhigh · S12 W76") -> Slot {

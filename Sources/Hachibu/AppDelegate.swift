@@ -1,5 +1,5 @@
 import AppKit
-import SlashstripCore
+import HachibuCore
 
 final class AppDelegate: NSObject, NSApplicationDelegate {
     private var source: DataSource!
@@ -13,8 +13,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     func applicationDidFinishLaunching(_ notification: Notification) {
         // 文言を読む部品を作る前に、メニューで選んだ言語にしておく
         L10n.apply(saved: Prefs.language)
-        // 開発用: SLASHSTRIP_SOURCE=demoのときは架空の値で動かす（撮影用）
-        let isDemo = ProcessInfo.processInfo.environment["SLASHSTRIP_SOURCE"] == "demo"
+        // 開発用: HACHIBU_SOURCE=demoのときは架空の値で動かす（撮影用）
+        let isDemo = ProcessInfo.processInfo.environment["HACHIBU_SOURCE"] == "demo"
         let source: DataSource = isDemo ? DemoSource() : BasicSource()
         let strip = StripController()
         self.source = source

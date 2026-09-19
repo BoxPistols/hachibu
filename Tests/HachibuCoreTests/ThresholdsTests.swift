@@ -1,5 +1,5 @@
 import Testing
-@testable import SlashstripCore
+@testable import HachibuCore
 
 @Suite struct ThresholdsTests {
     @Test func defaultIsSeventyAndNinety() {

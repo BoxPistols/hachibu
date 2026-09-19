@@ -1,6 +1,6 @@
 import Foundation
 import Testing
-@testable import SlashstripCore
+@testable import HachibuCore
 
 /// Carbonの代わりの登録器。いま登録されている組み合わせと、他のアプリが押さえている組み合わせを持つ
 final class FakeRegistrar: HotKeyRegistrar {

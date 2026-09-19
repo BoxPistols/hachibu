@@ -1,5 +1,5 @@
 import AppKit
-import SlashstripCore
+import HachibuCore
 
 /// 帯の表示状態を持つ。普段のモード（利用者が選ぶ）に、マウスを乗せたときとショートカットで呼んだときの一時的な展開を重ねる。
 final class StripController {

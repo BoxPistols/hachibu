@@ -1,5 +1,5 @@
 import AppKit
-import SlashstripCore
+import HachibuCore
 
 /// メニューバーの項目。アイコンの横に使用率や状態を文字で出せる。
 /// ツールチップはアプリが非アクティブだと出ない場合があるので、リセット時刻はここでも読めるようにする。

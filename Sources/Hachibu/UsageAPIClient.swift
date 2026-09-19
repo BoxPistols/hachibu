@@ -1,5 +1,5 @@
 import Foundation
-import SlashstripCore
+import HachibuCore
 
 /// 使用率APIの呼び出し。利用者が「使用率をAPIから取得」を有効にしたときだけ使う。
 ///
@@ -33,7 +33,7 @@ enum UsageAPIClient {
         req.setValue("Bearer " + token, forHTTPHeaderField: "Authorization")
         req.setValue("oauth-2025-04-20", forHTTPHeaderField: "anthropic-beta")
         let version = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "dev"
-        req.setValue("Slashstrip/\(version)", forHTTPHeaderField: "User-Agent")
+        req.setValue("Hachibu/\(version)", forHTTPHeaderField: "User-Agent")
 
         let done = DispatchSemaphore(value: 0)
         var result: Result<[UsageLimit], Failure> = .failure(.network)
