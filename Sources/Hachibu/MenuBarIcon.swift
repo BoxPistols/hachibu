@@ -59,7 +59,8 @@ enum MenuBarIcon {
     private static func draw(_ piece: Piece, at x: CGFloat, width: CGFloat) {
         switch piece {
         case .dot:
-            accent.setFill()
+            // 黄と赤は使用率の段階に使う色なので、ここは色を付けない
+            NSColor.labelColor.withAlphaComponent(0.6).setFill()
             let d = ContextDot.diameter
             NSBezierPath(ovalIn: NSRect(x: x + 1, y: height - d - 3, width: d, height: d)).fill()
         case .text(let text, let level):

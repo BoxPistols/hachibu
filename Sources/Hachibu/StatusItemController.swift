@@ -65,6 +65,7 @@ final class StatusItemController: NSObject, NSMenuDelegate {
         builder.loginItems().forEach(menu.addItem)
         menu.addItem(builder.resetPositionItem())
         menu.addItem(builder.openLogItem())
+        menu.addItem(builder.legendMenuItem())
 
         menu.addItem(.separator())
         menu.addItem(NSMenuItem(title: L10n.current.menuQuit, action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q"))

@@ -39,6 +39,7 @@ final class MenuBuilder {
         menu.addItem(languageMenuItem())
         loginItems().forEach(menu.addItem)
         menu.addItem(openLogItem())
+        menu.addItem(legendMenuItem())
         if menuBarItemIsHidden() {
             menu.addItem(.separator())
             menu.addItem(choice(L10n.current.menuBarHidden, selected: false) {
@@ -54,7 +55,12 @@ final class MenuBuilder {
     func usageItems() -> [NSMenuItem] {
         let limits = source.limits
         // 帯では点で示しているコンテキスト長を、ここでは文字で書く
-        let header = strip.statusSlot.flatMap { ContextMark.spelledOut($0.text) }.map { [disabled($0)] } ?? []
+        let header: [NSMenuItem] = strip.statusSlot.flatMap { ContextMark.spelledOut($0.text) }.map {
+            let item = disabled($0)
+            // 帯の点と同じ印を付け、点がこの行の「context」を指すことが分かるようにする
+            item.image = Self.dot(NSColor.secondaryLabelColor, diameter: 6)
+            return [item]
+        } ?? []
         guard !limits.isEmpty else { return header + [disabled(L10n.current.menuNoUsage)] }
         var items = header + limits.map { limit in
             let item = disabled(limit.line())
@@ -266,12 +272,29 @@ final class MenuBuilder {
         return f
     }
 
-    private static func dot(_ color: NSColor) -> NSImage {
+    private static func dot(_ color: NSColor, diameter: CGFloat = 8) -> NSImage {
         NSImage(size: NSSize(width: 10, height: 10), flipped: false) { rect in
             color.setFill()
-            NSBezierPath(ovalIn: rect.insetBy(dx: 1, dy: 1)).fill()
+            let inset = (rect.width - diameter) / 2
+            NSBezierPath(ovalIn: rect.insetBy(dx: inset, dy: inset)).fill()
             return true
         }
+    }
+
+    /// 「表示の読み方」。帯に出ている記号と色だけを並べる
+    func legendMenuItem() -> NSMenuItem {
+        let s = L10n.current
+        let items = Legend.lines(statusText: strip.statusSlot?.text, limits: source.limits,
+                                 thresholds: strip.thresholds).map { line -> NSMenuItem in
+            let item = disabled(line.text)
+            switch line.mark {
+            case .contextDot: item.image = Self.dot(NSColor.secondaryLabelColor, diameter: 6)
+            case .level(let level): item.image = LevelStyle.background(level).map { Self.dot($0.nsColor) }
+            case .none: break
+            }
+            return item
+        }
+        return submenu(s.menuLegend, items)
     }
 }
 

@@ -92,6 +92,13 @@ public struct Strings {
     public let resetOtherDay: String
 
     public let menuLanguage: String
+    // 「表示の読み方」。帯の記号と色の意味を並べる
+    public let menuLegend: String
+    public let legendContext: (String) -> String
+    public let legendLimit: (String, String) -> String
+    public let legendModelLimit: (String, String) -> String
+    public let legendWarning: (Int) -> String
+    public let legendCritical: (Int) -> String
     /// メニューバーの項目がmacOSの設定で隠されているときに、帯のメニューに出す案内
     public let menuBarHidden: String
     /// 引数はmacOSの言語から決まる言語の名前
@@ -199,6 +206,12 @@ public struct Strings {
         resetSameDay: "H:mm",
         resetOtherDay: "EEE M/d H:mm",
         menuLanguage: "Language",
+        menuLegend: "How to Read the Strip",
+        legendContext: { "Dot after the model name: \($0) context" },
+        legendLimit: { "\($0): \($1) limit" },
+        legendModelLimit: { "\($0): weekly limit for \($1)" },
+        legendWarning: { "\($0)% or more" },
+        legendCritical: { "\($0)% or more" },
         menuBarHidden: "Menu bar item is hidden by macOS. Open Menu Bar settings…",
         languageSystem: { "Same as macOS (\($0))" },
         logShortcutCommitted: { "Set the shortcut to \($0) (confirmed that it arrives)" },
@@ -305,6 +318,12 @@ public struct Strings {
         resetSameDay: "H:mm",
         resetOtherDay: "M/d(E) H:mm",
         menuLanguage: "言語",
+        menuLegend: "表示の読み方",
+        legendContext: { "モデル名の後ろの点：\($0)コンテキスト" },
+        legendLimit: { "\($0)：\($1)" },
+        legendModelLimit: { "\($0)：\($1)の週枠" },
+        legendWarning: { "\($0)%以上" },
+        legendCritical: { "\($0)%以上" },
         menuBarHidden: "メニューバーの項目がmacOSに隠されています。「メニューバー」の設定を開く…",
         languageSystem: { "macOSに合わせる（\($0)）" },
         logShortcutCommitted: { "ショートカットを\($0)にしました（届くことを確認済み）" },

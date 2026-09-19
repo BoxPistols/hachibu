@@ -184,8 +184,9 @@ struct ContextDot: View {
     static let diameter: CGFloat = 4
 
     var body: some View {
+        // 黄と赤は使用率の段階に使う色なので、ここは色を付けない（警告と読まれないように）
         Circle()
-            .fill(Color(.sRGB, red: 242 / 255, green: 201 / 255, blue: 76 / 255, opacity: 1))
+            .fill(RGBA.idleForeground.color.opacity(0.75))
             .frame(width: Self.diameter, height: Self.diameter)
     }
 }
