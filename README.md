@@ -16,7 +16,7 @@ Hachibu is an unofficial tool made by an individual. It is not affiliated with, 
 
 ## What it shows
 
-`Opus5 1M xhigh · S42 W76 F55` reads as: model, effort, then usage. S is the 5-hour limit, W the weekly limit, and F a per-model weekly limit (the first letter of the model's name).
+`Opus5• xhigh · S42 W76 F93` reads as: model, effort, then usage. The small dot after the model name means a 1M context. S is the 5-hour limit, W the weekly limit, and F a per-model weekly limit (the first letter of the model's name). The menu has How to Read the Strip, which lists the same.
 
 - A usage number turns yellow at 70% and red at 90% by default. You can change both thresholds
 - Hover over the strip or open the menu bar item to see when each limit resets
@@ -44,7 +44,7 @@ Pick how much of the strip you want to see. Hover to expand it to Standard tempo
 | Mode | Shows |
 |---|---|
 | Standard | Model, effort, and usage |
-| Usage only | Usage numbers such as `S93 W76 F55` |
+| Usage only | Usage numbers such as `S42 W76 F93` |
 | Tucked | A small handle at the edge of the screen. Its ring shows the highest usage level |
 | Hidden | Nothing. Show it with the shortcut or from the menu bar |
 
@@ -203,7 +203,7 @@ Hachibuは個人が作った非公式のツールで、Anthropic, PBCとは関�
 
 ### 表示の読み方
 
-`Opus5 1M xhigh · S42 W76 F55`は、モデル、effort、使用率の順です。Sは5時間枠、Wは週枠、Fはモデル別の週枠（モデル名の頭文字）です。
+`Opus5• xhigh · S42 W76 F93`は、モデル、effort、使用率の順です。モデル名の後ろの小さな点は、1Mコンテキストを表します。Sは5時間枠、Wは週枠、Fはモデル別の週枠（モデル名の頭文字）です。同じ内容は、メニューの「表示の読み方」にもあります。
 
 - 使用率が既定で70%以上なら黄、90%以上なら赤の札で数字を囲みます。閾値はどちらも変えられます
 - 帯にマウスを乗せるか、メニューバーの項目を開くと、各枠がいつリセットされるかが分かります
@@ -231,7 +231,7 @@ Hachibuだけで動きます。ほかの道具は要りません。
 | モード | 出るもの |
 |---|---|
 | 標準 | モデル、effort、使用率 |
-| 使用率だけ | `S93 W76 F55`のような使用率だけ |
+| 使用率だけ | `S42 W76 F93`のような使用率だけ |
 | 端に収納 | 画面の端の小さなつまみだけ。輪の色で、いちばん高い使用率の段階を示す |
 | 隠す | 何も出さない。ショートカットかメニューバーから出す |
 

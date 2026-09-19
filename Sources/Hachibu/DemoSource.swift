@@ -15,7 +15,7 @@ final class DemoSource: DataSource {
         limits = [
             UsageLimit(kind: .fiveHour, percent: fiveHour, resetsAt: now.addingTimeInterval(2 * 3600)),
             UsageLimit(kind: .weekly, percent: 76, resetsAt: now.addingTimeInterval(3 * 86400)),
-            UsageLimit(kind: .model("Fable"), percent: 55, resetsAt: now.addingTimeInterval(2 * 86400)),
+            UsageLimit(kind: .model("Fable"), percent: 93, resetsAt: now.addingTimeInterval(2 * 86400)),
         ]
         // BasicSourceと同じ色（平常の灰色）
         let slot = Slot(id: Slot.statusID,

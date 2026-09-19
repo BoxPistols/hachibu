@@ -8,7 +8,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private var recorder: ShortcutRecorder!
     private var builder: MenuBuilder!
     private let consent = UsageAPIConsent()
-    private var statusItem: StatusItemController!
+    private var statusItem: StatusItemController?
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         // 同じアプリの別のコピーがすでに動いていれば、そちらに帯を出させて終わる（帯を重ねて出さない）
@@ -39,10 +39,13 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         self.hotKeys = hotKeys
         recorder = ShortcutRecorder(hotKeys: hotKeys)
         builder = MenuBuilder(source: source, strip: strip, hotKeys: hotKeys, recorder: recorder, consent: consent)
-        statusItem = StatusItemController(source: source, strip: strip, builder: builder)
-        builder.menuBarItemIsHidden = { [weak self] in self?.statusItem.isHiddenBySystem ?? false }
+        // 撮影用の起動ではメニューバーの項目を作らない（macOSの「メニューバー」の設定の一覧に行を増やさないため）
+        if !isDemo {
+            statusItem = StatusItemController(source: source, strip: strip, builder: builder)
+        }
+        builder.menuBarItemIsHidden = { [weak self] in self?.statusItem?.isHiddenBySystem ?? false }
 
-        strip.onChange = { [weak self] in self?.statusItem.refreshTitle() }
+        strip.onChange = { [weak self] in self?.statusItem?.refreshTitle() }
         strip.usageText = { [weak source] in
             MenuBarStyle.title(style: .usage, statusText: nil, limits: source?.limits ?? [])
         }

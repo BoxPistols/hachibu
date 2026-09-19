@@ -94,8 +94,12 @@ enum Snapshot {
         window.backgroundColor = NSColor(white: 0.12, alpha: 1)
         window.contentView = hosting
         hosting.layoutSubtreeIfNeeded()
-        guard let rep = hosting.bitmapImageRepForCachingDisplay(in: hosting.bounds) else { return }
-        hosting.cacheDisplay(in: hosting.bounds, to: rep)
+        let bounds = hosting.bounds
+        guard let rep = NSBitmapImageRep(bitmapDataPlanes: nil, pixelsWide: Int(bounds.width * 2), pixelsHigh: Int(bounds.height * 2),
+                                         bitsPerSample: 8, samplesPerPixel: 4, hasAlpha: true, isPlanar: false,
+                                         colorSpaceName: .deviceRGB, bytesPerRow: 0, bitsPerPixel: 0) else { return }
+        rep.size = bounds.size
+        hosting.cacheDisplay(in: bounds, to: rep)
         try? rep.representation(using: .png, properties: [:])?.write(to: url)
     }
 }
