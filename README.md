@@ -37,6 +37,8 @@ You can switch the usage API on or off at any time from the menu bar item.
 
 Pick how much of the strip you want to see. Hover to expand it to Standard temporarily.
 
+![Hover to expand, right-click to switch modes](docs/images/demo.gif)
+
 | Mode | Shows |
 |---|---|
 | Standard | Model, effort, and usage |
@@ -210,6 +212,8 @@ Slashstripだけで動きます。ほかの道具は要りません。
 ### 表示を控えめにする
 
 表示モードは4つです。マウスを乗せると一時的に標準へ広がります。
+
+![マウスを乗せると広がり、右クリックでモードを切り替える](docs/images/demo.gif)
 
 | モード | 出るもの |
 |---|---|
