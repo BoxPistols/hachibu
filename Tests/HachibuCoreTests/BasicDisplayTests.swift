@@ -60,6 +60,9 @@ import Testing
         #expect(ModelInfo.displayName(transcriptModelID: "claude-opus-5", settingsModel: "opus[1m]") == "Opus5 1M")
         #expect(ModelInfo.displayName(transcriptModelID: "claude-opus-5[1m]", settingsModel: "opus[1m]") == "Opus5 1M")
         #expect(ModelInfo.displayName(transcriptModelID: "claude-sonnet-5", settingsModel: nil) == "Sonnet5")
+        // 設定が別の系統のモデルを指しているときは、その1Mを付けない
+        #expect(ModelInfo.displayName(transcriptModelID: "claude-sonnet-5", settingsModel: "opus[1m]") == "Sonnet5")
+        #expect(ModelInfo.displayName(transcriptModelID: "claude-sonnet-5", settingsModel: "claude-sonnet-5[1m]") == "Sonnet5 1M")
     }
 
     @Test func fallsBackToTheSettingsAlias() {

@@ -72,10 +72,13 @@ public enum ModelInfo {
     }
 
     /// 会話記録のモデルIDと設定のモデル指定を合わせて、帯のモデル名にする。
-    /// 会話記録のIDに文脈の長さが無ければ、設定の指定（"opus[1m]"の"1M"）を添える
+    /// 会話記録のIDに文脈の長さが無ければ、同じ系統のモデルを指す設定の指定（"opus[1m]"の"1M"）を添える
     public static func displayName(transcriptModelID: String?, settingsModel: String?) -> String? {
         if let id = transcriptModelID, var name = compactID(id) {
-            if !name.contains(" "), let settingsModel, let ctx = contextSuffix(ofAlias: settingsModel) {
+            // 設定の指定が別の系統のモデル（会話はsonnet、設定は"opus[1m]"など）なら、その文脈の長さは付けない
+            if !name.contains(" "), let settingsModel, let ctx = contextSuffix(ofAlias: settingsModel),
+               let family = settingsModel.lowercased().split(whereSeparator: { !$0.isLetter }).first,
+               id.lowercased().contains(family) {
                 name += " " + ctx
             }
             return name
