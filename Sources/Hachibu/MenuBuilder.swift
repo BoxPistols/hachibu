@@ -56,22 +56,22 @@ final class MenuBuilder {
         let limits = source.limits
         // 帯では点で示しているコンテキスト長を、ここでは文字で書く
         let header: [NSMenuItem] = strip.statusSlot.flatMap { ContextMark.spelledOut($0.text) }.map {
-            let item = disabled($0)
+            let item = info($0)
             // 帯の点と同じ印を付け、点がこの行の「context」を指すことが分かるようにする
-            item.image = Self.dot(LevelStyle.contextDot.nsColor, diameter: 6)
+            (item.view as? InfoRowView)?.dot = (LevelStyle.contextDot.nsColor, 6)
             return [item]
         } ?? []
-        guard !limits.isEmpty else { return header + [disabled(L10n.current.menuNoUsage)] }
+        guard !limits.isEmpty else { return header + [info(L10n.current.menuNoUsage)] }
         var items = header + limits.map { limit in
-            let item = disabled(limit.line())
+            let item = info(limit.line())
             if let color = LevelStyle.background(strip.thresholds.level(limit.percent)) {
-                item.image = Self.dot(color.nsColor)
+                (item.view as? InfoRowView)?.dot = (color.nsColor, 8)
             }
             return item
         }
         // ターミナルでClaude Codeを使っていない間は値が更新されない。いつ時点の値かを添える
         if Usage.isStale(source.usageAsOf), let asOf = source.usageAsOf {
-            items.append(disabled(L10n.current.usageAsOf(ResetFormatter.text(asOf))))
+            items.append(info(L10n.current.usageAsOf(ResetFormatter.text(asOf))))
         }
         return items
     }
@@ -110,7 +110,7 @@ final class MenuBuilder {
         }
         var items = [item]
         if Prefs.usageAPIConsent == true, let failure = basic.apiFailure {
-            items.append(disabled(L10n.current.usageAPIFailed(failure.summary)))
+            items.append(info(L10n.current.usageAPIFailed(failure.summary)))
         }
         return items
     }
@@ -161,7 +161,7 @@ final class MenuBuilder {
         var items = [summon]
         if let shortcut = hotKeys.shortcut {
             if hotKeys.registrationFailed {
-                items.append(disabled(L10n.current.menuHotKeyUnavailable(shortcut.display)))
+                items.append(info(L10n.current.menuHotKeyUnavailable(shortcut.display)))
             } else if shortcut.keyLabel.count == 1 {
                 // 表示のため。実際に効くのはHotKeyの登録で、メニューのキー割り当てはメニューを開いている間しか効かない
                 summon.keyEquivalent = shortcut.keyLabel.lowercased()
@@ -170,7 +170,7 @@ final class MenuBuilder {
                 summon.title = "\(L10n.current.menuSummon)（\(shortcut.display)）"
             }
         } else {
-            items.append(disabled(L10n.current.menuShortcutOff))
+            items.append(info(L10n.current.menuShortcutOff))
         }
         items.append(choice(L10n.current.menuChangeShortcut, selected: false) { [weak self] in self?.recorder.show() })
         return items
@@ -195,7 +195,7 @@ final class MenuBuilder {
             items.append(choice(L10n.current.loginItemNeedsApproval, selected: false) { LoginItem.openSettings() })
         }
         if let loginItemError {
-            items.append(disabled(L10n.current.loginItemFailed(loginItemError)))
+            items.append(info(L10n.current.loginItemFailed(loginItemError)))
         }
         return items
     }
@@ -238,6 +238,14 @@ final class MenuBuilder {
     }
 
     // MARK: - 部品
+
+    /// 読むための行（使用率、読み方、状態の知らせ）。押せない項目はmacOSが文字色の指定にかかわらず薄く描き、
+    /// 使えない項目に見える。自前の行で通常の濃さで描く。選べない選択肢と見出しはdisabledのまま薄くする
+    func info(_ title: String) -> NSMenuItem {
+        let item = NSMenuItem(title: title, action: nil, keyEquivalent: "")
+        item.view = InfoRowView(title: title)
+        return item
+    }
 
     func disabled(_ title: String) -> NSMenuItem {
         let item = NSMenuItem(title: title, action: nil, keyEquivalent: "")
@@ -306,10 +314,10 @@ final class MenuBuilder {
         let s = L10n.current
         let items = Legend.lines(statusText: strip.statusSlot?.text, limits: source.limits,
                                  thresholds: strip.thresholds).map { line -> NSMenuItem in
-            let item = disabled(line.text)
+            let item = info(line.text)
             switch line.mark {
-            case .contextDot: item.image = Self.dot(LevelStyle.contextDot.nsColor, diameter: 6)
-            case .level(let level): item.image = LevelStyle.background(level).map { Self.dot($0.nsColor) }
+            case .contextDot: (item.view as? InfoRowView)?.dot = (LevelStyle.contextDot.nsColor, 6)
+            case .level(let level): (item.view as? InfoRowView)?.dot = LevelStyle.background(level).map { ($0.nsColor, 8) }
             case .none: break
             }
             return item
@@ -343,4 +351,42 @@ final class PreviewMenuItem: ClosureMenuItem {
     }
 
     required init(coder: NSCoder) { fatalError("not used") }
+}
+
+/// メニューの中の、読むための行。押せず、乗せても反転しない。文字は通常の濃さで描く。
+/// 点は、チェックマークが入る左の余白に描き、文字の左端をほかの項目と揃える
+final class InfoRowView: NSView {
+    // 実測で、標準の項目の文字の左端と揃う値
+    private static let textInset: CGFloat = 24
+    private static let rowHeight: CGFloat = 24
+    private static let trailing: CGFloat = 18
+    private static let font = NSFont.menuFont(ofSize: 0)
+
+    private let title: String
+    var dot: (color: NSColor, diameter: CGFloat)? {
+        didSet { needsDisplay = true }
+    }
+
+    init(title: String) {
+        self.title = title
+        let width = ceil((title as NSString).size(withAttributes: [.font: Self.font]).width)
+        super.init(frame: NSRect(x: 0, y: 0, width: Self.textInset + width + Self.trailing, height: Self.rowHeight))
+        autoresizingMask = [.width]
+        setAccessibilityElement(true)
+        setAccessibilityRole(.staticText)
+        setAccessibilityLabel(title)
+    }
+
+    required init?(coder: NSCoder) { nil }
+
+    override func draw(_ dirtyRect: NSRect) {
+        let attrs: [NSAttributedString.Key: Any] = [.font: Self.font, .foregroundColor: NSColor.labelColor]
+        let size = (title as NSString).size(withAttributes: attrs)
+        (title as NSString).draw(at: NSPoint(x: Self.textInset, y: (bounds.height - size.height) / 2), withAttributes: attrs)
+        if let dot {
+            dot.color.setFill()
+            let d = dot.diameter
+            NSBezierPath(ovalIn: NSRect(x: (Self.textInset - d) / 2, y: (bounds.height - d) / 2, width: d, height: d)).fill()
+        }
+    }
 }
