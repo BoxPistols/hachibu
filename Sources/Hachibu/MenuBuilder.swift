@@ -58,7 +58,7 @@ final class MenuBuilder {
         let header: [NSMenuItem] = strip.statusSlot.flatMap { ContextMark.spelledOut($0.text) }.map {
             let item = disabled($0)
             // 帯の点と同じ印を付け、点がこの行の「context」を指すことが分かるようにする
-            item.image = Self.dot(NSColor.secondaryLabelColor, diameter: 6)
+            item.image = Self.dot(LevelStyle.contextDot.nsColor, diameter: 6)
             return [item]
         } ?? []
         guard !limits.isEmpty else { return header + [disabled(L10n.current.menuNoUsage)] }
@@ -288,7 +288,7 @@ final class MenuBuilder {
                                  thresholds: strip.thresholds).map { line -> NSMenuItem in
             let item = disabled(line.text)
             switch line.mark {
-            case .contextDot: item.image = Self.dot(NSColor.secondaryLabelColor, diameter: 6)
+            case .contextDot: item.image = Self.dot(LevelStyle.contextDot.nsColor, diameter: 6)
             case .level(let level): item.image = LevelStyle.background(level).map { Self.dot($0.nsColor) }
             case .none: break
             }

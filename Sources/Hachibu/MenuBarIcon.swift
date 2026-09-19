@@ -5,8 +5,14 @@ import HachibuCore
 /// 使用率の文字も同じ画像の中に描く。文字列の背景色では札に角丸を付けられず、帯の札と形が揃わないため。
 /// 比率はscripts/make-icon.swiftと揃える（切れ目の幅は帯の太さの1/3、傾きは0.6、切れ目の位置は左から62%）
 enum MenuBarIcon {
-    private static let height: CGFloat = 18
-    private static let iconWidth: CGFloat = 20
+    private static let height: CGFloat = 22
+    // 絵はバッテリーの表示に近い大きさにする。太くしすぎると帯ではなく2つの塊に見えるので、アプリのアイコンの比率（太さ1：長さ約4）に寄せる
+    private static let iconWidth: CGFloat = 30
+    private static let glyphThickness: CGFloat = 8
+    /// 絵と文字をひとまとまりに見せる薄い面。隣のアプリの項目と見分けられるようにする
+    private static let groupInset: CGFloat = 1.5
+    private static let groupPadding: CGFloat = 6
+    private static let groupRadius: CGFloat = 6
     private static let accent = NSColor(srgbRed: 242 / 255, green: 201 / 255, blue: 76 / 255, alpha: 1)
     // 数字の幅を揃え、値が変わっても幅が揺れないようにする
     private static let font = NSFont.monospacedDigitSystemFont(ofSize: NSFont.systemFontSize, weight: .regular)
@@ -30,12 +36,23 @@ enum MenuBarIcon {
         }
         let widths = pieces.map(width)
         let textWidth = widths.reduce(0, +)
-        let total = iconWidth + (pieces.isEmpty ? 0 : gapAfterIcon + textWidth)
+        let grouped = !pieces.isEmpty
+        let lead = grouped ? groupPadding : 0
+        let total = lead + iconWidth + (grouped ? gapAfterIcon + textWidth + groupPadding : 0)
 
         // 描く時点のメニューバーの明暗で色が決まるよう、描画は都度呼ばれる形にする
         let image = NSImage(size: NSSize(width: ceil(total), height: height), flipped: false) { _ in
-            drawGlyph(in: NSRect(x: 0, y: 0, width: iconWidth, height: height))
-            var x = iconWidth + gapAfterIcon
+            if grouped {
+                let face = NSBezierPath(roundedRect: NSRect(x: 0.5, y: groupInset, width: ceil(total) - 1, height: height - groupInset * 2),
+                                        xRadius: groupRadius, yRadius: groupRadius)
+                NSColor.labelColor.withAlphaComponent(0.09).setFill()
+                face.fill()
+                NSColor.labelColor.withAlphaComponent(0.16).setStroke()
+                face.lineWidth = 1
+                face.stroke()
+            }
+            drawGlyph(in: NSRect(x: lead, y: 0, width: iconWidth, height: height))
+            var x = lead + iconWidth + gapAfterIcon
             for (piece, w) in zip(pieces, widths) {
                 draw(piece, at: x, width: w)
                 x += w
@@ -59,10 +76,9 @@ enum MenuBarIcon {
     private static func draw(_ piece: Piece, at x: CGFloat, width: CGFloat) {
         switch piece {
         case .dot:
-            // 黄と赤は使用率の段階に使う色なので、ここは色を付けない
-            NSColor.labelColor.withAlphaComponent(0.6).setFill()
+            LevelStyle.contextDot.nsColor.setFill()
             let d = ContextDot.diameter
-            NSBezierPath(ovalIn: NSRect(x: x + 1, y: height - d - 3, width: d, height: d)).fill()
+            NSBezierPath(ovalIn: NSRect(x: x + 1, y: height - d - 5, width: d, height: d)).fill()
         case .text(let text, let level):
             let size = (text as NSString).size(withAttributes: [.font: font])
             let y = (height - size.height) / 2
@@ -80,8 +96,8 @@ enum MenuBarIcon {
     }
 
     private static func drawGlyph(in rect: NSRect) {
-        let t: CGFloat = 6
-        let gap = t / 3 + 0.5   // 小さい表示でも切れ目が潰れないよう、わずかに広げる
+        let t = glyphThickness
+        let gap = t / 3
         let slant = t * 0.6
         let x0 = rect.minX + 1, x1 = rect.maxX - 1
         let y = (rect.height - t) / 2

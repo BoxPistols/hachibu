@@ -68,6 +68,9 @@ enum LevelStyle {
         }
     }
 
+    /// コンテキスト長の点の色。使用率の黄（242,201,76）と赤（217,48,37）のどちらとも見分けられる橙
+    static let contextDot = RGBA(r: 224, g: 124, b: 84, a: 255)
+
     static func foreground(_ level: UsageLevel) -> RGBA {
         level == .warning ? RGBA(r: 28, g: 28, b: 30, a: 255) : .white
     }
@@ -184,9 +187,9 @@ struct ContextDot: View {
     static let diameter: CGFloat = 4
 
     var body: some View {
-        // 黄と赤は使用率の段階に使う色なので、ここは色を付けない（警告と読まれないように）
+        // 黄と赤は使用率の段階に使う色なので避け、1Mが有効であることを橙で示す
         Circle()
-            .fill(RGBA.idleForeground.color.opacity(0.75))
+            .fill(LevelStyle.contextDot.color)
             .frame(width: Self.diameter, height: Self.diameter)
     }
 }
