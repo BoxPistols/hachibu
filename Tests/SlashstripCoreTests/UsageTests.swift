@@ -102,6 +102,28 @@ import Testing
         #expect(Language.detect(preferred: ["en-US"], override: "xx") == .en)
     }
 
+    @Test func languageChosenInTheMenuWinsOverMacOS() {
+        #expect(Language.detect(preferred: ["ja-JP"], saved: "en", override: nil) == .en)
+        #expect(Language.detect(preferred: ["en-US"], saved: "ja", override: nil) == .ja)
+        // 撮影用の環境変数はメニューの選択よりも優先する
+        #expect(Language.detect(preferred: ["ja-JP"], saved: "ja", override: "en") == .en)
+        // 読めない値が保存されていたらmacOSに合わせる
+        #expect(Language.detect(preferred: ["ja-JP"], saved: "xx", override: nil) == .ja)
+    }
+
+    @Test func englishLogLinesHaveNoJapanese() {
+        let s = Strings.en
+        let lines = [
+            s.logShortcutCommitted("⌥⌘/"), s.logShortcutDisabled, s.logShortcutFailed("⌥⌘/"),
+            s.logUsageAPIEnabled, s.logUsageAPIDeclined, s.logUsageAPIDisabled,
+            s.logLoginItemOn, s.logLoginItemOff, s.logOpened, s.logLanguageChanged("English"),
+            s.usageAPIFailed("HTTP 500"), s.loginItemFailed("example error"),
+        ]
+        for line in lines {
+            #expect(!line.unicodeScalars.contains { (0x3000...0x9FFF).contains($0.value) }, "\(line)")
+        }
+    }
+
     @Test func everyModeAndStyleHasAnEnglishName() {
         for layout in StripLayout.allCases {
             #expect(!Strings.en.layoutName(layout).isEmpty)

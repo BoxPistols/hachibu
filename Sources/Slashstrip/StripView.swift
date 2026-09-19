@@ -218,8 +218,10 @@ final class DragHandleView: NSView {
     override init(frame: NSRect) {
         super.init(frame: frame)
         setAccessibilityRole(.handle)
-        setAccessibilityLabel(L10n.current.dragHandle)
     }
+
+    // 言語を切り替えたあとも、読み上げのたびに今の言語で返す
+    override func accessibilityLabel() -> String? { L10n.current.dragHandle }
 
     required init?(coder: NSCoder) { nil }
 

@@ -31,6 +31,12 @@ final class MenuBuilder {
         menu.addItem(.separator())
         shortcutItems().forEach(menu.addItem)
         menu.addItem(resetPositionItem())
+        // メニューバーの項目はmacOSの設定で隠せる。隠されても帯だけで全部の操作に届くようにする
+        menu.addItem(languageMenuItem())
+        loginItems().forEach(menu.addItem)
+        menu.addItem(openLogItem())
+        menu.addItem(.separator())
+        menu.addItem(quitItem())
         return menu
     }
 
@@ -74,12 +80,12 @@ final class MenuBuilder {
         let item = choice(L10n.current.menuUsageAPI, selected: Prefs.usageAPIConsent == true) { [weak self] in
             if Prefs.usageAPIConsent == true {
                 Prefs.usageAPIConsent = false
-                ActionLog.append("使用率APIからの取得をやめました")
+                ActionLog.append(L10n.current.logUsageAPIDisabled)
                 basic.usageAPISettingChanged()
             } else {
                 self?.consent.show { enabled in
                     Prefs.usageAPIConsent = enabled
-                    ActionLog.append(enabled ? "使用率APIからの取得を有効にしました" : "使用率APIからの取得は有効にしませんでした")
+                    ActionLog.append(enabled ? L10n.current.logUsageAPIEnabled : L10n.current.logUsageAPIDeclined)
                     basic.usageAPISettingChanged()
                 }
             }
@@ -141,9 +147,9 @@ final class MenuBuilder {
             let turnOn = !(LoginItem.isEnabled || LoginItem.needsApproval)
             self?.loginItemError = LoginItem.set(turnOn)
             if let error = self?.loginItemError {
-                ActionLog.append("ログイン項目を変更できませんでした: \(error)")
+                ActionLog.append(L10n.current.loginItemFailed("\(error)"))
             } else {
-                ActionLog.append(turnOn ? "ログイン時に起動するようにしました" : "ログイン時の起動をやめました")
+                ActionLog.append(turnOn ? L10n.current.logLoginItemOn : L10n.current.logLoginItemOff)
             }
         }
         var items = [toggle]
@@ -156,13 +162,36 @@ final class MenuBuilder {
         return items
     }
 
+    /// 画面の言語。macOSに合わせるか、英語か日本語を選ぶ。次にメニューを開いたときから切り替わる
+    func languageMenuItem() -> NSMenuItem {
+        let saved = Prefs.language.flatMap(Language.init(rawValue:))
+        let system = Language.detect(saved: nil, override: nil)
+        var items = [choice(L10n.current.languageSystem(system.nativeName), selected: saved == nil) {
+            Self.setLanguage(nil)
+        }]
+        items += Language.allCases.map { lang in
+            choice(lang.nativeName, selected: saved == lang) { Self.setLanguage(lang) }
+        }
+        return submenu(L10n.current.menuLanguage, items)
+    }
+
+    private static func setLanguage(_ lang: Language?) {
+        Prefs.language = lang?.rawValue
+        L10n.apply(saved: lang?.rawValue)
+        ActionLog.append(L10n.current.logLanguageChanged(L10n.current.language.nativeName))
+    }
+
+    func quitItem() -> NSMenuItem {
+        choice(L10n.current.menuQuit, selected: false) { NSApp.terminate(nil) }
+    }
+
     func resetPositionItem() -> NSMenuItem {
         choice(L10n.current.menuResetPosition, selected: false) { [weak self] in self?.strip.resetPosition() }
     }
 
     func openLogItem() -> NSMenuItem {
         choice(L10n.current.menuOpenLog, selected: false) {
-            ActionLog.append("操作ログを開きました")
+            ActionLog.append(L10n.current.logOpened)
             // 追記は非同期なので、ファイルができるのを待たずに開くと「見つからない」になりうる
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
                 NSWorkspace.shared.open(ActionLog.url)

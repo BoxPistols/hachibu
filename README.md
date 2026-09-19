@@ -54,7 +54,7 @@ Right-click the strip to switch modes, opacity, and color thresholds. Hovering o
 
 You can also show usage in the menu bar, and summon the strip with a keyboard shortcut (⌥⌘/ by default). When you record a new shortcut, Slashstrip rejects combinations that macOS already uses, and saves it only after you press it once more and it arrives.
 
-The interface follows your macOS language: Japanese if it comes first in your preferred languages, English otherwise.
+The interface follows your macOS language: Japanese if it comes first in your preferred languages, English otherwise. You can also pick English or Japanese from Language in the menu. The action log is written in the language shown at the time.
 
 ## Install
 
@@ -228,7 +228,7 @@ Slashstripだけで動きます。ほかの道具は要りません。
 
 メニューバーに使用率を出したり、ショートカット（既定は⌥⌘/）で帯を呼び出したりもできます。ショートカットを登録するときは、macOSが使っている組み合わせを弾き、もう一度押して届いたときだけ保存します。
 
-画面の文言は、macOSの言語設定に合わせて日本語か英語になります。
+画面の文言は、macOSの言語設定に合わせて日本語か英語になります。メニューの「言語」から英語か日本語を選ぶこともできます。操作ログは、書いた時点の画面の言語で残ります。
 
 ### インストール
 

@@ -1,14 +1,25 @@
 import Foundation
 
-/// 画面の言語。macOSの優先言語が日本語なら日本語、それ以外は英語。SLASHSTRIP_LANG=en|jaで上書きできる
-public enum Language: String {
+/// 画面の言語。利用者がメニューで選んだ言語、無ければmacOSの優先言語（日本語なら日本語、それ以外は英語）。
+/// SLASHSTRIP_LANG=en|jaはどちらよりも優先する（撮影用）
+public enum Language: String, CaseIterable {
     case en
     case ja
 
     public static func detect(preferred: [String] = Locale.preferredLanguages,
+                              saved: String? = nil,
                               override: String? = ProcessInfo.processInfo.environment["SLASHSTRIP_LANG"]) -> Language {
         if let override, let lang = Language(rawValue: override) { return lang }
+        if let saved, let lang = Language(rawValue: saved) { return lang }
         return preferred.first?.hasPrefix("ja") == true ? .ja : .en
+    }
+
+    /// メニューでは、どの言語の画面でもその言語自身の名前で出す
+    public var nativeName: String {
+        switch self {
+        case .en: return "English"
+        case .ja: return "日本語"
+        }
     }
 }
 
@@ -75,6 +86,22 @@ public struct Strings {
     public let resetLocale: String
     public let resetSameDay: String
     public let resetOtherDay: String
+
+    public let menuLanguage: String
+    /// 引数はmacOSの言語から決まる言語の名前
+    public let languageSystem: (String) -> String
+
+    // 操作ログ（~/Library/Logs/Slashstrip/actions.log）の文言。書いた時点の画面の言語で残る
+    public let logShortcutCommitted: (String) -> String
+    public let logShortcutDisabled: String
+    public let logShortcutFailed: (String) -> String
+    public let logUsageAPIEnabled: String
+    public let logUsageAPIDeclined: String
+    public let logUsageAPIDisabled: String
+    public let logLoginItemOn: String
+    public let logLoginItemOff: String
+    public let logOpened: String
+    public let logLanguageChanged: (String) -> String
 
     public static let en = Strings(
         language: .en,
@@ -161,7 +188,19 @@ public struct Strings {
         loginItemFailed: { "Could not change the login item: \($0)" },
         resetLocale: "en_US",
         resetSameDay: "H:mm",
-        resetOtherDay: "EEE M/d H:mm"
+        resetOtherDay: "EEE M/d H:mm",
+        menuLanguage: "Language",
+        languageSystem: { "Same as macOS (\($0))" },
+        logShortcutCommitted: { "Set the shortcut to \($0) (confirmed that it arrives)" },
+        logShortcutDisabled: "Turned off the shortcut",
+        logShortcutFailed: { "Could not register the shortcut \($0)" },
+        logUsageAPIEnabled: "Turned on getting usage from the API",
+        logUsageAPIDeclined: "Left getting usage from the API off",
+        logUsageAPIDisabled: "Stopped getting usage from the API",
+        logLoginItemOn: "Set Slashstrip to launch at login",
+        logLoginItemOff: "Stopped launching at login",
+        logOpened: "Opened the action log",
+        logLanguageChanged: { "Changed the language to \($0)" }
     )
 
     public static let ja = Strings(
@@ -251,7 +290,19 @@ public struct Strings {
         loginItemFailed: { "ログイン項目を変更できませんでした: \($0)" },
         resetLocale: "ja_JP",
         resetSameDay: "H:mm",
-        resetOtherDay: "M/d(E) H:mm"
+        resetOtherDay: "M/d(E) H:mm",
+        menuLanguage: "言語",
+        languageSystem: { "macOSに合わせる（\($0)）" },
+        logShortcutCommitted: { "ショートカットを\($0)にしました（届くことを確認済み）" },
+        logShortcutDisabled: "ショートカットを無効にしました",
+        logShortcutFailed: { "ショートカット\($0)の登録に失敗しました" },
+        logUsageAPIEnabled: "使用率APIからの取得を有効にしました",
+        logUsageAPIDeclined: "使用率APIからの取得は有効にしませんでした",
+        logUsageAPIDisabled: "使用率APIからの取得をやめました",
+        logLoginItemOn: "ログイン時に起動するようにしました",
+        logLoginItemOff: "ログイン時の起動をやめました",
+        logOpened: "操作ログを開きました",
+        logLanguageChanged: { "言語を\($0)にしました" }
     )
 
     public static func `for`(_ language: Language) -> Strings {
@@ -262,6 +313,11 @@ public struct Strings {
 /// いま使う文言の表と、どの言語でも同じ文言
 public enum L10n {
     public static var current: Strings = .for(.detect())
+
+    /// メニューで選んだ言語（nilはmacOSに合わせる）に切り替える
+    public static func apply(saved: String?) {
+        current = .for(.detect(saved: saved))
+    }
 
     public static let appName = "Slashstrip"
     public static let statusPlaceholder = "CC …"

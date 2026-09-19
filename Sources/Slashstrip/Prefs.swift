@@ -11,6 +11,7 @@ enum Prefs {
     }()
 
     private static let usageAPIConsentKey = "usageAPIConsent"
+    private static let languageKey = "language"
     private static let layoutKey = "restLayout"
     private static let opacityKey = "opacity"
     private static let menuBarKey = "menuBarStyle"
@@ -23,6 +24,12 @@ enum Prefs {
     static var usageAPIConsent: Bool? {
         get { defaults.object(forKey: usageAPIConsentKey) as? Bool }
         set { defaults.set(newValue, forKey: usageAPIConsentKey) }
+    }
+
+    /// 画面の言語（Language.rawValue）。nilはmacOSに合わせる
+    static var language: String? {
+        get { defaults.string(forKey: languageKey) }
+        set { defaults.set(newValue, forKey: languageKey) }
     }
 
     static var restLayout: StripLayout {

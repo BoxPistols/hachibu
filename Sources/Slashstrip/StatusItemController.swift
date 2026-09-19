@@ -68,6 +68,7 @@ final class StatusItemController: NSObject, NSMenuDelegate {
         menu.addItem(.separator())
 
         builder.shortcutItems().forEach(menu.addItem)
+        menu.addItem(builder.languageMenuItem())
         builder.loginItems().forEach(menu.addItem)
         menu.addItem(builder.resetPositionItem())
         menu.addItem(builder.openLogItem())

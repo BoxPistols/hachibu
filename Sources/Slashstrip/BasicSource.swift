@@ -136,7 +136,7 @@ final class BasicSource: DataSource {
                     self.apiFailure = nil
                 case .failure(let failure):
                     if self.apiFailure != failure {
-                        ActionLog.append("使用率APIから取得できませんでした（\(failure.summary)）")
+                        ActionLog.append(L10n.current.usageAPIFailed(failure.summary))
                     }
                     self.apiFailure = failure
                 }

@@ -145,6 +145,12 @@ final class StripController {
         render()
     }
 
+    /// アプリをもう一度開いたとき。隠すモードでも帯を出す（戻すのはショートカットかメニューから）
+    func showSummoned() {
+        summoned = true
+        render()
+    }
+
     func resetPosition() {
         placement.reset()
     }
