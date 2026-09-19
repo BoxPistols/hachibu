@@ -52,7 +52,7 @@ final class StatusItemController: NSObject, NSMenuDelegate {
     func menuNeedsUpdate(_ menu: NSMenu) {
         menu.removeAllItems()
         builder.usageItems().forEach(menu.addItem)
-        menu.addItem(builder.sourceItem())
+        builder.usageAPIItems().forEach(menu.addItem)
         menu.addItem(.separator())
 
         menu.addItem(builder.layoutMenuItem())

@@ -7,17 +7,13 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private var hotKeys: HotKeyCenter!
     private var recorder: ShortcutRecorder!
     private var builder: MenuBuilder!
+    private let consent = UsageAPIConsent()
     private var statusItem: StatusItemController!
 
     func applicationDidFinishLaunching(_ notification: Notification) {
-        // 開発用: SLASHSTRIP_SOURCE=statuslineならスクリプトがあってもstatusLineのみ、demoなら架空の値で動かす
-        let forced = ProcessInfo.processInfo.environment["SLASHSTRIP_SOURCE"]
-        let source: DataSource
-        switch forced {
-        case "demo": source = DemoSource()
-        case "statusline": source = StatusLineSource()
-        default: source = ScriptBackend.detect() ?? StatusLineSource()
-        }
+        // 開発用: SLASHSTRIP_SOURCE=demoのときは架空の値で動かす（撮影用）
+        let isDemo = ProcessInfo.processInfo.environment["SLASHSTRIP_SOURCE"] == "demo"
+        let source: DataSource = isDemo ? DemoSource() : BasicSource()
         let strip = StripController()
         self.source = source
         self.strip = strip
@@ -35,16 +31,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         }
         self.hotKeys = hotKeys
         recorder = ShortcutRecorder(hotKeys: hotKeys)
-        builder = MenuBuilder(source: source, strip: strip, hotKeys: hotKeys, recorder: recorder)
+        builder = MenuBuilder(source: source, strip: strip, hotKeys: hotKeys, recorder: recorder, consent: consent)
         statusItem = StatusItemController(source: source, strip: strip, builder: builder)
 
-        strip.onPerform = { [weak source] slot in source?.perform(slot) }
-        strip.onStatusClick = { [weak self] in
-            guard let self else { return }
-            var picked = false
-            let menu = self.builder.sessionMenu { picked = true }
-            self.strip.popUp(menu) { picked }
-        }
         strip.onChange = { [weak self] in self?.statusItem.refreshTitle() }
         strip.usageText = { [weak source] in
             MenuBarStyle.title(style: .usage, statusText: nil, limits: source?.limits ?? [])
@@ -53,5 +42,16 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
         source.onSlots = { [weak strip] slots in strip?.update(slots) }
         source.start()
+
+        // 基本表示で、まだ尋ねていなければ、使用率APIを使うかを最初に一度だけ尋ねる
+        if let basic = source as? BasicSource, Prefs.usageAPIConsent == nil {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) { [weak self] in
+                self?.consent.show { enabled in
+                    Prefs.usageAPIConsent = enabled
+                    ActionLog.append(enabled ? "使用率APIからの取得を有効にしました" : "使用率APIからの取得は有効にしませんでした")
+                    basic.usageAPISettingChanged()
+                }
+            }
+        }
     }
 }

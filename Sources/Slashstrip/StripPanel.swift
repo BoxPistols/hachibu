@@ -3,8 +3,7 @@ import SwiftUI
 
 /// 押してもアクティブにならないパネル。
 ///
-/// Touch Barは押してもフロントのアプリが変わらない。画面上のボタンで同じことをするには、
-/// クリックでこのアプリが前面に来てはいけない（送り先の判定がフロントのターミナルを前提にしているため）。
+/// 帯を触っても、使っているアプリからキー入力が離れないようにする（ドラッグや右クリックで前面が入れ替わらない）。
 final class StripPanel: NSPanel {
     init(contentView: NSView) {
         super.init(contentRect: NSRect(x: 0, y: 0, width: 240, height: 40),
@@ -50,6 +49,13 @@ extension NSView {
 /// 非アクティブなウィンドウでも1回目のクリックをボタンに届ける。
 final class FirstClickHostingView<Content: View>: NSHostingView<Content>, ContextMenuHost {
     var contextMenuProvider: (() -> NSMenu?)?
+    /// 中身の大きさが変わったとき。表示を更新した直後に測ると、描き直しの前の大きさを拾うことがある（実測で文字が切れた）
+    var onContentSizeChange: (() -> Void)?
+
+    override func invalidateIntrinsicContentSize() {
+        super.invalidateIntrinsicContentSize()
+        onContentSizeChange?()
+    }
 
     override func acceptsFirstMouse(for event: NSEvent?) -> Bool { true }
     // 枠なしウィンドウでは、この値がtrueの面を押すとボタンに届かずウィンドウのドラッグになる（実測）
@@ -89,7 +95,8 @@ final class StripPlacement {
 
     /// 中身の大きさに合わせて置き直す
     func fit(to size: NSSize) {
-        let size = NSSize(width: ceil(size.width), height: ceil(size.height))
+        // 端数の切り上げに1ptの余裕を足す。ちょうどの幅だと、描くときの丸めで文字が詰められることがある
+        let size = NSSize(width: ceil(size.width) + 1, height: ceil(size.height))
         guard size.width > 0, size.height > 0 else { return }
         setFrame(clamped(frame(for: size)))
     }

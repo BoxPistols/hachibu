@@ -1,8 +1,10 @@
+<img src="docs/images/app-icon.png" width="96" alt="">
+
 # Slashstrip
 
-A small floating strip for Macs without a Touch Bar. It shows Claude Code's model, effort, and usage limits at a glance, and puts slash commands one click away.
+A small strip that stays on top of your Mac's screen and shows Claude Code's model, effort, and usage limits at a glance.
 
-![Slashstrip demo](docs/images/demo.gif)
+![Slashstrip](docs/images/strip-basic.png)
 
 Slashstrip is an unofficial tool made by an individual. It is not affiliated with, endorsed by, or sponsored by Anthropic, PBC.
 
@@ -10,63 +12,51 @@ Slashstrip is an unofficial tool made by an individual. It is not affiliated wit
 
 [日本語の説明はこちら](#日本語)
 
-## What it does
+## What it shows
 
-![Full strip](docs/images/strip-full.png)
+`Opus5 1M xhigh · S42 W76 F55` reads as: model, effort, then usage. S is the 5-hour limit, W the weekly limit, and F a per-model weekly limit (the first letter of the model's name).
 
-- Shows the model, effort, and usage (5-hour and weekly limits), for example `Opus5 1M xhigh · S42 W76`
-- Marks a usage number yellow at 70% and red at 90% by default. You can change both thresholds
-- Sends `/review`, `/model`, `/usage`, and other commands to the Claude Code session in the front iTerm2 tab with one click
-- Shows answer buttons while Claude Code waits for a permission or asks a multiple-choice question
-- Lists running sessions in start order when you click the status. Pick one to jump to its tab
-- Never takes focus. Your terminal stays in front while you click the strip
+- A usage number turns yellow at 70% and red at 90% by default. You can change both thresholds
+- Hover over the strip or open the menu bar item to see when each limit resets
+- The strip never takes focus. It stays above other windows, including full-screen apps
+- It keeps running whether or not a terminal is open. Turn on Launch at Login from the menu bar to bring it back after a restart
 
-![Waiting for permission](docs/images/strip-permission.png)
+## Where the numbers come from
+
+Slashstrip works on its own. No other tools are needed.
+
+- Model and effort: the conversation Claude Code saved most recently on this Mac, and `~/.claude/settings.json`. If you set up the statusLine below, its values are used when they are newer
+- Usage: you choose one of two sources
+
+1. Usage API (optional). The first time Slashstrip opens, it asks whether to use it. If you turn it on, Slashstrip uses the login that Claude Code saved in your keychain to ask Anthropic's usage endpoint every 5 minutes. S, W, and F then stay up to date even when you are not using the terminal. This endpoint is not publicly documented, and we found nothing showing that Anthropic allows third-party apps to use it. It may stop working, or Anthropic may consider it against its terms; any consequence would fall on your account. The login is used only for this request and is not saved or logged
+2. statusLine (official). Claude Code's statusLine passes the 5-hour and weekly usage to a command you choose. It updates only while you use Claude Code in the terminal, and it does not include per-model limits. See [statusLine setup](#statusline-setup)
+
+You can switch the usage API on or off at any time from the menu bar item.
 
 ## Stays out of the way
 
-Pick how much of the strip you want to see. Hover to expand it temporarily.
+Pick how much of the strip you want to see. Hover to expand it to Standard temporarily.
 
 | Mode | Shows |
 |---|---|
-| Full | Status and every button |
-| Compact | Status only, plus answer buttons when needed |
-| Usage only | Usage numbers such as `S93 W76`, plus answer buttons when needed |
-| Tucked | A small handle at the edge of the screen. Its color shows the state |
-| Hidden | Nothing, until Claude Code needs an answer |
+| Standard | Model, effort, and usage |
+| Usage only | Usage numbers such as `S93 W76 F55` |
+| Tucked | A small handle at the edge of the screen. Its ring shows the highest usage level |
+| Hidden | Nothing. Show it with the shortcut or from the menu bar |
 
 ![Usage only](docs/images/strip-usage-critical.png)
 
 Right-click the strip to switch modes, opacity, and color thresholds. Hovering over an item previews it on the strip before you choose.
 
-![Context menu](docs/images/menu-context.png)
+![Right-click menu](docs/images/menu-context.png)
 
-You can also show usage in the menu bar, and summon the strip with a keyboard shortcut (⌥⌘/ by default). When you record a new shortcut, Slashstrip rejects combinations that macOS already uses, then asks you to press it once more to confirm it actually arrives.
-
-![Shortcut recorder](docs/images/recorder-verify.png)
-
-Turn on Launch at Login from the menu bar so the strip comes back after a restart. It keeps running whether or not a terminal is open.
+You can also show usage in the menu bar, and summon the strip with a keyboard shortcut (⌥⌘/ by default). When you record a new shortcut, Slashstrip rejects combinations that macOS already uses, and saves it only after you press it once more and it arrives.
 
 The interface follows your macOS language: Japanese if it comes first in your preferred languages, English otherwise.
 
-## Current status
-
-Slashstrip reads state from one of two sources.
-
-- With the author's Touch Bar bridge scripts in `~/.claude/btt`, everything above works. The scripts write each session's state from Claude Code hooks, decide which buttons to show, and send input to iTerm2. They are not published yet
-- Without them, Slashstrip shows the model, effort, and usage from Claude Code's statusLine. Command buttons, answer buttons, and the session list are not available in this mode yet
-
-Building the hooks bridge into the app itself is tracked in [#1](https://github.com/BoxPistols/slashstrip/issues/1). Per-model weekly limits are not part of the statusLine data, so they appear only when the bridge scripts provide them.
-
-## Using only the Claude Code desktop app
-
-- The 5-hour and weekly usage come from the statusLine, which only the terminal version of Claude Code has. While you use only the desktop app, these numbers stop updating. The strip keeps showing the last known values, dims them after 30 minutes, and tells you when they were last updated
-- With the bridge scripts, hooks from the desktop app are recorded too, so the state color follows desktop sessions. Command buttons appear only while iTerm2 or Terminal is in front. For a permission request in the desktop app, the answer button brings the app to the front
-- Without the bridge scripts, nothing updates in the desktop app, because there is no statusLine there. There is currently no documented way to read usage limits outside the terminal. See [#6](https://github.com/BoxPistols/slashstrip/issues/6)
-
 ## Install
 
-1. Download [Slashstrip-macos.zip](https://github.com/BoxPistols/slashstrip/releases/latest/download/Slashstrip-macos.zip). It always points to the latest release. Slashstrip needs macOS 14 or later, and iTerm2 if you want to send commands
+1. Download [Slashstrip-macos.zip](https://github.com/BoxPistols/slashstrip/releases/latest/download/Slashstrip-macos.zip). It always points to the latest release. Slashstrip needs macOS 14 or later
 2. Unzip it (Safari may already have done this) and move `Slashstrip.app` to your Applications folder
 3. Open Slashstrip. The first time, macOS stops it. Follow the next section once
 
@@ -98,11 +88,11 @@ Allowing an app that Apple has not checked is a decision you make. Some ways to 
 
 - The source is all in this repository. You can [build it yourself](#build-from-source), and macOS does not block an app you built on your own Mac
 - Compare the checksum with the SHA-256 on the [release page](https://github.com/BoxPistols/slashstrip/releases/latest): `shasum -a 256 ~/Downloads/Slashstrip-macos.zip`
-- Slashstrip does not connect to the network (see [Data](#data))
+- Read [Data](#data) for what the app reads and sends
 
-### Permissions it asks for
+### Permissions it may ask for
 
-- Control iTerm2 (Automation). Asked the first time you press a command button, because Slashstrip types the command into your terminal session. You can change it in System Settings > Privacy & Security > Automation
+- Keychain. If you turn on the usage API, macOS may ask whether to allow access to the "Claude Code-credentials" item
 - Login Items. When you turn on Launch at Login, macOS tells you that Slashstrip will open at login. You can manage it in System Settings > General > Login Items (Login Items & Extensions on newer versions of macOS)
 
 After you update to a new version, macOS may ask again, because the app is not signed with a fixed Developer ID yet.
@@ -120,20 +110,9 @@ rm -rf ~/Library/Logs/Slashstrip ~/"Library/Application Support/Slashstrip"
 
 4. If you set up `statusline.sh`, remove it from the statusLine in `~/.claude/settings.json`
 
-## Build from source
+## statusLine setup
 
-You need macOS 14 or later and the Xcode Command Line Tools (the full Xcode app is not needed).
-
-```sh
-scripts/build-app.sh            # builds build/Slashstrip.app
-scripts/build-app.sh --install  # copies it to ~/Applications and launches it
-scripts/build-app.sh --zip      # also writes build/Slashstrip-macos.zip and its SHA-256
-scripts/test.sh                 # runs the tests
-```
-
-Without a signing certificate the app is ad-hoc signed, so macOS asks again for permission to control iTerm2 after each rebuild.
-
-## statusLine setup (without the bridge scripts)
+This is optional. Use it if you leave the usage API off, or if you want the model and effort of the session you are working in.
 
 `statusline.sh` saves the JSON that Claude Code passes to the statusLine to `~/Library/Application Support/Slashstrip/statusline.json`, which Slashstrip reads. Download it from the release (or use `scripts/statusline.sh` in a clone) and make it executable:
 
@@ -160,12 +139,28 @@ If you already use a statusLine command, pass it as an argument. It receives the
 
 Usage limits (`rate_limits`) appear in the statusLine data on Pro and Max plans, after the first response in a session.
 
+## Using only the Claude Code desktop app
+
+- With the usage API turned on, usage keeps updating whether you use the terminal or the desktop app
+- With the usage API off, usage comes only from the terminal's statusLine, so it stops updating while you use only the desktop app. The strip keeps showing the last known values, dims them after 30 minutes, and tells you when they were last updated. See [#6](https://github.com/BoxPistols/slashstrip/issues/6)
+
 ## Data
 
-- Slashstrip does not connect to the network. It only reads local files written by hooks or the statusLine
-- It does not read Claude Code credentials (Keychain tokens)
-- Each button press and its result are logged to `~/Library/Logs/Slashstrip/actions.log`
-- Commands are typed into the front iTerm2 session through AppleScript
+- Slashstrip reads local files: Claude Code's saved conversations (only to find the most recently used model), `~/.claude/settings.json`, and the statusLine file above
+- It connects to the network only if you turn on the usage API, and then only to `api.anthropic.com`
+- It reads the Claude Code login from the keychain only for that request, and does not save or log it
+- Settings changes and failed usage requests are logged to `~/Library/Logs/Slashstrip/actions.log`
+
+## Build from source
+
+You need macOS 14 or later and the Xcode Command Line Tools (the full Xcode app is not needed).
+
+```sh
+scripts/build-app.sh            # builds build/Slashstrip.app
+scripts/build-app.sh --install  # copies it to ~/Applications and launches it
+scripts/build-app.sh --zip      # also writes build/Slashstrip-macos.zip and its SHA-256
+scripts/test.sh                 # runs the tests
+```
 
 ## Contributing
 
@@ -183,63 +178,57 @@ MIT
 
 ## 日本語
 
-Touch Barを搭載していないMacで、Claude Codeのモデル、effort、使用率を画面上の細い帯に常時表示し、スラッシュコマンドをワンクリックで送れるようにするアプリです。
+Macの画面の最前面に小さな帯を常駐させ、Claude Codeのモデル、effort、使用率をひと目で確かめられるようにするアプリです。
 
 Slashstripは個人が作った非公式のツールで、Anthropic, PBCとは関係がなく、同社の承認や支援も受けていません。
 
+![Slashstripの帯](docs/images/ja-strip-basic.png)
+
 [macOS版をダウンロード](https://github.com/BoxPistols/slashstrip/releases/latest/download/Slashstrip-macos.zip)（macOS 14以降）。まだAppleの公証を受けていないため、初回の起動はmacOSに止められます。開き方は[インストール](#インストール)にあります。
 
-![Slashstripの帯](docs/images/ja-strip-full.png)
+### 表示の読み方
 
-### できること
+`Opus5 1M xhigh · S42 W76 F55`は、モデル、effort、使用率の順です。Sは5時間枠、Wは週枠、Fはモデル別の週枠（モデル名の頭文字）です。
 
-- モデル、effort、使用率（5時間枠、週枠）を出します。例: `Opus5 1M xhigh · S42 W76`
 - 使用率が既定で70%以上なら黄、90%以上なら赤の札で数字を囲みます。閾値はどちらも変えられます
-- `/review`、`/model`、`/usage`などのボタンを押すと、前面のiTerm2のタブで動いているClaude Codeのセッションに入力します
-- 許可プロンプトや、選択肢のある質問が出ているときは、答えのボタンを出します
-- 状態のボタンを押すと、動いているセッションの一覧を開始順の番号付きで出します。選んだセッションのタブへ移ります
-- 帯を押してもSlashstripは前面に出ません。ターミナルを前面にしたまま操作できます
+- 帯にマウスを乗せるか、メニューバーの項目を開くと、各枠がいつリセットされるかが分かります
+- 帯を押してもSlashstripは前面に出ません。フルスクリーンのアプリを含め、ほかの窓の上に出ます
+- ターミナルを開いているかどうかに関係なく動き続けます。メニューバーの項目で「ログイン時に起動」を有効にすると、Macを再起動しても戻ります
+
+### 値の出どころ
+
+Slashstripだけで動きます。ほかの道具は要りません。
+
+- モデルとeffort: このMacでClaude Codeが最後に保存した会話と、`~/.claude/settings.json`から読みます。下のstatusLineを設定していれば、そちらが新しいときはそちらを使います
+- 使用率: 次の2つから選べます
+
+1. 使用率API（任意）。初めて起動したときに、使うかどうかを尋ねます。有効にすると、Claude Codeがキーチェーンに保存したログイン情報を使い、5分ごとにAnthropicの使用率のエンドポイントへ問い合わせます。S、W、Fが、ターミナルを使っていないときも更新されます。このエンドポイントは公開されていないもので、Anthropicがサードパーティのアプリからの利用を認めているという根拠は見つかっていません。使えなくなることや、規約に反すると判断されることがありえ、その場合の影響はあなたのアカウントに及びます。ログイン情報はこの問い合わせにだけ使い、保存も記録もしません
+2. statusLine（公式）。Claude CodeのstatusLineが、5時間枠と週枠の使用率を指定したコマンドに渡します。更新されるのはターミナルでClaude Codeを使っている間だけで、モデル別の枠は含まれません。[statusLineの設定](#statuslineの設定)を参照してください
+
+使用率APIは、メニューバーの項目からいつでも有効・無効を切り替えられます。
 
 ### 表示を控えめにする
 
-表示モードは5つです。マウスを乗せると一時的にフルへ広がります。
+表示モードは4つです。マウスを乗せると一時的に標準へ広がります。
 
 | モード | 出るもの |
 |---|---|
-| フル | 状態とすべてのボタン |
-| コンパクト | 状態の枠だけ。答えが要るときは応答ボタンも出す |
-| 使用率だけ | `S93 W76`のような使用率だけ。答えが要るときは応答ボタンも出す |
-| 端に収納 | 画面の端の小さなつまみだけ。状態は色で示す |
-| 隠す | 何も出さない。Claude Codeが答えを待っているときだけ出す |
+| 標準 | モデル、effort、使用率 |
+| 使用率だけ | `S93 W76 F55`のような使用率だけ |
+| 端に収納 | 画面の端の小さなつまみだけ。輪の色で、いちばん高い使用率の段階を示す |
+| 隠す | 何も出さない。ショートカットかメニューバーから出す |
 
 帯を右クリックすると、表示モード、不透明度、色の閾値を切り替えられます。項目にマウスを乗せると、選ぶ前に帯へ仮に反映します。
 
 ![右クリックメニュー](docs/images/ja-menu-context.png)
 
-メニューバーに使用率を出したり、ショートカット（既定は⌥⌘/）で帯を呼び出したりもできます。ショートカットを登録するときは、macOSが使っている組み合わせを弾き、登録後にもう一度押してもらって、実際に届くことを確かめます。
-
-メニューバーの項目で「ログイン時に起動」を有効にすると、Macを再起動しても帯が戻ります。ターミナルを開いているかどうかに関係なく動き続けます。
+メニューバーに使用率を出したり、ショートカット（既定は⌥⌘/）で帯を呼び出したりもできます。ショートカットを登録するときは、macOSが使っている組み合わせを弾き、もう一度押して届いたときだけ保存します。
 
 画面の文言は、macOSの言語設定に合わせて日本語か英語になります。
 
-### 現時点の前提
-
-Slashstripは、次のどちらかから状態を読みます。
-
-- `~/.claude/btt`に作者のTouch Bar連携スクリプトがある環境では、上のすべてが動きます。このスクリプトは、Claude Codeのhooksから各セッションの状態を書き出し、帯に出すボタンを決め、iTerm2へ入力を送ります。まだ公開していません
-- スクリプトが無い環境では、Claude CodeのstatusLineからモデル、effort、使用率を出します。コマンドのボタン、応答のボタン、セッションの一覧は、このモードではまだ使えません
-
-hooksとの連携をアプリに組み込む作業は[#1](https://github.com/BoxPistols/slashstrip/issues/1)で進めます。モデル別の週枠はstatusLineに含まれないため、スクリプトが別に取得している環境でだけ表示されます。
-
-### デスクトップアプリだけで使う場合
-
-- 5時間枠と週枠の使用率は、ターミナル版のClaude Codeだけが持つstatusLineから受け取ります。デスクトップアプリだけを使っている間は、この値が更新されません。帯は最後に分かっている値を出し続け、30分を過ぎると薄く表示して、何時点の値かを添えます
-- 連携スクリプトがある環境では、デスクトップアプリのhooksも記録されるので、状態の色はデスクトップアプリのセッションにも追従します。コマンドのボタンは、iTerm2かTerminalが前面のときだけ出ます。デスクトップアプリで許可を求められたときは、応答のボタンがデスクトップアプリを前面に出します
-- 連携スクリプトが無い環境では、デスクトップアプリにstatusLineが無いため、何も更新されません。ターミナルの外で使用率を読む公開された手段は、いまのところありません。[#6](https://github.com/BoxPistols/slashstrip/issues/6)で扱います
-
 ### インストール
 
-1. [Slashstrip-macos.zip](https://github.com/BoxPistols/slashstrip/releases/latest/download/Slashstrip-macos.zip)をダウンロードします。このリンクは常に最新のリリースを指します。macOS 14以降が必要で、コマンドを送るにはiTerm2も必要です
+1. [Slashstrip-macos.zip](https://github.com/BoxPistols/slashstrip/releases/latest/download/Slashstrip-macos.zip)をダウンロードします。このリンクは常に最新のリリースを指します。macOS 14以降が必要です
 2. 展開して（Safariでは自動で展開されることがあります）、`Slashstrip.app`をアプリケーションフォルダへ移します
 3. Slashstripを開きます。初回はmacOSに止められるので、次の手順を一度だけ行ってください
 
@@ -271,11 +260,11 @@ Appleが確認していないアプリを開くかどうかは、使う人の判
 
 - ソースはすべてこのリポジトリにあります。[自分でビルド](#ソースからビルド)したアプリは、そのMacでは止められません
 - [リリースのページ](https://github.com/BoxPistols/slashstrip/releases/latest)にあるSHA-256と照合できます: `shasum -a 256 ~/Downloads/Slashstrip-macos.zip`
-- Slashstripはネットワークに接続しません（[データの扱い](#データの扱い)を参照）
+- アプリが何を読み、何を送るかは[データの扱い](#データの扱い)にあります
 
-#### 求められる権限
+#### 求められることがある権限
 
-- iTerm2の操作（オートメーション）。コマンドのボタンを初めて押したときに尋ねられます。コマンドをターミナルのセッションへ入力するためです。「システム設定」＞「プライバシーとセキュリティ」＞「オートメーション」で変えられます
+- キーチェーン。使用率APIを有効にすると、「Claude Code-credentials」の項目へのアクセスを許可するかをmacOSが尋ねることがあります
 - ログイン項目。「ログイン時に起動」を有効にすると、ログイン時に開く旨をmacOSが知らせます。「システム設定」＞「一般」＞「ログイン項目」（新しいmacOSでは「ログイン項目と機能拡張」）で管理できます
 
 まだ決まったDeveloper IDで署名していないため、新しい版に更新すると、もう一度尋ねられることがあります。
@@ -293,20 +282,9 @@ rm -rf ~/Library/Logs/Slashstrip ~/"Library/Application Support/Slashstrip"
 
 4. `statusline.sh`を設定していた場合は、`~/.claude/settings.json`のstatusLineから外します
 
-### ソースからビルド
+### statusLineの設定
 
-macOS 14以降と、Xcode Command Line Tools（Xcode本体は不要です）が必要です。
-
-```sh
-scripts/build-app.sh            # build/Slashstrip.appを作る
-scripts/build-app.sh --install  # ~/Applicationsに置いて起動する
-scripts/build-app.sh --zip      # build/Slashstrip-macos.zipとSHA-256も作る
-scripts/test.sh                 # テスト
-```
-
-署名用の証明書が無い環境ではアドホック署名になるため、ビルドし直すたびに、macOSがiTerm2の操作を許可するかを尋ねます。
-
-### statusLineの設定（スクリプトが無い環境）
+任意です。使用率APIを使わない場合や、作業中のセッションのモデルとeffortを出したい場合に設定します。
 
 `statusline.sh`は、Claude CodeがstatusLineに渡すJSONを`~/Library/Application Support/Slashstrip/statusline.json`に保存し、Slashstripはそれを読みます。リリースから入手して（クローンした場合は`scripts/statusline.sh`）、実行できるようにします。
 
@@ -319,12 +297,28 @@ chmod +x ~/.claude/slashstrip-statusline.sh
 
 使用率（rate_limits）がstatusLineに入るのはPro/Maxのプランで、そのセッションの最初の応答の後からです。
 
+### デスクトップアプリだけで使う場合
+
+- 使用率APIを有効にしていれば、ターミナルとデスクトップアプリのどちらを使っていても使用率は更新されます
+- 使用率APIを使わない場合、使用率はターミナルのstatusLineからしか届かないため、デスクトップアプリだけを使っている間は更新されません。帯は最後に分かっている値を出し続け、30分を過ぎると薄く表示して、何時点の値かを添えます。[#6](https://github.com/BoxPistols/slashstrip/issues/6)を参照してください
+
 ### データの扱い
 
-- Slashstripはネットワークに接続しません。読むのは、hooksやstatusLineが書いたローカルのファイルだけです
-- Claude Codeの資格情報（Keychainのトークン）は読みません
-- ボタンを押した操作と、その結果は`~/Library/Logs/Slashstrip/actions.log`に残ります
-- コマンドは、iTerm2のAppleScriptで前面のセッションに入力します
+- 読むのはローカルのファイルです。Claude Codeが保存した会話（最後に使われたモデルを知るためだけ）、`~/.claude/settings.json`、上のstatusLineのファイル
+- ネットワークに接続するのは使用率APIを有効にした場合だけで、接続先は`api.anthropic.com`だけです
+- キーチェーンのログイン情報は、その問い合わせのときだけ読み、保存も記録もしません
+- 設定の変更と、使用率の取得に失敗したことは`~/Library/Logs/Slashstrip/actions.log`に残ります
+
+### ソースからビルド
+
+macOS 14以降と、Xcode Command Line Tools（Xcode本体は不要です）が必要です。
+
+```sh
+scripts/build-app.sh            # build/Slashstrip.appを作る
+scripts/build-app.sh --install  # ~/Applicationsに置いて起動する
+scripts/build-app.sh --zip      # build/Slashstrip-macos.zipとSHA-256も作る
+scripts/test.sh                 # テスト
+```
 
 ### 開発への参加
 

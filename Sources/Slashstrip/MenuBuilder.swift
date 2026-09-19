@@ -7,12 +7,15 @@ final class MenuBuilder {
     private let strip: StripController
     private let hotKeys: HotKeyCenter
     private let recorder: ShortcutRecorder
+    private let consent: UsageAPIConsent
 
-    init(source: DataSource, strip: StripController, hotKeys: HotKeyCenter, recorder: ShortcutRecorder) {
+    init(source: DataSource, strip: StripController, hotKeys: HotKeyCenter, recorder: ShortcutRecorder,
+         consent: UsageAPIConsent) {
         self.source = source
         self.strip = strip
         self.hotKeys = hotKeys
         self.recorder = recorder
+        self.consent = consent
     }
 
     /// 帯の右クリック。表示の切り替えをその場で行えるよう、モードは入れ子にせず並べる
@@ -26,28 +29,6 @@ final class MenuBuilder {
         menu.addItem(.separator())
         shortcutItems().forEach(menu.addItem)
         menu.addItem(resetPositionItem())
-        return menu
-    }
-
-    /// 状態ボタンを押したときの移動先。開始順の番号で並べ、いま前面のものに印を付ける
-    /// - onPick: 項目が選ばれたとき（移動の前に呼ぶ）
-    func sessionMenu(onPick: @escaping () -> Void = {}) -> NSMenu {
-        let menu = NSMenu()
-        let (list, focusedID) = source.sessions()
-        guard !list.isEmpty else {
-            menu.addItem(disabled(L10n.current.sessionsNone))
-            return menu
-        }
-        menu.addItem(disabled(L10n.current.sessionsHeader))
-        for (i, session) in list.enumerated() {
-            let item = ClosureMenuItem(title: session.menuTitle(number: i + 1)) { [weak self] in
-                onPick()
-                self?.source.focus(session)
-            }
-            item.image = Self.dot(for: session.state)
-            item.state = session.id == focusedID ? .on : .off
-            menu.addItem(item)
-        }
         return menu
     }
 
@@ -85,8 +66,27 @@ final class MenuBuilder {
         return submenu(L10n.current.menuThresholds, items)
     }
 
-    func sourceItem() -> NSMenuItem {
-        disabled(L10n.current.menuSourcePrefix + source.sourceDescription)
+    /// 撮影用の架空の値では出さない。有効にするときは、何を使いどんなリスクがあるかを先に示す
+    func usageAPIItems() -> [NSMenuItem] {
+        guard let basic = source as? BasicSource else { return [] }
+        let item = choice(L10n.current.menuUsageAPI, selected: Prefs.usageAPIConsent == true) { [weak self] in
+            if Prefs.usageAPIConsent == true {
+                Prefs.usageAPIConsent = false
+                ActionLog.append("使用率APIからの取得をやめました")
+                basic.usageAPISettingChanged()
+            } else {
+                self?.consent.show { enabled in
+                    Prefs.usageAPIConsent = enabled
+                    ActionLog.append(enabled ? "使用率APIからの取得を有効にしました" : "使用率APIからの取得は有効にしませんでした")
+                    basic.usageAPISettingChanged()
+                }
+            }
+        }
+        var items = [item]
+        if Prefs.usageAPIConsent == true, let failure = basic.apiFailure {
+            items.append(disabled(L10n.current.usageAPIFailed(failure.summary)))
+        }
+        return items
     }
 
     /// 項目に乗せると帯をそのモードで仮に表示し、選ぶと確定する
@@ -221,15 +221,6 @@ final class MenuBuilder {
         if m.contains(.shift) { f.insert(.shift) }
         if m.contains(.command) { f.insert(.command) }
         return f
-    }
-
-    /// 状態の色の点。帯の状態ボタンと同じ色分け（青=実行中、橙=許可待ち、灰=それ以外）
-    private static func dot(for state: SessionInfo.State) -> NSImage {
-        switch state {
-        case .busy: return dot(NSColor(srgbRed: 38 / 255, green: 102 / 255, blue: 168 / 255, alpha: 1))
-        case .waitingPermission: return dot(NSColor(srgbRed: 214 / 255, green: 138 / 255, blue: 30 / 255, alpha: 1))
-        case .waitingInput, .idle: return dot(NSColor(srgbRed: 120 / 255, green: 120 / 255, blue: 125 / 255, alpha: 1))
-        }
     }
 
     private static func dot(_ color: NSColor) -> NSImage {

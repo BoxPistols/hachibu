@@ -2,43 +2,43 @@ import Testing
 @testable import SlashstripCore
 
 @Suite struct LayoutRulesTests {
-    static func slot(_ id: String) -> Slot {
-        Slot(id: id, text: id, background: .commandBackground, foreground: .white)
+    static func status(_ text: String = "Opus5 1M xhigh · S12 W76") -> Slot {
+        Slot(id: Slot.statusID, text: text, background: .idleBackground, foreground: .idleForeground, help: "reset info")
     }
 
-    static let idle = ["status", "cmd-0", "cmd-1"].map(slot)
-    static let waitingPermission = ["status", "perm-allow", "perm-reject"].map(slot)
-    static let menuOpen = ["status", "menu-1", "menu-2"].map(slot)
-
-    @Test func expandingAlwaysShowsEverything() {
+    @Test func expandingAlwaysShowsTheStandardStrip() {
         for rest in StripLayout.allCases {
-            #expect(LayoutRules.effective(rest: rest, expanded: true, slots: Self.idle) == .full)
+            #expect(LayoutRules.effective(rest: rest, expanded: true) == .full)
         }
     }
 
-    @Test func restingModeIsKeptWhenNothingNeedsAnAnswer() {
+    @Test func restingModeIsKeptOtherwise() {
         for rest in StripLayout.allCases {
-            #expect(LayoutRules.effective(rest: rest, expanded: false, slots: Self.idle) == rest)
+            #expect(LayoutRules.effective(rest: rest, expanded: false) == rest)
         }
     }
 
-    @Test func tabOpensToCompactForPermissionAndMenu() {
-        #expect(LayoutRules.effective(rest: .tab, expanded: false, slots: Self.waitingPermission) == .compact)
-        #expect(LayoutRules.effective(rest: .tab, expanded: false, slots: Self.menuOpen) == .compact)
+    @Test func usageModeReplacesOnlyTheText() {
+        let shown = LayoutRules.visibleSlots([Self.status()], layout: .usage, usageText: "S12 W76")
+        #expect(shown.count == 1)
+        #expect(shown[0].text == "S12 W76")
+        #expect(shown[0].help == "reset info")
+        #expect(shown[0].background == .idleBackground)
     }
 
-    @Test func hiddenOpensWheneverAnAnswerIsNeeded() {
-        // 3択以下の許可は応答ボタン、4択以上の質問は番号ボタンで出る。どちらでも同じように開く
-        #expect(LayoutRules.effective(rest: .hidden, expanded: false, slots: Self.menuOpen) == .compact)
-        #expect(LayoutRules.effective(rest: .hidden, expanded: false, slots: Self.waitingPermission) == .compact)
+    @Test func usageModeKeepsTheTextWhenUsageIsUnknown() {
+        #expect(LayoutRules.visibleSlots([Self.status("Opus5")], layout: .usage, usageText: nil)[0].text == "Opus5")
     }
 
-    @Test func compactKeepsStatusAndAnswerButtonsOnly() {
-        let all = ["status", "perm-allow", "menu-1", "cmd-0", "cmd-1"].map(Self.slot)
-        #expect(LayoutRules.visibleSlots(all, layout: .compact).map(\.id) == ["status", "perm-allow", "menu-1"])
-        #expect(LayoutRules.visibleSlots(all, layout: .tab).map(\.id) == ["status"])
-        #expect(LayoutRules.visibleSlots(all, layout: .hidden).isEmpty)
-        #expect(LayoutRules.visibleSlots(all, layout: .full).map(\.id) == all.map(\.id))
+    @Test func tabAndHidden() {
+        #expect(LayoutRules.visibleSlots([Self.status()], layout: .tab).map(\.id) == [Slot.statusID])
+        #expect(LayoutRules.visibleSlots([Self.status()], layout: .hidden).isEmpty)
+        #expect(LayoutRules.visibleSlots([Self.status()], layout: .full) == [Self.status()])
+    }
+
+    @Test func savedCompactModeFromOlderVersionsIsNotAMode() {
+        // 以前の版で保存された"compact"は読めない。呼び出し側は既定（標準）に戻す
+        #expect(StripLayout(rawValue: "compact") == nil)
     }
 }
 
@@ -53,23 +53,5 @@ import Testing
         #expect(MenuBarStyle.title(style: .usage, statusText: "Opus5 xhigh · S11 W75", limits: limits) == "S11 W75")
         #expect(MenuBarStyle.title(style: .status, statusText: "Opus5 xhigh · S11 W75", limits: limits) == "Opus5 xhigh · S11 W75")
         #expect(MenuBarStyle.title(style: .usage, statusText: nil, limits: []) == nil)
-    }
-}
-
-@Suite struct UsageLayoutTests {
-    @Test func replacesStatusTextWithUsageAndKeepsAnswerButtons() {
-        let status = Slot(id: "status", text: "Opus5 xhigh · S12 W76", background: .idleBackground, foreground: .white,
-                          help: "reset info")
-        let all = [status] + ["perm-allow", "cmd-0"].map(LayoutRulesTests.slot)
-        let shown = LayoutRules.visibleSlots(all, layout: .usage, usageText: "S12 W76")
-        #expect(shown.map(\.id) == ["status", "perm-allow"])
-        #expect(shown[0].text == "S12 W76")
-        #expect(shown[0].help == "reset info")
-        #expect(shown[0].background == .idleBackground)
-    }
-
-    @Test func keepsOriginalTextWhenUsageIsUnknown() {
-        let all = [LayoutRulesTests.slot("status")]
-        #expect(LayoutRules.visibleSlots(all, layout: .usage, usageText: nil)[0].text == "status")
     }
 }

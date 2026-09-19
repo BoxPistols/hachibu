@@ -18,12 +18,17 @@ final class FakeRegistrar: HotKeyRegistrar {
     }
 }
 
-/// テストごとに別の保存先を使う（Swift Testingは並列に走る）
-func freshDefaults() -> UserDefaults {
-    let name = "slashstrip.tests.\(UUID().uuidString)"
-    let d = UserDefaults(suiteName: name)!
-    d.removePersistentDomain(forName: name)
-    return d
+/// テストごとに別の保存先を使う（Swift Testingは並列に走る）。ディスクには書かない
+final class MemoryStore: SettingsStore {
+    private var values: [String: Any] = [:]
+
+    func bool(forKey key: String) -> Bool { values[key] as? Bool ?? false }
+    func data(forKey key: String) -> Data? { values[key] as? Data }
+    func set(_ value: Any?, forKey key: String) { values[key] = value }
+}
+
+func freshDefaults() -> SettingsStore {
+    MemoryStore()
 }
 
 @Suite struct ShortcutRecordingTests {

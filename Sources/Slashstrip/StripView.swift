@@ -6,9 +6,6 @@ final class StripStore: ObservableObject {
     @Published var slots: [Slot] = []
     @Published var layout: StripLayout = .full
     @Published var thresholds = Prefs.thresholds
-    // CLTのmacOS 27 SDKでは@Stateがマクロになり、そのプラグインがCLTに入っていない。状態はここに持つ
-    @Published var hoveredID: String?
-    var onPerform: (Slot) -> Void = { _ in }
 }
 
 extension RGBA {
@@ -21,7 +18,7 @@ extension RGBA {
     }
 }
 
-/// 帯そのもの。つまみ → 状態 → 許可応答 → 番号 → コマンドの順に横へ並べる。
+/// 帯そのもの。つまみと状態の枠を横へ並べる。端に収納するときはつまみだけにする。
 struct StripView: View {
     @ObservedObject var store: StripStore
 
@@ -34,15 +31,7 @@ struct StripView: View {
                     DragHandle()
                         .frame(width: 14, height: Metrics.chipHeight)
                     ForEach(store.slots) { slot in
-                        ChipButton(slot: slot, segments: segments(for: slot), hovering: store.hoveredID == slot.id,
-                                   onHover: { inside in
-                                       if inside {
-                                           store.hoveredID = slot.id
-                                       } else if store.hoveredID == slot.id {
-                                           store.hoveredID = nil
-                                       }
-                                   },
-                                   action: { store.onPerform(slot) })
+                        StatusChip(slot: slot, segments: segments(for: slot))
                     }
                 }
                 .padding(Metrics.inset)
@@ -65,9 +54,9 @@ struct StripView: View {
 }
 
 extension StripView {
-    /// 使用率の語に段階を付けるのは状態の枠だけ（コマンドや番号のラベルには付けない）
+    /// 使用率の語に段階を付けるのは状態の枠だけ
     func segments(for slot: Slot) -> [TextSegment] {
-        guard slot.id == Widgets.status else { return [TextSegment(text: slot.text, level: .normal)] }
+        guard slot.id == Slot.statusID else { return [TextSegment(text: slot.text, level: .normal)] }
         return UsageMarkup.segments(slot.text, thresholds: store.thresholds)
     }
 
@@ -131,36 +120,25 @@ struct DockTab: View {
     }
 }
 
-struct ChipButton: View {
+/// 状態の枠。押す対象ではなく表示だけ。移動はつまみ、設定は右クリックで行う
+struct StatusChip: View {
     let slot: Slot
     let segments: [TextSegment]
-    let hovering: Bool
-    let onHover: (Bool) -> Void
-    let action: () -> Void
 
     var body: some View {
-        Button(action: action) {
-            HStack(spacing: 0) {
-                ForEach(Array(segments.enumerated()), id: \.offset) { _, segment in
-                    SegmentText(segment: segment, normalColor: slot.foreground)
-                }
+        HStack(spacing: 0) {
+            ForEach(Array(segments.enumerated()), id: \.offset) { _, segment in
+                SegmentText(segment: segment, normalColor: slot.foreground)
             }
-                .font(.system(size: Metrics.fontSize, weight: .medium).monospacedDigit())
-                .lineLimit(1)
-                .padding(.horizontal, 10)
-                .frame(height: Metrics.chipHeight)
-                .background(
-                    RoundedRectangle(cornerRadius: 7, style: .continuous)
-                        .fill(slot.background.color)
-                )
-                .overlay(
-                    RoundedRectangle(cornerRadius: 7, style: .continuous)
-                        .fill(Color.white.opacity(hovering ? 0.1 : 0))
-                )
-                .contentShape(RoundedRectangle(cornerRadius: 7, style: .continuous))
         }
-        .buttonStyle(ChipPressStyle())
-        .onHover(perform: onHover)
+        .font(.system(size: Metrics.fontSize, weight: .medium).monospacedDigit())
+        .lineLimit(1)
+        .padding(.horizontal, 10)
+        .frame(height: Metrics.chipHeight)
+        .background(
+            RoundedRectangle(cornerRadius: 7, style: .continuous)
+                .fill(slot.background.color)
+        )
         .opacity(slot.dimmed ? 0.5 : 1)
         // 見えている文字と同じ説明は出さない。出すのはリセット時刻など、帯に載っていない情報だけ
         .help(slot.help ?? "")
@@ -172,27 +150,26 @@ struct SegmentText: View {
     let segment: TextSegment
     let normalColor: RGBA
 
+    /// 空白だけの部品（札と札の間）は、測るときに幅0と見積もられ、描くときの幅と食い違って先頭の札が切れた（実測）。
+    /// 測るときにも省かれないノーブレークスペースに置き換える
+    private var text: String {
+        segment.text.replacingOccurrences(of: " ", with: "\u{00A0}")
+    }
+
     var body: some View {
+        // 部品ごとに自分の幅を保つ。窓の幅が1ptに満たない差で足りないと、先頭の札が「…」に詰められた（実測）
         if let bg = LevelStyle.background(segment.level) {
-            Text(segment.text)
+            Text(verbatim: text)
                 .foregroundStyle(LevelStyle.foreground(segment.level).color)
+                .fixedSize(horizontal: true, vertical: false)
                 .padding(.horizontal, 4)
                 .padding(.vertical, 1)
                 .background(RoundedRectangle(cornerRadius: 4, style: .continuous).fill(bg.color))
         } else {
-            Text(segment.text)
+            Text(verbatim: text)
                 .foregroundStyle(normalColor.color)
+                .fixedSize(horizontal: true, vertical: false)
         }
-    }
-}
-
-private struct ChipPressStyle: ButtonStyle {
-    func makeBody(configuration: Configuration) -> some View {
-        configuration.label
-            .overlay(
-                RoundedRectangle(cornerRadius: 7, style: .continuous)
-                    .fill(Color.black.opacity(configuration.isPressed ? 0.25 : 0))
-            )
     }
 }
 

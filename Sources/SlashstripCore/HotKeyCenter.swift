@@ -7,14 +7,23 @@ public protocol HotKeyRegistrar: AnyObject {
     func unregister()
 }
 
+/// 設定の保存先。アプリではUserDefaults、テストではメモリ上の辞書（ディスクに書かない）
+public protocol SettingsStore: AnyObject {
+    func bool(forKey key: String) -> Bool
+    func data(forKey key: String) -> Data?
+    func set(_ value: Any?, forKey key: String)
+}
+
+extension UserDefaults: SettingsStore {}
+
 /// 呼び出しショートカットの保存先
 public final class ShortcutSettings {
     public static let shortcutKey = "summonShortcut"
     public static let disabledKey = "summonShortcutDisabled"
 
-    private let defaults: UserDefaults
+    private let defaults: SettingsStore
 
-    public init(defaults: UserDefaults) {
+    public init(defaults: SettingsStore) {
         self.defaults = defaults
     }
 

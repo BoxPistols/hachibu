@@ -18,7 +18,7 @@ done
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 APP="$ROOT/build/Slashstrip.app"
-VERSION="0.1.0"
+VERSION="0.2.0"
 
 cd "$ROOT"
 # アプリのリリースビルドはテスト（swift test）と別の作業ディレクトリで行い、構成の違うビルドが.buildを取り合わないようにする
@@ -28,6 +28,8 @@ swift build -c release --product Slashstrip --scratch-path "$SCRATCH"
 rm -rf "$APP"
 mkdir -p "$APP/Contents/MacOS" "$APP/Contents/Resources"
 cp "$(swift build -c release --scratch-path "$SCRATCH" --show-bin-path)/Slashstrip" "$APP/Contents/MacOS/Slashstrip"
+# アイコンはscripts/make-icon.swiftで描いたもの（形を変えるときはそちらを直して作り直す）
+cp "$ROOT/Resources/AppIcon.icns" "$APP/Contents/Resources/AppIcon.icns"
 
 cat > "$APP/Contents/Info.plist" <<PLIST
 <?xml version="1.0" encoding="UTF-8"?>
@@ -38,20 +40,19 @@ cat > "$APP/Contents/Info.plist" <<PLIST
   <key>CFBundleName</key><string>Slashstrip</string>
   <key>CFBundleDisplayName</key><string>Slashstrip</string>
   <key>CFBundleExecutable</key><string>Slashstrip</string>
+  <key>CFBundleIconFile</key><string>AppIcon</string>
   <key>CFBundlePackageType</key><string>APPL</string>
   <key>CFBundleShortVersionString</key><string>${VERSION}</string>
   <key>CFBundleVersion</key><string>1</string>
   <key>LSMinimumSystemVersion</key><string>14.0</string>
   <key>LSUIElement</key><true/>
   <key>NSHighResolutionCapable</key><true/>
-  <key>NSAppleEventsUsageDescription</key>
-  <string>Claude Codeのセッションへコマンドと許可応答を送るため、iTerm2を操作します。</string>
 </dict>
 </plist>
 PLIST
 
 # 署名用の証明書が無い環境ではアドホック署名になる。
-# その場合、作り直すたびにmacOSの「iTerm2の操作」許可を聞き直される
+# その場合、作り直すたびにmacOSがキーチェーンやログイン項目の許可を聞き直すことがある
 codesign --force --sign - "$APP" >/dev/null
 echo "built: $APP"
 

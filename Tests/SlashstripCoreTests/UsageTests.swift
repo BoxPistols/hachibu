@@ -94,12 +94,6 @@ import Testing
         #expect(limit.line(.ja, now: now, calendar: cal) == "週枠80%（1/5(土) 7:30にリセット）")
     }
 
-    @Test func sessionTitleInEnglish() {
-        let s = SessionInfo(id: "a", project: "example-app", state: .busy, tool: "Bash", termGUID: nil,
-                            hostBundle: nil, pid: nil, processStart: nil)
-        #expect(s.menuTitle(number: 1, strings: .en) == "1. example-app (running, Bash)")
-    }
-
     @Test func picksLanguageFromPreferencesAndOverride() {
         #expect(Language.detect(preferred: ["ja-JP", "en-US"], override: nil) == .ja)
         #expect(Language.detect(preferred: ["en-US", "ja-JP"], override: nil) == .en)

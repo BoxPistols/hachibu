@@ -1,6 +1,6 @@
 import Foundation
 
-/// Touch Bar連携スクリプトと同じ "R,G,B,A"（各0〜255）形式の色。
+/// "R,G,B,A"（各0〜255）形式の色。
 public struct RGBA: Equatable {
     public var r: Double
     public var g: Double
@@ -30,8 +30,10 @@ public struct RGBA: Equatable {
     }
 }
 
-/// ストリップ上のボタン1個ぶん。idはTouch Barのウィジェット名（status / cmd-0 / perm-allow …）と同じ。
+/// 帯に並べる枠1つぶん。基本表示では状態の枠（statusID）だけ
 public struct Slot: Identifiable, Equatable {
+    public static let statusID = "status"
+
     public let id: String
     public var text: String
     public var background: RGBA
@@ -93,25 +95,17 @@ public struct UsageLimit: Equatable {
     }
 }
 
-/// 表示と操作の供給元。Touch Bar連携スクリプトがあればそれを使い、無ければ使用率APIだけで動く。
+/// 表示の供給元（基本表示と、撮影用の架空の値）
 public protocol DataSource: AnyObject {
     var onSlots: (([Slot]) -> Void)? { get set }
-    var sourceDescription: String { get }
     var limits: [UsageLimit] { get }
     /// 使用率（5時間枠・週枠）を最後に受け取った時刻。分からなければnil
     var usageAsOf: Date? { get }
     func start()
-    func perform(_ slot: Slot)
-    /// 生きているClaude Codeのセッション（一覧の並び順に並べ済み）と、いま前面にあるもののid
-    func sessions() -> (list: [SessionInfo], focusedID: String?)
-    func focus(_ session: SessionInfo)
 }
 
 public extension DataSource {
     var usageAsOf: Date? { nil }
-
-    func sessions() -> (list: [SessionInfo], focusedID: String?) { ([], nil) }
-    func focus(_ session: SessionInfo) {}
 }
 
 public enum ResetFormatter {

@@ -29,15 +29,9 @@ public struct Strings {
     public let menuResetPosition: String
     public let menuOpenLog: String
     public let menuQuit: String
-    public let menuSourcePrefix: String
     public let menuNoUsage: String
     public let menuHotKeyUnavailable: (String) -> String
 
-    public let sessionsNone: String
-    public let sessionsHeader: String
-    public let sessionStateName: (SessionInfo.State) -> String
-    /// 番号・プロジェクト名・詳細（状態とツール）から一覧の1行を作る
-    public let sessionTitle: (Int, String, [String]) -> String
 
     public let recorderTitle: String
     public let recorderPrompt: String
@@ -56,11 +50,17 @@ public struct Strings {
     public let layoutName: (StripLayout) -> String
     public let menuBarStyleName: (MenuBarStyle) -> String
 
-    public let sourceScripts: String
-    public let sourceStatusLine: String
-    public let statusLineMissing: String
+    public let basicNoUsage: String
+    public let menuUsageAPI: String
+    public let usageAPIFailed: (String) -> String
+    public let consentTitle: String
+    public let consentWhat: String
+    public let consentRisk: String
+    public let consentPrivacy: String
+    public let consentWithout: String
+    public let consentEnable: String
+    public let consentDecline: String
     public let dragHandle: String
-    public let staleNotice: String
 
     public let limitFiveHour: String
     public let limitWeekly: String
@@ -91,20 +91,8 @@ public struct Strings {
         menuResetPosition: "Reset Position",
         menuOpenLog: "Open Action Log",
         menuQuit: "Quit Slashstrip",
-        menuSourcePrefix: "Source: ",
         menuNoUsage: "Usage is not available yet",
         menuHotKeyUnavailable: { "\($0) is already used by another app" },
-        sessionsNone: "No Claude Code sessions",
-        sessionsHeader: "Sessions (in start order)",
-        sessionStateName: { state in
-            switch state {
-            case .busy: return "running"
-            case .waitingPermission: return "waiting for permission"
-            case .waitingInput: return "waiting for input"
-            case .idle: return "idle"
-            }
-        },
-        sessionTitle: { number, project, detail in "\(number). \(project) (\(detail.joined(separator: ", ")))" },
         recorderTitle: "Shortcut to show the strip",
         recorderPrompt: "Press the new shortcut. It needs Command (⌘), Option (⌥), or Control (⌃). Esc cancels.",
         recorderCurrent: { "Current: " + ($0 ?? "none") },
@@ -136,11 +124,10 @@ public struct Strings {
         recorderCancel: "Cancel",
         layoutName: { layout in
             switch layout {
-            case .full: return "Full"
-            case .compact: return "Compact (status only)"
+            case .full: return "Standard"
             case .usage: return "Usage only"
             case .tab: return "Tucked (handle only)"
-            case .hidden: return "Hidden (appears when an answer is needed)"
+            case .hidden: return "Hidden (show with the shortcut or menu bar)"
             }
         },
         menuBarStyleName: { style in
@@ -150,11 +137,17 @@ public struct Strings {
             case .status: return "Full status"
             }
         },
-        sourceScripts: "Touch Bar bridge scripts (~/.claude/btt)",
-        sourceStatusLine: "statusLine (no command buttons)",
-        statusLineMissing: "No statusLine output yet. Set up scripts/statusline.sh as described in the README.",
+        basicNoUsage: "Usage is not known yet. Turn on Get Usage from the API, or set up statusline.sh as described in the README.",
+        menuUsageAPI: "Get Usage from the API…",
+        usageAPIFailed: { "Could not get usage from the API (\($0))" },
+        consentTitle: "Get usage from Anthropic's server?",
+        consentWhat: "If you turn this on, Slashstrip uses the login that Claude Code saved on this Mac (the \"Claude Code-credentials\" item in your keychain) to ask Anthropic's usage endpoint every 5 minutes. The 5-hour, weekly, and per-model weekly usage then stay up to date even when you are not using the terminal.",
+        consentRisk: "This endpoint is not publicly documented, and we found nothing showing that Anthropic allows third-party apps to use it. It may stop working without notice, or Anthropic may consider it against its terms. Any consequence would fall on your account.",
+        consentPrivacy: "The login is used only for this request. It is not saved or logged, and nothing else is sent. The first time, macOS may ask whether to allow access to the keychain item.",
+        consentWithout: "If you leave it off, Slashstrip shows only the 5-hour and weekly usage from Claude Code's statusLine, which updates while you use Claude Code in the terminal. You can change this later from the menu bar.",
+        consentEnable: "Turn On",
+        consentDecline: "Not Now",
         dragHandle: "Drag to move",
-        staleNotice: "The render daemon has stopped updating",
         limitFiveHour: "5-hour",
         limitWeekly: "Weekly",
         limitLine: { name, percent, resets in
@@ -186,20 +179,8 @@ public struct Strings {
         menuResetPosition: "位置を初期状態に戻す",
         menuOpenLog: "操作ログを開く",
         menuQuit: "Slashstripを終了",
-        menuSourcePrefix: "データ元：",
         menuNoUsage: "使用率はまだ取得できていません",
         menuHotKeyUnavailable: { "ショートカット\($0)は他のアプリが使っています" },
-        sessionsNone: "Claude Codeのセッションはありません",
-        sessionsHeader: "移動先のセッション（開始順）",
-        sessionStateName: { state in
-            switch state {
-            case .busy: return "実行中"
-            case .waitingPermission: return "許可待ち"
-            case .waitingInput: return "入力待ち"
-            case .idle: return "待機中"
-            }
-        },
-        sessionTitle: { number, project, detail in "\(number). \(project)（\(detail.joined(separator: "・"))）" },
         recorderTitle: "帯を呼び出すショートカット",
         recorderPrompt: "新しい組み合わせを押してください。Command（⌘）・Option（⌥）・Control（⌃）のどれかを含めます。Escで取り消します。",
         recorderCurrent: { "現在：" + ($0 ?? "なし") },
@@ -231,11 +212,10 @@ public struct Strings {
         recorderCancel: "キャンセル",
         layoutName: { layout in
             switch layout {
-            case .full: return "フル"
-            case .compact: return "コンパクト（状態の1枠だけ）"
+            case .full: return "標準"
             case .usage: return "使用率だけ"
             case .tab: return "端に収納（つまみだけ）"
-            case .hidden: return "隠す（答えが要るときだけ出す）"
+            case .hidden: return "隠す（ショートカットかメニューバーで出す）"
             }
         },
         menuBarStyleName: { style in
@@ -245,11 +225,17 @@ public struct Strings {
             case .status: return "状態の全文"
             }
         },
-        sourceScripts: "Touch Bar連携スクリプト（~/.claude/btt）",
-        sourceStatusLine: "statusLine（コマンド送信なし）",
-        statusLineMissing: "statusLineの出力がまだありません。READMEの手順でscripts/statusline.shを設定してください",
+        basicNoUsage: "使用率はまだ分かりません。「使用率をAPIから取得」を有効にするか、READMEの手順でstatusline.shを設定してください",
+        menuUsageAPI: "使用率をAPIから取得…",
+        usageAPIFailed: { "APIから使用率を取得できませんでした（\($0)）" },
+        consentTitle: "使用率をAnthropicのサーバーから取得しますか？",
+        consentWhat: "有効にすると、Claude Codeがこのマシンに保存したログイン情報（キーチェーンの「Claude Code-credentials」）を使い、5分ごとにAnthropicの使用率のエンドポイントへ問い合わせます。5時間枠、週枠、モデル別の週枠が、ターミナルを使っていないときも更新されます。",
+        consentRisk: "このエンドポイントは公開されていないもので、Anthropicがサードパーティのアプリからの利用を認めているという根拠は見つかっていません。予告なく使えなくなることや、規約に反すると判断されることがありえます。その場合の影響はあなたのアカウントに及びます。",
+        consentPrivacy: "ログイン情報はこの問い合わせにだけ使い、保存も記録もしません。ほかには何も送りません。初回は、キーチェーンの項目へのアクセスを許可するかをmacOSが尋ねることがあります。",
+        consentWithout: "有効にしない場合は、Claude CodeのstatusLineから5時間枠と週枠だけを表示します。値が更新されるのは、ターミナルでClaude Codeを使っている間です。あとからメニューバーの項目で変えられます。",
+        consentEnable: "有効にする",
+        consentDecline: "今はしない",
         dragHandle: "ドラッグで移動",
-        staleNotice: "描画デーモンの出力が止まっています",
         limitFiveHour: "5時間枠",
         limitWeekly: "週枠",
         limitLine: { name, percent, resets in
