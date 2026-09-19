@@ -40,7 +40,7 @@ final class StatusItemController: NSObject, NSMenuDelegate {
         if style == .gauge, let reading = GaugeReading.from(source.limits) {
             button.image = MenuBarIcon.gaugeImage(label: reading.label, percent: reading.percent,
                                                   level: strip.thresholds.level(reading.percent))
-            button.image?.accessibilityDescription = "\(L10n.appName) \(reading.label)"
+            button.image?.accessibilityDescription = "\(L10n.appName) \(L10n.current.limitWeekly) \(reading.label)%"
         } else {
             button.image = MenuBarIcon.image(segments: segments)
             button.image?.accessibilityDescription = [L10n.appName, text].compactMap { $0 }.joined(separator: " ")

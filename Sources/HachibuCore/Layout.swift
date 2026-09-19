@@ -55,7 +55,8 @@ public struct GaugeReading: Equatable {
 
     public static func from(_ limits: [UsageLimit]) -> GaugeReading? {
         guard let limit = limits.first(where: { $0.kind == .weekly }) ?? limits.first else { return nil }
-        return GaugeReading(label: "\(limit.letter)\(limit.percent)", percent: limit.percent)
+        // 幅を取らないよう、枠の頭文字は付けずに数字だけにする（どの枠かはメニューに出る）
+        return GaugeReading(label: "\(limit.percent)", percent: limit.percent)
     }
 }
 

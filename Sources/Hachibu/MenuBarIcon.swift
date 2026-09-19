@@ -9,8 +9,9 @@ enum MenuBarIcon {
     // 絵はバッテリーの表示に近い大きさにする。太くしすぎると帯ではなく2つの塊に見えるので、アプリのアイコンの比率（太さ1：長さ約4）に寄せる
     // 横幅はバッテリーの表示と同じくらいに抑える
     private static let iconWidth: CGFloat = 22
-    // 目盛りのときは、使用率の差が見分けられるように長くする
-    private static let gaugeWidth: CGFloat = 32
+    // 目盛りはいちばん幅を取らない表示なので、バッテリーの表示と同じくらいに収める。面も付けない
+    private static let gaugeWidth: CGFloat = 24
+    private static let gapAfterGauge: CGFloat = 3
     private static let glyphThickness: CGFloat = 8
     /// 絵と文字をひとまとまりに見せる薄い面。隣のアプリの項目と見分けられるようにする
     private static let groupInset: CGFloat = 1.5
@@ -49,10 +50,11 @@ enum MenuBarIcon {
     private static func image(pieces: [Piece], gauge: (percent: Int, level: UsageLevel)?) -> NSImage {
         let widths = pieces.map(width)
         let textWidth = widths.reduce(0, +)
-        let grouped = !pieces.isEmpty
+        let grouped = !pieces.isEmpty && gauge == nil
         let lead = grouped ? groupPadding : 0
         let iconWidth = gauge == nil ? Self.iconWidth : gaugeWidth
-        let total = lead + iconWidth + (grouped ? gapAfterIcon + textWidth + groupPadding : 0)
+        let gapAfterIcon = gauge == nil ? Self.gapAfterIcon : gapAfterGauge
+        let total = lead + iconWidth + (pieces.isEmpty ? 0 : gapAfterIcon + textWidth) + (grouped ? groupPadding : 0)
 
         // 描く時点のメニューバーの明暗で色が決まるよう、描画は都度呼ばれる形にする
         let image = NSImage(size: NSSize(width: ceil(total), height: height), flipped: false) { _ in
@@ -117,7 +119,7 @@ enum MenuBarIcon {
         let y = (rect.height - t) / 2
         // 目盛りのときは切れ目を使用率の位置へ動かす。両端でも左右の部分が消えないよう、端から3ptは残す
         let fraction = gauge.map { CGFloat(min(max($0.percent, 0), 100)) / 100 } ?? 0.62
-        let reach = slant / 2 + gap / 2 + 3
+        let reach = slant / 2 + gap / 2 + 2
         let cut = min(max(x0 + (x1 - x0) * fraction, x0 + reach), x1 - reach)
 
         let left = NSBezierPath()
