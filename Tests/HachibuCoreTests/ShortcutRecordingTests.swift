@@ -82,7 +82,7 @@ func freshDefaults() -> SettingsStore {
         #expect(settings.load() == nil)
     }
 
-    @Test func nothingIsSavedUntilTheShortcutArrives() {
+    @Test func nothingIsSavedUntilSaveIsClicked() {
         let (center, settings, _) = opened(with: a)
         var rec = ShortcutRecording()
         rec.press(b, reservedID: nil, center: center)
@@ -90,11 +90,44 @@ func freshDefaults() -> SettingsStore {
         #expect(settings.load() == a)
         #expect(center.shortcut == a)
 
-        let saved = rec.arrived(center: center)
+        // 「保存」は、届くことを確かめるまで効かない
+        let early = rec.save(center: center)
+        #expect(!early)
+        #expect(settings.load() == a)
+
+        let arrived = rec.arrived()
+        #expect(arrived)
+        #expect(rec.phase == .verified(b))
+        #expect(rec.canSave)
+        // 届いただけでは保存しない
+        #expect(settings.load() == a)
+
+        let saved = rec.save(center: center)
         #expect(saved)
         #expect(rec.phase == .saved(b))
         #expect(settings.load() == b)
         #expect(center.shortcut == b)
+    }
+
+    @Test func cancelAfterVerifyingRestoresTheOriginal() {
+        let (center, settings, registrar) = opened(with: a)
+        var rec = ShortcutRecording()
+        rec.press(b, reservedID: nil, center: center)
+        _ = rec.arrived()
+        rec.cancel(center: center)
+        #expect(settings.load() == a)
+        #expect(registrar.registered == a)
+    }
+
+    @Test func aDifferentComboAfterVerifyingNeedsVerifyingAgain() {
+        let (center, settings, _) = opened(with: a)
+        var rec = ShortcutRecording()
+        rec.press(b, reservedID: nil, center: center)
+        _ = rec.arrived()
+        rec.press(d, reservedID: nil, center: center)
+        #expect(rec.phase == .verifying(d))
+        #expect(!rec.canSave)
+        #expect(settings.load() == a)
     }
 
     @Test func aComboTakenByAnotherAppReleasesThePreviousTrial() {
@@ -114,7 +147,9 @@ func freshDefaults() -> SettingsStore {
         let (center, settings, _) = opened(with: a)
         var rec = ShortcutRecording()
         rec.press(reservedC, reservedID: "60", center: center)
-        let saved = rec.arrived(center: center)
+        let arrived = rec.arrived()
+        #expect(!arrived)
+        let saved = rec.save(center: center)
         #expect(!saved)
         #expect(settings.load() == a)
     }
@@ -123,7 +158,8 @@ func freshDefaults() -> SettingsStore {
         let (center, settings, _) = opened(with: a)
         var rec = ShortcutRecording()
         rec.press(b, reservedID: nil, center: center)
-        _ = rec.arrived(center: center)
+        _ = rec.arrived()
+        _ = rec.save(center: center)
         rec.press(d, reservedID: nil, center: center)
         #expect(rec.phase == .saved(b))
         #expect(settings.load() == b)

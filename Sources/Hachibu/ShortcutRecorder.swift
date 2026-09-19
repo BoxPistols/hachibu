@@ -5,7 +5,7 @@ import SwiftUI
 /// 「ショートカットを変更…」で開く小さな窓。押している修飾キーをその場で表示し、キーを押した瞬間に登録を試す。
 ///
 /// 登録できても押したときに届くとは限らない（macOSのショートカットはシステムが先に受け取る）。そのため
-/// macOSに割り当て済みの組み合わせは登録の前に弾き、登録後はもう一度押してもらって、届いたときに初めて保存する。
+/// macOSに割り当て済みの組み合わせは登録の前に弾き、登録後はもう一度押してもらって、届いたら「保存」を押せるようにする。
 /// 状態の判断はShortcutRecordingが持つ。この窓はキー入力を渡し、結果を表示するだけにする。
 /// キー入力を受けるためにこの窓だけは前面に出す。閉じたら元のアプリへ戻す。
 final class ShortcutRecorder {
@@ -39,6 +39,7 @@ final class ShortcutRecorder {
         model.live = ""
         model.onDisable = { [weak self] in self?.turnOff() }
         model.onCancel = { [weak self] in self?.cancel() }
+        model.onSave = { [weak self] in self?.save() }
         refresh()
 
         let hosting = NSHostingView(rootView: RecorderView(model: model))
@@ -79,6 +80,11 @@ final class ShortcutRecorder {
     /// 押している修飾キーだけを表示する（キーを押す前の途中経過）
     private func showHeld(_ flags: NSEvent.ModifierFlags) {
         guard !recording.isSaved else { return }
+        // 確かめている間は、確かめている組み合わせを出したままにする（別の組み合わせはキーを押した時点で切り替わる）
+        switch recording.phase {
+        case .verifying, .verified: return
+        default: break
+        }
         model.live = Shortcut(keyCode: 0, modifiers: modifiers(flags), keyLabel: "").display
     }
 
@@ -88,6 +94,11 @@ final class ShortcutRecorder {
         // 修飾キーなしのEscはキャンセルと同じ
         if event.keyCode == 53, held.isEmpty {
             cancel()
+            return
+        }
+        // 修飾キーなしのReturnは「保存」と同じ
+        if event.keyCode == 36, held.isEmpty, recording.canSave {
+            save()
             return
         }
         let keyCode = UInt32(event.keyCode)
@@ -100,7 +111,12 @@ final class ShortcutRecorder {
     }
 
     private func arrived() {
-        guard recording.arrived(center: hotKeys) else { return }
+        guard recording.arrived() else { return }
+        refresh()
+    }
+
+    private func save() {
+        guard recording.save(center: hotKeys) else { return }
         refresh()
         DispatchQueue.main.asyncAfter(deadline: .now() + Self.closeDelay) { [weak self] in
             self?.close()
@@ -141,11 +157,16 @@ final class ShortcutRecorder {
                 message += "\n" + s.recorderMenuProne
             }
             model.message = message
+        case .verified(let candidate):
+            model.live = candidate.display
+            model.result = .verified
+            model.message = s.recorderVerified(candidate.display)
         case .saved(let candidate):
             model.live = candidate.display
             model.result = .saved
-            model.message = s.recorderVerified(candidate.display)
+            model.message = s.recorderSaved(candidate.display)
         }
+        model.canSave = recording.canSave
     }
 
     /// macOSのキーボードショートカットの設定。読めなければnil（組み込みの一覧だけで判定する）
@@ -171,6 +192,7 @@ final class RecorderModel: ObservableObject {
         case waiting
         case rejected
         case verifying
+        case verified
         case saved
     }
 
@@ -182,6 +204,9 @@ final class RecorderModel: ObservableObject {
     @Published var result = Result.waiting
     var onDisable: () -> Void = {}
     var onCancel: () -> Void = {}
+    var onSave: () -> Void = {}
+    /// 届くことを確かめた後だけ「保存」を押せる
+    @Published var canSave = false
 }
 
 struct RecorderView: View {
@@ -217,6 +242,8 @@ struct RecorderView: View {
                 Button(L10n.current.recorderDisable, action: model.onDisable)
                 // どの段階でも、キャンセルは窓を開く前の組み合わせに戻す（確かめるまで保存しないため）
                 Button(L10n.current.recorderCancel, action: model.onCancel)
+                Button(L10n.current.recorderSave, action: model.onSave)
+                    .disabled(!model.canSave)
             }
             .font(.system(size: 13))
         }
@@ -241,13 +268,13 @@ struct RecorderView: View {
         case .waiting: return Color.white.opacity(0.18)
         case .verifying: return Color.white.opacity(0.45)
         case .rejected: return LevelStyle.background(.critical)!.color
-        case .saved: return Color(.sRGB, red: 80 / 255, green: 190 / 255, blue: 120 / 255, opacity: 1)
+        case .verified, .saved: return Color(.sRGB, red: 80 / 255, green: 190 / 255, blue: 120 / 255, opacity: 1)
         }
     }
 
     private var messageColor: Color {
         switch model.result {
-        case .waiting, .verifying, .saved: return .primary
+        case .waiting, .verifying, .verified, .saved: return .primary
         // 赤の札と同じ色は暗い面では文字として読みにくいので、明るめの赤にする
         case .rejected: return Color(.sRGB, red: 1, green: 0.55, blue: 0.5, opacity: 1)
         }

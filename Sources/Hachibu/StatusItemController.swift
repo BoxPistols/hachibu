@@ -26,6 +26,13 @@ final class StatusItemController: NSObject, NSMenuDelegate {
         refreshTitle()
     }
 
+    /// macOSの「メニューバー」の設定で許可が切られていると、項目はどの画面にも属さない位置に置かれる。
+    /// 画面の下端に数ptだけ掛かるので、枠の重なりでは判定できない
+    var isHiddenBySystem: Bool {
+        guard let window = item.button?.window else { return false }
+        return window.screen == nil
+    }
+
     /// 帯の中身が変わるたびに呼ぶ
     func refreshTitle() {
         guard let button = item.button else { return }

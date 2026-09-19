@@ -40,6 +40,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         recorder = ShortcutRecorder(hotKeys: hotKeys)
         builder = MenuBuilder(source: source, strip: strip, hotKeys: hotKeys, recorder: recorder, consent: consent)
         statusItem = StatusItemController(source: source, strip: strip, builder: builder)
+        builder.menuBarItemIsHidden = { [weak self] in self?.statusItem.isHiddenBySystem ?? false }
 
         strip.onChange = { [weak self] in self?.statusItem.refreshTitle() }
         strip.usageText = { [weak source] in

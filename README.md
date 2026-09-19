@@ -54,7 +54,9 @@ Right-click the strip to switch modes, opacity, and color thresholds. Hovering o
 
 ![Right-click menu](docs/images/menu-context.png)
 
-You can also show usage in the menu bar, and summon the strip with a keyboard shortcut (⌥⌘/ by default). When you record a new shortcut, Hachibu rejects combinations that macOS already uses, and saves it only after you press it once more and it arrives.
+You can also show usage in the menu bar, and summon the strip with a keyboard shortcut (⌥⌘/ by default). When you record a new shortcut, Hachibu rejects combinations that macOS already uses. Press the new combination once more to confirm that it arrives, then click Save.
+
+If the menu bar item does not appear, macOS is hiding it: turn Hachibu on in System Settings > Menu Bar. The strip's right-click menu shows a shortcut to that setting when this happens, and everything in the menu bar item is also in that menu.
 
 The interface follows your macOS language: Japanese if it comes first in your preferred languages, English otherwise. You can also pick English or Japanese from Language in the menu. The action log is written in the language shown at the time.
 
@@ -237,7 +239,9 @@ Hachibuだけで動きます。ほかの道具は要りません。
 
 ![右クリックメニュー](docs/images/ja-menu-context.png)
 
-メニューバーに使用率を出したり、ショートカット（既定は⌥⌘/）で帯を呼び出したりもできます。ショートカットを登録するときは、macOSが使っている組み合わせを弾き、もう一度押して届いたときだけ保存します。
+メニューバーに使用率を出したり、ショートカット（既定は⌥⌘/）で帯を呼び出したりもできます。ショートカットを登録するときは、macOSが使っている組み合わせを弾きます。新しい組み合わせをもう一度押して届くことを確かめてから、「保存」を押します。
+
+メニューバーに項目が出ないときは、macOSが隠しています。「システム設定」＞「メニューバー」でHachibuをオンにしてください。このとき帯の右クリックメニューに、その設定を開く項目が出ます。メニューバーの項目でできることは、すべて帯の右クリックメニューからもできます。
 
 画面の文言は、macOSの言語設定に合わせて日本語か英語になります。メニューの「言語」から英語か日本語を選ぶこともできます。操作ログは、書いた時点の画面の言語で残ります。
 

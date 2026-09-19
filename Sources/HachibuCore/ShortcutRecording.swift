@@ -2,7 +2,7 @@ import Foundation
 
 /// 「ショートカットを変更…」の窓の状態。
 ///
-/// 押された組み合わせは登録を試すだけで、保存しない。登録したショートカットとしてもう一度届いたときに初めて保存する。
+/// 押された組み合わせは登録を試すだけで、保存しない。登録したショートカットとしてもう一度届いたら「保存」を押せるようになり、押されたときに保存する。
 /// そのため取り消し（キャンセル、Esc）は、どの段階でも窓を開く前の状態に戻る。
 public struct ShortcutRecording: Equatable {
     public enum Rejection: Equatable {
@@ -19,7 +19,9 @@ public struct ShortcutRecording: Equatable {
         case rejected(Shortcut, Rejection)
         /// 登録した。保存はまだで、もう一度押されるのを待っている
         case verifying(Shortcut)
-        /// 届いたので保存した
+        /// 届くことを確かめた。「保存」が押されるのを待っている
+        case verified(Shortcut)
+        /// 保存した
         case saved(Shortcut)
     }
 
@@ -55,10 +57,24 @@ public struct ShortcutRecording: Equatable {
         phase = .rejected(candidate, rejection)
     }
 
-    /// 登録したショートカットとして届いた。確かめている組み合わせなら保存する
-    /// - Returns: 保存したらtrue（窓を閉じてよい）
-    public mutating func arrived(center: HotKeyCenter) -> Bool {
+    /// 「保存」を押せる状態か
+    public var canSave: Bool {
+        if case .verified = phase { return true }
+        return false
+    }
+
+    /// 登録したショートカットとして届いた。確かめている組み合わせなら「保存」を押せる状態にする（まだ保存しない）
+    /// - Returns: 状態が変わったらtrue
+    public mutating func arrived() -> Bool {
         guard case .verifying(let candidate) = phase else { return false }
+        phase = .verified(candidate)
+        return true
+    }
+
+    /// 「保存」が押された。届くことを確かめた組み合わせだけを保存する
+    /// - Returns: 保存したらtrue（窓を閉じてよい）
+    public mutating func save(center: HotKeyCenter) -> Bool {
+        guard case .verified(let candidate) = phase else { return false }
         center.commit(candidate)
         phase = .saved(candidate)
         return true

@@ -52,6 +52,8 @@ public struct Strings {
     public let recorderReserved: (String, String) -> String
     public let recorderVerify: (String) -> String
     public let recorderVerified: (String) -> String
+    public let recorderSaved: (String) -> String
+    public let recorderSave: String
     public let recorderMenuProne: String
     /// macOSのショートカットの名前（com.apple.symbolichotkeysの番号から）
     public let systemShortcutName: (String) -> String
@@ -90,6 +92,8 @@ public struct Strings {
     public let resetOtherDay: String
 
     public let menuLanguage: String
+    /// メニューバーの項目がmacOSの設定で隠されているときに、帯のメニューに出す案内
+    public let menuBarHidden: String
     /// 引数はmacOSの言語から決まる言語の名前
     public let languageSystem: (String) -> String
 
@@ -128,8 +132,10 @@ public struct Strings {
         recorderRejected: "Add Command (⌘), Option (⌥), or Control (⌃) to the key.",
         recorderTaken: { "\($0) is already used by another app." },
         recorderReserved: { "\($0) is assigned to \"\($1)\" in macOS, so it would never reach Hachibu." },
-        recorderVerify: { "Not saved yet. Press \($0) once more to confirm that it arrives. If nothing happens, macOS or another app takes it first. Press a different combination, or Cancel to keep the previous one." },
-        recorderVerified: { "\($0) works and is saved." },
+        recorderVerify: { "Not saved yet. Press \($0) once more to confirm that it arrives; then you can click Save. If nothing happens, macOS or another app takes it first. Press a different combination, or Cancel to keep the previous one." },
+        recorderVerified: { "\($0) arrives. Click Save to use it, or Cancel to keep the previous one." },
+        recorderSaved: { "Saved \($0)." },
+        recorderSave: "Save",
         recorderMenuProne: "Shortcuts with only ⌘ often collide with app menu shortcuts. Adding ⌥ or ⌃ is safer.",
         systemShortcutName: { id in
             switch id {
@@ -193,6 +199,7 @@ public struct Strings {
         resetSameDay: "H:mm",
         resetOtherDay: "EEE M/d H:mm",
         menuLanguage: "Language",
+        menuBarHidden: "Menu bar item is hidden by macOS. Open Menu Bar settings…",
         languageSystem: { "Same as macOS (\($0))" },
         logShortcutCommitted: { "Set the shortcut to \($0) (confirmed that it arrives)" },
         logShortcutDisabled: "Turned off the shortcut",
@@ -229,8 +236,10 @@ public struct Strings {
         recorderRejected: "Command（⌘）・Option（⌥）・Control（⌃）のどれかと一緒に押してください",
         recorderTaken: { "\($0)は他のアプリが使っているため登録できません" },
         recorderReserved: { "\($0)はmacOSの「\($1)」に割り当てられているため、押してもHachibuに届きません" },
-        recorderVerify: { "まだ保存していません。届くかを確かめるため、もう一度\($0)を押してください。反応しない場合は、macOSか他のアプリが先に受け取っています。別の組み合わせを押すか、キャンセルで元の組み合わせに戻してください。" },
-        recorderVerified: { "\($0)が届くことを確かめて保存しました" },
+        recorderVerify: { "まだ保存していません。届くかを確かめるため、もう一度\($0)を押してください。届いたら「保存」を押せるようになります。反応しない場合は、macOSか他のアプリが先に受け取っています。別の組み合わせを押すか、キャンセルで元の組み合わせに戻してください。" },
+        recorderVerified: { "\($0)が届くことを確かめました。「保存」を押すと確定します。キャンセルすると元の組み合わせに戻ります。" },
+        recorderSaved: { "\($0)を保存しました" },
+        recorderSave: "保存",
         recorderMenuProne: "⌘だけの組み合わせは、アプリのメニューのショートカットと重なりやすいです。⌥か⌃を加えると安全です。",
         systemShortcutName: { id in
             switch id {
@@ -296,6 +305,7 @@ public struct Strings {
         resetSameDay: "H:mm",
         resetOtherDay: "M/d(E) H:mm",
         menuLanguage: "言語",
+        menuBarHidden: "メニューバーの項目がmacOSに隠されています。「メニューバー」の設定を開く…",
         languageSystem: { "macOSに合わせる（\($0)）" },
         logShortcutCommitted: { "ショートカットを\($0)にしました（届くことを確認済み）" },
         logShortcutDisabled: "ショートカットを無効にしました",

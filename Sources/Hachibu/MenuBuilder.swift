@@ -19,6 +19,10 @@ final class MenuBuilder {
     }
 
     /// 帯の右クリック。表示の切り替えをその場で行えるよう、モードは入れ子にせず並べる
+    /// メニューバーの項目が隠されているかの問い合わせ先（StatusItemControllerは後から作られる）
+    var menuBarItemIsHidden: () -> Bool = { false }
+    private static let menuBarSettingsURL = URL(string: "x-apple.systempreferences:com.apple.ControlCenter-Settings.extension")!
+
     func contextMenu() -> NSMenu {
         let menu = NSMenu()
         usageItems().forEach(menu.addItem)
@@ -35,6 +39,12 @@ final class MenuBuilder {
         menu.addItem(languageMenuItem())
         loginItems().forEach(menu.addItem)
         menu.addItem(openLogItem())
+        if menuBarItemIsHidden() {
+            menu.addItem(.separator())
+            menu.addItem(choice(L10n.current.menuBarHidden, selected: false) {
+                NSWorkspace.shared.open(Self.menuBarSettingsURL)
+            })
+        }
         menu.addItem(.separator())
         menu.addItem(quitItem())
         return menu
