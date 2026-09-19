@@ -52,7 +52,13 @@ public enum StatusLine {
 
     /// rate_limitsはPro/Maxで、そのセッションの最初の応答の後にだけ入る。無ければ使用率は空になる
     public static func parse(_ obj: [String: Any]) -> Snapshot {
-        let model = ((obj["model"] as? [String: Any])?["display_name"] as? String).map(Usage.compactDisplayName)
+        var model = ((obj["model"] as? [String: Any])?["display_name"] as? String).map(Usage.compactDisplayName)
+        // 表示名に文脈の長さが入らないモデルがある（"Fable 5.1"）。窓の大きさが100万以上なら1Mを添える
+        if let name = model, ContextMark.split(name) == nil,
+           let size = ((obj["context_window"] as? [String: Any])?["context_window_size"] as? NSNumber)?.intValue,
+           size >= 1_000_000 {
+            model = "\(name) \(size / 1_000_000)M"
+        }
         let effort = (obj["effort"] as? [String: Any])?["level"] as? String
         var limits: [UsageLimit] = []
         let rates = obj["rate_limits"] as? [String: Any]

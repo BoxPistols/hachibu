@@ -102,6 +102,16 @@ import Testing
         #expect(Language.detect(preferred: ["en-US"], override: "xx") == .en)
     }
 
+    @Test func readsTheContextLengthFromTheWindowSize() {
+        let big: [String: Any] = ["model": ["display_name": "Examplemodel 5.1"], "context_window": ["context_window_size": 1_000_000]]
+        #expect(StatusLine.parse(big).model == "Examplemodel5.1 1M")
+        let normal: [String: Any] = ["model": ["display_name": "Examplemodel 5.1"], "context_window": ["context_window_size": 200_000]]
+        #expect(StatusLine.parse(normal).model == "Examplemodel5.1")
+        // 表示名にすでに入っていれば重ねない
+        let named: [String: Any] = ["model": ["display_name": "Examplemodel 5 (1M context)"], "context_window": ["context_window_size": 1_000_000]]
+        #expect(StatusLine.parse(named).model == "Examplemodel5 1M")
+    }
+
     @Test func languageChosenInTheMenuWinsOverMacOS() {
         #expect(Language.detect(preferred: ["ja-JP"], saved: "en", override: nil) == .en)
         #expect(Language.detect(preferred: ["en-US"], saved: "ja", override: nil) == .ja)

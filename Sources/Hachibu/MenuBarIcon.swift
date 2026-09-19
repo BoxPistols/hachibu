@@ -7,7 +7,8 @@ import HachibuCore
 enum MenuBarIcon {
     private static let height: CGFloat = 22
     // 絵はバッテリーの表示に近い大きさにする。太くしすぎると帯ではなく2つの塊に見えるので、アプリのアイコンの比率（太さ1：長さ約4）に寄せる
-    private static let iconWidth: CGFloat = 30
+    // 横幅はバッテリーの表示と同じくらいに抑える
+    private static let iconWidth: CGFloat = 24
     private static let glyphThickness: CGFloat = 8
     /// 絵と文字をひとまとまりに見せる薄い面。隣のアプリの項目と見分けられるようにする
     private static let groupInset: CGFloat = 1.5
