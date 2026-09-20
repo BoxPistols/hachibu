@@ -159,6 +159,7 @@ export function Landing() {
         <p className="mt-2">
           {t.footer.trademarks} {t.footer.license}
         </p>
+        <p className="mt-2 text-xs text-fog/60">{t.footer.privacy}</p>
       </footer>
     </div>
   );

@@ -1,6 +1,5 @@
-import { GoogleAnalytics } from "@next/third-parties/google";
-import { Analytics } from "@vercel/analytics/next";
 import type { Metadata } from "next";
+import { SiteAnalytics } from "@/components/SiteAnalytics";
 import { Bricolage_Grotesque, JetBrains_Mono, Noto_Sans_JP } from "next/font/google";
 import type { ReactNode } from "react";
 import "./globals.css";
@@ -30,9 +29,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
     <html lang="en" className={`${display.variable} ${mono.variable} ${japanese.variable}`}>
       <body>
         {children}
-        {/* Vercelのアクセス解析。訪問者を識別する情報は集めない */}
-        <Analytics />
-        <GoogleAnalytics gaId={GA_ID} />
+        <SiteAnalytics gaId={GA_ID} />
       </body>
     </html>
   );

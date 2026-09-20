@@ -62,7 +62,7 @@ export interface Content {
     termsLink: string;
   };
   install: { heading: string; lead: string; steps: Step[]; guideLink: string; checksum: string };
-  footer: { unofficial: string; notTheFoodApp: string; trademarks: string; license: string };
+  footer: { unofficial: string; notTheFoodApp: string; trademarks: string; license: string; privacy: string };
   video: { label: string };
 }
 
@@ -148,6 +148,8 @@ export const CONTENT: Record<Lang, Content> = {
       notTheFoodApp: "It is also unrelated to the meal logging app of the same name.",
       trademarks: "Claude and Claude Code are trademarks of Anthropic, PBC.",
       license: "MIT License",
+      privacy:
+        "This page counts visits with Vercel Web Analytics, which sets no cookies. Google Analytics is loaded only outside the EU, the EEA and the UK, where it sets cookies to count returning visits. Nothing you do in the app is sent anywhere. To leave this browser out of both counts, open the page with ?analytics=off.",
     },
     video: { label: "Demo: hover to expand, right-click to switch the display" },
   },
@@ -231,6 +233,8 @@ export const CONTENT: Record<Lang, Content> = {
       notTheFoodApp: "同名の食事記録アプリとも関係ありません。",
       trademarks: "Claude、Claude CodeはAnthropic, PBCの商標です。",
       license: "MITライセンス",
+      privacy:
+        "このページの訪問数は、Cookieを使わないVercel Web Analyticsで数えています。Google Analyticsは、EU、EEA、イギリス以外からの訪問でだけ読み込み、再訪を数えるためにCookieを置きます。アプリの中での操作は、どこにも送られません。このブラウザを両方の計測から外すには、`?analytics=off`を付けてページを開いてください。",
     },
     video: { label: "デモ：マウスを乗せると広がり、右クリックで表示を切り替える" },
   },
