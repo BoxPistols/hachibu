@@ -156,7 +156,7 @@ export const CONTENT: Record<Lang, Content> = {
     nav: { github: "GitHub", download: "ダウンロード" },
     hero: {
       eyebrow: "Claude CodeのためのmacOSアプリ",
-      title: "人生のけっこうな時間を、Claude Codeの残量確認に使っています。",
+      title: "人生の多くの時間を、Claude Codeの残量確認に使っています。",
       lead: "なので画面に出しっぱなしにしました。Hachibuは、Macの画面の最前面に小さなバーを常駐させ、モデル、effort、使用率を出すアプリです。ひと目で済むので、すぐ手元の作業に戻れます。",
       nameNote: "名前は「腹八分」から取りました。",
       download: "macOS版をダウンロード",
