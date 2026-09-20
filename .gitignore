@@ -2,3 +2,5 @@
 .build-release/
 build/
 .DS_Store
+.vercel
+.env*
