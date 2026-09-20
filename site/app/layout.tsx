@@ -1,3 +1,4 @@
+import { GoogleAnalytics } from "@next/third-parties/google";
 import { Analytics } from "@vercel/analytics/next";
 import type { Metadata } from "next";
 import { Bricolage_Grotesque, JetBrains_Mono, Noto_Sans_JP } from "next/font/google";
@@ -7,6 +8,8 @@ import "./globals.css";
 const display = Bricolage_Grotesque({ subsets: ["latin"], variable: "--font-display-face", display: "swap" });
 const mono = JetBrains_Mono({ subsets: ["latin"], variable: "--font-mono-face", display: "swap" });
 const japanese = Noto_Sans_JP({ subsets: ["latin"], weight: ["400", "600"], variable: "--font-ja-face", display: "swap" });
+
+const GA_ID = "G-Z0J38KQ3X3";
 
 const TITLE = "Hachibu — Claude Code usage, always in view";
 const DESCRIPTION =
@@ -29,6 +32,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         {children}
         {/* Vercelのアクセス解析。訪問者を識別する情報は集めない */}
         <Analytics />
+        <GoogleAnalytics gaId={GA_ID} />
       </body>
     </html>
   );
