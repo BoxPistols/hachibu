@@ -72,7 +72,7 @@ export const CONTENT: Record<Lang, Content> = {
     nav: { github: "GitHub", download: "Download" },
     hero: {
       eyebrow: "A macOS app for Claude Code",
-      title: "I spend a worrying amount of my life checking my Claude Code usage.",
+      title: "I spend a worrying amount of my life checking how many tokens I have left.",
       lead: "So I made it stay on screen. Hachibu is a small strip on top of your Mac's screen that shows the model, effort, and usage limits. One glance is enough, and you can get back to your work.",
       nameNote: "The name comes from hara hachi bu (腹八分), the Japanese habit of eating until you are 80% full.",
       download: "Download for macOS",
@@ -156,7 +156,7 @@ export const CONTENT: Record<Lang, Content> = {
     nav: { github: "GitHub", download: "ダウンロード" },
     hero: {
       eyebrow: "Claude CodeのためのmacOSアプリ",
-      title: "人生の多くの時間を、Claude Codeの残量確認に使っています。",
+      title: "人生の多くの時間を、トークンの残量確認に使っています。",
       lead: "なので画面に出しっぱなしにしました。Hachibuは、Macの画面の最前面に小さなバーを常駐させ、モデル、effort、使用率を出すアプリです。ひと目で済むので、すぐ手元の作業に戻れます。",
       nameNote: "名前は「腹八分」から取りました。",
       download: "macOS版をダウンロード",
