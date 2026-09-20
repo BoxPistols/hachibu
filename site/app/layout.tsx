@@ -16,7 +16,9 @@ export const metadata: Metadata = {
   title: TITLE,
   description: DESCRIPTION,
   icons: { icon: "/app-icon.png" },
-  openGraph: { title: TITLE, description: DESCRIPTION, type: "website", images: ["/app-icon.png"] },
+  openGraph: { title: TITLE, description: DESCRIPTION, type: "website", images: ["/og.png"] },
+  // Xやチャットにリンクを貼ったときの横長の画像。作り直すときはtools/og.htmlを1200x630で撮る
+  twitter: { card: "summary_large_image", title: TITLE, description: DESCRIPTION, images: ["/og.png"] },
 };
 
 export default function RootLayout({ children }: { children: ReactNode }) {
