@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import {
+  ARTICLE_URL,
   CONTENT,
   DOWNLOAD_URL,
   FIRST_LAUNCH_URL,
@@ -38,6 +39,9 @@ export function Landing() {
           Hachibu
         </a>
         <nav className="flex items-center gap-2 text-sm sm:gap-4">
+          <a href={ARTICLE_URL} className="hidden rounded-lg px-2 py-1.5 text-fog hover:text-paper sm:block">
+            {t.nav.article}
+          </a>
           <a href={REPO_URL} className="rounded-lg px-2 py-1.5 text-fog hover:text-paper">
             {t.nav.github}
           </a>

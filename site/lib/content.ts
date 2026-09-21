@@ -10,6 +10,7 @@ export const FIRST_LAUNCH_URL: Record<Lang, string> = {
   ja: `${REPO_URL}#インストール`,
 };
 export const TERMS_URL = "https://code.claude.com/docs/en/legal-and-compliance";
+export const ARTICLE_URL = "https://zenn.dev/ait/articles/hachibu-claude-code-usage-bar";
 
 // アプリの既定の閾値と同じ
 export const WARNING_AT = 70;
@@ -31,7 +32,7 @@ export interface Step {
 
 export interface Content {
   langLabel: string;
-  nav: { github: string; download: string };
+  nav: { github: string; article: string; download: string };
   hero: {
     eyebrow: string;
     title: string;
@@ -69,7 +70,7 @@ export interface Content {
 export const CONTENT: Record<Lang, Content> = {
   en: {
     langLabel: "日本語",
-    nav: { github: "GitHub", download: "Download" },
+    nav: { github: "GitHub", article: "How it was built", download: "Download" },
     hero: {
       eyebrow: "A macOS app for Claude Code",
       title: "I spend a worrying amount of my life checking how many tokens I have left.",
@@ -155,7 +156,7 @@ export const CONTENT: Record<Lang, Content> = {
   },
   ja: {
     langLabel: "English",
-    nav: { github: "GitHub", download: "ダウンロード" },
+    nav: { github: "GitHub", article: "作った過程", download: "ダウンロード" },
     hero: {
       eyebrow: "Claude CodeのためのmacOSアプリ",
       title: "人生の多くの時間を、トークンの残量確認に使っています。",
