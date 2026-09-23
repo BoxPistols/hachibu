@@ -27,7 +27,7 @@ Hachibu is an unofficial tool made by an individual. It is not affiliated with, 
 
 Hachibu works on its own. No other tools are needed.
 
-- Model and effort: the conversation Claude Code saved most recently on this Mac, and `~/.claude/settings.json`. If you set up the statusLine below, its values are used when they are newer
+- Model and effort: the conversation Claude Code saved most recently on this Mac, and `~/.claude/settings.json`. Effort follows `/effort`: a level you change during a session is read from the conversation, and `effortLevel` in `settings.json` is used only when the conversation has none. If you set up the statusLine below, its values are used when they are newer
 - Usage: you choose one of two sources
 
 1. Usage API (optional). The first time Hachibu opens, it asks whether to use it. If you turn it on, Hachibu uses the login that Claude Code saved in your keychain to ask Anthropic's usage endpoint every 5 minutes. S, W, and F then stay up to date even when you are not using the terminal. Anthropic's [terms for Claude Code](https://code.claude.com/docs/en/legal-and-compliance) say that its OAuth login is designed to support "ordinary use of Claude Code and other native Anthropic applications", and that developers "may not collect, store, or intermediate Claude.ai credentials or session tokens". Hachibu is not an Anthropic application, so using this may be treated as a violation of those terms. Anthropic says it may enforce them without prior notice, and any measures would apply to your account. The endpoint is also not publicly documented and may stop working. The login is used only for this request and is not saved or logged
@@ -105,10 +105,19 @@ Allowing an app that Apple has not checked is a decision you make. Some ways to 
 
 ### Permissions it may ask for
 
+- Notifications. When Hachibu finds a new version for the first time, macOS asks whether to allow its notifications. If you do not allow them, the new version still shows at the top of the menu
 - Keychain. If you turn on the usage API, macOS may ask whether to allow access to the "Claude Code-credentials" item
 - Login Items. When you turn on Launch at Login, macOS tells you that Hachibu will open at login. You can manage it in System Settings > General > Login Items (Login Items & Extensions on newer versions of macOS)
 
 After you update to a new version, macOS may ask again, because the app is not signed with a fixed Developer ID yet.
+
+### Updates
+
+Hachibu checks GitHub for a new version once a day. When it finds one, it sends one notification for that version and shows Hachibu x.y.z is available at the top of the menu bar item and the strip's right-click menu. Click either to open the download page.
+
+To update, download the new `Hachibu-macos.zip`, quit Hachibu, and replace `Hachibu.app` in your Applications folder. Your settings stay. You need to allow the first launch in System Settings again, as described above.
+
+Updates in the menu shows the version you are running, lets you turn off Check for Updates Automatically, and has Check Now. Release notes for every version are on the [releases page](https://github.com/BoxPistols/hachibu/releases).
 
 ### Uninstall
 
@@ -159,8 +168,8 @@ Usage limits (`rate_limits`) appear in the statusLine data on Pro and Max plans,
 
 ## Data
 
-- Hachibu reads local files: Claude Code's saved conversations (only to find the most recently used model), `~/.claude/settings.json`, and the statusLine file above
-- It connects to the network only if you turn on the usage API, and then only to `api.anthropic.com`
+- Hachibu reads local files: Claude Code's saved conversations (only to find the most recently used model and effort), `~/.claude/settings.json`, and the statusLine file above
+- It connects to the network for two things: the usage API, only if you turn it on (`api.anthropic.com`), and the update check once a day (`api.github.com`, which you can turn off from Updates in the menu). The update check sends only the app's name and version as the User-Agent
 - It reads the Claude Code login from the keychain only for that request, and does not save or log it
 - Settings changes and failed usage requests are logged to `~/Library/Logs/Hachibu/actions.log`
 
@@ -176,6 +185,10 @@ scripts/build-app.sh --install  # copies it to ~/Applications and launches it
 scripts/build-app.sh --zip      # also writes build/Hachibu-macos.zip and its SHA-256
 scripts/test.sh                 # runs the tests
 ```
+
+### Releasing
+
+CI runs the tests and builds the app on macOS for every push. To release, set `VERSION` in `scripts/build-app.sh`, write the notes in `docs/releases/v<version>.md`, merge to `main`, and run the Release workflow from the Actions tab. It tests, builds `Hachibu-macos.zip` for both CPUs, and creates the tag and the release with `statusline.sh` and the SHA-256. Add the version to `NEWS` in `site/lib/content.ts` so the landing page lists it.
 
 ## Contributing
 
@@ -216,7 +229,7 @@ Hachibuは個人が作った非公式のツールで、Anthropic, PBCとは関�
 
 Hachibuだけで動きます。ほかの道具は要りません。
 
-- モデルとeffort: このMacでClaude Codeが最後に保存した会話と、`~/.claude/settings.json`から読みます。下のstatusLineを設定していれば、そちらが新しいときはそちらを使います
+- モデルとeffort: このMacでClaude Codeが最後に保存した会話と、`~/.claude/settings.json`から読みます。effortは`/effort`に追従します。セッション中に変えた値は会話から読み、会話に無いときだけ`settings.json`の`effortLevel`を使います。下のstatusLineを設定していれば、そちらが新しいときはそちらを使います
 - 使用率: 次の2つから選べます
 
 1. 使用率API（任意）。初めて起動したときに、使うかどうかを尋ねます。有効にすると、Claude Codeがキーチェーンに保存したログイン情報を使い、5分ごとにAnthropicの使用率のエンドポイントへ問い合わせます。S、W、Fが、ターミナルを使っていないときも更新されます。[Claude Codeの規約](https://code.claude.com/docs/en/legal-and-compliance)は、OAuthによるログインを「ordinary use of Claude Code and other native Anthropic applications」（Claude Codeと、Anthropic純正のアプリの通常の利用）のためのものとし、開発者は「may not collect, store, or intermediate Claude.ai credentials or session tokens」（Claude.aiのログイン情報やセッショントークンを収集、保存、仲介してはならない）としています。HachibuはAnthropicのアプリではないため、この機能を使うと規約違反と判断されるおそれがあります。Anthropicは予告なく制限を執行しうるとしており、その措置はあなたのアカウントに及びます。エンドポイント自体も公開されておらず、使えなくなることがあります。ログイン情報はこの問い合わせにだけ使い、保存も記録もしません
@@ -292,10 +305,19 @@ Appleが確認していないアプリを開くかどうかは、使う人の判
 
 #### 求められることがある権限
 
+- 通知。新しい版を初めて見つけたときに、通知を許可するかをmacOSが尋ねます。許可しなくても、新しい版はメニューの先頭に出ます
 - キーチェーン。使用率APIを有効にすると、「Claude Code-credentials」の項目へのアクセスを許可するかをmacOSが尋ねることがあります
 - ログイン項目。「ログイン時に起動」を有効にすると、ログイン時に開く旨をmacOSが知らせます。「システム設定」＞「一般」＞「ログイン項目」（新しいmacOSでは「ログイン項目と機能拡張」）で管理できます
 
 まだ決まったDeveloper IDで署名していないため、新しい版に更新すると、もう一度尋ねられることがあります。
+
+#### アップデート
+
+Hachibuは1日に1回、GitHubで新しい版を確認します。見つけたら、その版につき1回だけ通知し、メニューバーの項目とバーの右クリックメニューの先頭に「Hachibu x.y.zが出ています」と出します。どちらを押してもダウンロードのページが開きます。
+
+更新するには、新しい`Hachibu-macos.zip`をダウンロードし、Hachibuを終了してから、アプリケーションフォルダの`Hachibu.app`と入れ替えます。設定はそのまま残ります。初回の起動の許可は、上の手順でもう一度必要です。
+
+メニューの「アップデート」には、動いている版、「新しい版を自動で確認」の切り替え、「今すぐ確認」があります。各版の変更点は[リリースのページ](https://github.com/BoxPistols/hachibu/releases)にあります。
 
 #### アンインストール
 
@@ -332,8 +354,8 @@ chmod +x ~/.claude/hachibu-statusline.sh
 
 ### データの扱い
 
-- 読むのはローカルのファイルです。Claude Codeが保存した会話（最後に使われたモデルを知るためだけ）、`~/.claude/settings.json`、上のstatusLineのファイル
-- ネットワークに接続するのは使用率APIを有効にした場合だけで、接続先は`api.anthropic.com`だけです
+- 読むのはローカルのファイルです。Claude Codeが保存した会話（最後に使われたモデルとeffortを知るためだけ）、`~/.claude/settings.json`、上のstatusLineのファイル
+- ネットワークに接続するのは2つだけです。使用率APIを有効にした場合の`api.anthropic.com`と、1日に1回の新しい版の確認の`api.github.com`です（確認はメニューの「アップデート」で止められます）。新しい版の確認で送るのは、User-Agentのアプリ名と版だけです
 - キーチェーンのログイン情報は、その問い合わせのときだけ読み、保存も記録もしません
 - 設定の変更と、使用率の取得に失敗したことは`~/Library/Logs/Hachibu/actions.log`に残ります
 
@@ -349,6 +371,10 @@ scripts/build-app.sh --install  # ~/Applicationsに置いて起動する
 scripts/build-app.sh --zip      # build/Hachibu-macos.zipとSHA-256も作る
 scripts/test.sh                 # テスト
 ```
+
+#### リリースの手順
+
+pushのたびに、CIがmacOSでテストとアプリの組み立てを行います。リリースするときは、`scripts/build-app.sh`の`VERSION`を上げ、`docs/releases/v<版>.md`に変更点を書いて`main`に入れ、ActionsタブからReleaseのワークフローを実行します。テスト、両方のCPU向けの`Hachibu-macos.zip`の組み立て、タグとリリースの作成（`statusline.sh`とSHA-256を添える）までを行います。紹介ページに載せるため、`site/lib/content.ts`の`NEWS`にも版を足してください。
 
 ### 開発への参加
 
