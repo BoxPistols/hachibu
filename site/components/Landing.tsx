@@ -144,6 +144,12 @@ export function Landing() {
         <section id="news" className="mx-auto max-w-6xl scroll-mt-8 px-5 py-16 sm:px-8">
           <h2 className="font-display text-3xl font-semibold text-paper">{t.news.heading}</h2>
           <p className="mt-3 max-w-3xl text-base leading-relaxed text-fog">{t.news.lead}</p>
+          <div className="mt-6 flex max-w-3xl flex-wrap items-center gap-x-5 gap-y-3 rounded-xl border border-yolk/40 bg-yolk/10 p-5">
+            <p className="flex-1 basis-72 text-base leading-relaxed text-paper">{t.news.legacy}</p>
+            <a href={DOWNLOAD_URL} className="rounded-lg bg-yolk px-5 py-2.5 text-base font-semibold text-ink">
+              {t.hero.download}
+            </a>
+          </div>
           <ol className="mt-8 space-y-6">
             {NEWS.map((entry) => (
               <li key={entry.version} className="rounded-xl border border-white/10 bg-white/[0.03] p-6">

@@ -104,7 +104,7 @@ export interface Content {
     apiBody: string;
     termsLink: string;
   };
-  news: { badge: string; heading: string; lead: string; allReleases: string };
+  news: { badge: string; heading: string; lead: string; legacy: string; allReleases: string };
   install: { heading: string; lead: string; steps: Step[]; guideLink: string; checksum: string };
   footer: { unofficial: string; notTheFoodApp: string; trademarks: string; license: string; privacy: string };
   video: { label: string };
@@ -175,7 +175,8 @@ export const CONTENT: Record<Lang, Content> = {
     news: {
       badge: "New: effort follows /effort, and update notices",
       heading: "What's new",
-      lead: "Hachibu checks for a new version once a day and lets you know. Download the new version and replace the app in your Applications folder; your settings stay.",
+      lead: "From 0.4.0 on, Hachibu checks for a new version once a day and lets you know. Download the new version and replace the app in your Applications folder; your settings stay.",
+      legacy: "Using 0.3.2 or earlier? Those versions cannot tell you about updates, so please update to 0.4.0 once by hand. You will be told about every version after that.",
       allReleases: "All releases",
     },
     install: {
@@ -267,7 +268,8 @@ export const CONTENT: Record<Lang, Content> = {
     news: {
       badge: "新機能：effortが/effortに追従、更新のお知らせ",
       heading: "更新のお知らせ",
-      lead: "Hachibuは1日に1回新しい版を確認して知らせます。新しい版をダウンロードし、アプリケーションフォルダのアプリと入れ替えてください。設定はそのまま残ります。",
+      lead: "0.4.0からは、Hachibuが1日に1回新しい版を確認して知らせます。新しい版をダウンロードし、アプリケーションフォルダのアプリと入れ替えてください。設定はそのまま残ります。",
+      legacy: "0.3.2以前をお使いの方へ：これらの版には新しい版を知らせる仕組みがないため、一度だけ手で0.4.0に更新してください。その後の版は、アプリが知らせます。",
       allReleases: "すべてのリリース",
     },
     install: {

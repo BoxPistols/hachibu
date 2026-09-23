@@ -12,6 +12,8 @@ Hachibu is an unofficial tool made by an individual. It is not affiliated with, 
 
 [Download Hachibu for macOS](https://github.com/BoxPistols/hachibu/releases/latest/download/Hachibu-macos.zip) (macOS 14 or later, Apple Silicon or Intel). macOS blocks the first launch because the app is not notarized yet. You need to allow it once in System Settings > Privacy & Security; [First launch](#first-launch-allow-it-once-in-system-settings) shows each step.
 
+> **Using 0.3.2 or earlier?** Those versions cannot tell you about updates. Download 0.4.0 once and replace `Hachibu.app` in your Applications folder; your settings stay. From 0.4.0 on, Hachibu lets you know when a new version is out. See [Updates](#updates).
+
 [Site](https://cc-hachibu.vercel.app/) · [How it was built (Japanese)](https://zenn.dev/ait/articles/hachibu-claude-code-usage-bar) · [日本語の説明はこちら](#日本語)
 
 ## What it shows
@@ -209,6 +211,8 @@ MIT
 人生の多くの時間を、トークンの残量確認に使っています。なので画面に出しっぱなしにしました。Hachibuは、Macの画面の最前面に小さなバーを常駐させ、Claude Codeのモデル、effort、使用率を出すアプリです。ひと目で済むので、すぐ手元の作業に戻れます。
 
 名前は「腹八分」から取りました。
+
+> **0.3.2以前をお使いの方へ**: これらの版には新しい版を知らせる仕組みがありません。一度だけ0.4.0をダウンロードし、アプリケーションフォルダの`Hachibu.app`と入れ替えてください。設定はそのまま残ります。0.4.0からは、新しい版が出るとアプリが知らせます。手順は[アップデート](#アップデート)にあります。
 
 Hachibuは個人が作った非公式のツールで、Anthropic, PBCとは関係がなく、同社の承認や支援も受けていません。
 
