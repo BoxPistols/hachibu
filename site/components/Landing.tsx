@@ -2,11 +2,14 @@
 
 import { useEffect, useState } from "react";
 import {
+  ALL_RELEASES_URL,
   ARTICLE_URL,
   CONTENT,
   DOWNLOAD_URL,
   FIRST_LAUNCH_URL,
   HARA_HACHI_BU,
+  LATEST_VERSION,
+  NEWS,
   RELEASES_URL,
   REPO_URL,
   TERMS_URL,
@@ -61,6 +64,13 @@ export function Landing() {
             <GaugeGlyph {...HERO_GAUGE} percent={HARA_HACHI_BU} className="h-auto w-[140%] max-w-none sm:w-[110%]" />
           </div>
           <div className="relative mx-auto max-w-6xl px-5 pb-20 pt-52 sm:px-8 sm:pt-80">
+            <a
+              href="#news"
+              className="mb-6 inline-flex items-center gap-2 rounded-2xl sm:rounded-full border border-yolk/40 bg-yolk/10 px-3 py-1 text-sm text-paper hover:border-yolk"
+            >
+              <span className="font-mono text-yolk">v{LATEST_VERSION}</span>
+              <span>{t.news.badge}</span>
+            </a>
             <p className="font-mono text-sm text-yolk">{t.hero.eyebrow}</p>
             <h1 className="mt-4 max-w-4xl font-display text-4xl font-semibold leading-[1.12] text-paper sm:text-6xl">
               {t.hero.title}
@@ -129,6 +139,36 @@ export function Landing() {
               </a>
             </div>
           </div>
+        </section>
+
+        <section id="news" className="mx-auto max-w-6xl scroll-mt-8 px-5 py-16 sm:px-8">
+          <h2 className="font-display text-3xl font-semibold text-paper">{t.news.heading}</h2>
+          <p className="mt-3 max-w-3xl text-base leading-relaxed text-fog">{t.news.lead}</p>
+          <ol className="mt-8 space-y-6">
+            {NEWS.map((entry) => (
+              <li key={entry.version} className="rounded-xl border border-white/10 bg-white/[0.03] p-6">
+                <div className="flex flex-wrap items-baseline gap-x-3">
+                  <a
+                    href={`${ALL_RELEASES_URL}/tag/v${entry.version}`}
+                    className="font-mono text-lg font-semibold text-yolk hover:underline"
+                  >
+                    v{entry.version}
+                  </a>
+                  <time dateTime={entry.date} className="font-mono text-sm text-fog/80">
+                    {entry.date}
+                  </time>
+                </div>
+                <ul className="mt-3 list-disc space-y-1.5 pl-5 text-base leading-relaxed text-fog">
+                  {entry.items[lang].map((line) => (
+                    <li key={line}>{line}</li>
+                  ))}
+                </ul>
+              </li>
+            ))}
+          </ol>
+          <a href={ALL_RELEASES_URL} className="mt-6 inline-block text-base text-yolk underline underline-offset-4">
+            {t.news.allReleases}
+          </a>
         </section>
 
         <section className="mx-auto max-w-6xl px-5 py-16 sm:px-8">
