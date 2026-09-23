@@ -3,7 +3,7 @@ import HachibuCore
 
 /// 基本表示の供給元。ほかの道具に頼らず、状態の枠1つ（"Opus5 1M xhigh · S2 W81 F55"）だけを出す。
 ///
-/// - モデル名とeffort: statusLineのJSON（scripts/statusline.shが書く）があればそれ、無ければ最後の会話記録と~/.claude/settings.json
+/// - モデル名とeffort: statusLineのJSON（scripts/statusline.shが書く）があればそれ、無ければ最後の会話記録、それも無ければ~/.claude/settings.json
 /// - 使用率: 利用者が有効にしていれば使用率API（5分ごと）、そうでなければstatusLineのrate_limits
 final class BasicSource: DataSource {
     var onSlots: (([Slot]) -> Void)?
@@ -25,6 +25,7 @@ final class BasicSource: DataSource {
     private var statusLineLimitsAt: Date?
 
     private var transcriptModelID: String?
+    private var transcriptEffort: String?
     private var transcriptModified: Date?
     private var lastTranscriptScan = Date.distantPast
 
@@ -86,7 +87,7 @@ final class BasicSource: DataSource {
         }
     }
 
-    /// 最後に書かれた会話記録の末尾から、最後に使われたモデルを読む
+    /// 最後に書かれた会話記録の末尾から、最後に使われたモデルとeffortを読む
     private func readNewestTranscript() {
         let fm = FileManager.default
         let projects = Self.claudeDir.appendingPathComponent("projects")
@@ -110,6 +111,8 @@ final class BasicSource: DataSource {
             let text = String(decoding: handle.readData(ofLength: Int(length)), as: UTF8.self)
             if let id = ModelInfo.lastModelID(inTranscriptTail: text) {
                 transcriptModelID = id
+                // 同じ応答の行に入っている。古い会話記録にはeffortが無いので、そのときは設定に任せる
+                transcriptEffort = ModelInfo.lastEffort(inTranscriptTail: text)
                 return
             }
             if length == size { return }
@@ -159,7 +162,7 @@ final class BasicSource: DataSource {
         let statusLineIsNewer = statusLineModified.map { s in transcriptModified.map { s >= $0.addingTimeInterval(-60) } ?? true } ?? false
         let model = (statusLineIsNewer ? statusLine?.model : nil)
             ?? ModelInfo.displayName(transcriptModelID: transcriptModelID, settingsModel: settings.model)
-        let effort = (statusLineIsNewer ? statusLine?.effort : nil) ?? settings.effort
+        let effort = (statusLineIsNewer ? statusLine?.effort : nil) ?? transcriptEffort ?? settings.effort
 
         let useAPI = Prefs.usageAPIConsent == true && !apiLimits.isEmpty
         limits = useAPI ? apiLimits : statusLineLimits

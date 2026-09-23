@@ -71,6 +71,16 @@ public enum ModelInfo {
         return ns.substring(with: match.range(at: 1))
     }
 
+    /// 会話記録（JSONL）の末尾から、最後の応答のeffortを探す。
+    /// セッション中に/effortで変えた値は~/.claude/settings.jsonに残らないので、こちらを設定より優先する
+    public static func lastEffort(inTranscriptTail text: String) -> String? {
+        let pattern = #""effort"\s*:\s*"(low|medium|high|xhigh|max)""#
+        guard let regex = try? NSRegularExpression(pattern: pattern) else { return nil }
+        let ns = text as NSString
+        guard let match = regex.matches(in: text, range: NSRange(location: 0, length: ns.length)).last else { return nil }
+        return ns.substring(with: match.range(at: 1))
+    }
+
     /// 会話記録のモデルIDと設定のモデル指定を合わせて、帯のモデル名にする。
     /// 会話記録のIDに文脈の長さが無ければ、同じ系統のモデルを指す設定の指定（"opus[1m]"の"1M"）を添える
     public static func displayName(transcriptModelID: String?, settingsModel: String?) -> String? {

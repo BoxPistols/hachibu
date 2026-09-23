@@ -56,6 +56,16 @@ import Testing
         #expect(ModelInfo.lastModelID(inTranscriptTail: "{\"type\":\"user\"}") == nil)
     }
 
+    @Test func findsTheLastEffortInTheTranscript() {
+        let tail = """
+        {"type":"assistant","message":{"model":"claude-opus-5-5","content":[]},"effort":"xhigh","perTurnEffort":"xhigh"}
+        {"type":"user","message":{"content":"effort is fine"}}
+        {"type":"assistant","message":{"model":"claude-opus-5-5","content":[]},"effort":"medium","perTurnEffort":"medium"}
+        """
+        #expect(ModelInfo.lastEffort(inTranscriptTail: tail) == "medium")
+        #expect(ModelInfo.lastEffort(inTranscriptTail: "{\"type\":\"user\"}") == nil)
+    }
+
     @Test func combinesTranscriptModelWithContextFromSettings() {
         #expect(ModelInfo.displayName(transcriptModelID: "claude-opus-5", settingsModel: "opus[1m]") == "Opus5 1M")
         #expect(ModelInfo.displayName(transcriptModelID: "claude-opus-5[1m]", settingsModel: "opus[1m]") == "Opus5 1M")
