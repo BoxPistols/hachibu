@@ -5,6 +5,7 @@ export type Lang = "en" | "ja";
 export const REPO_URL = "https://github.com/BoxPistols/hachibu";
 export const DOWNLOAD_URL = `${REPO_URL}/releases/latest/download/Hachibu-macos.zip`;
 export const RELEASES_URL = `${REPO_URL}/releases/latest`;
+export const ALL_RELEASES_URL = `${REPO_URL}/releases`;
 export const FIRST_LAUNCH_URL: Record<Lang, string> = {
   en: `${REPO_URL}#first-launch-allow-it-once-in-system-settings`,
   ja: `${REPO_URL}#インストール`,
@@ -29,6 +30,47 @@ export interface Step {
   title: string;
   body: string;
 }
+
+/** 更新のお知らせ。新しい順に並べ、リリースのたびに先頭に足す */
+export interface NewsItem {
+  version: string;
+  /** YYYY-MM-DD */
+  date: string;
+  items: Record<Lang, string[]>;
+}
+
+export const NEWS: NewsItem[] = [
+  {
+    version: "0.4.0",
+    date: "2026-09-23",
+    items: {
+      en: [
+        "Effort follows /effort. A level you change during a session is read from the conversation, so the strip no longer falls back to the effortLevel in settings.json",
+        "Update notices. Hachibu checks for a new version once a day and tells you with a notification and a menu item. Turn it off from Updates in the menu",
+      ],
+      ja: [
+        "effortが/effortに追従します。セッション中に変えた値を会話記録から読むので、settings.jsonのeffortLevelが出たままになりません",
+        "更新のお知らせ。1日に1回新しい版を確認し、通知とメニューの項目で知らせます。メニューの「アップデート」で止められます",
+      ],
+    },
+  },
+  {
+    version: "0.3.2",
+    date: "2026-09-20",
+    items: {
+      en: [
+        "A weekly gauge for the menu bar: the icon's slanted cut moves with the weekly usage",
+        "A second shortcut steps through Standard, Usage only, and Tucked",
+      ],
+      ja: [
+        "メニューバーに「週枠のメーター」。アイコンの斜めの切れ目が週枠の使用率に合わせて動きます",
+        "2つ目のショートカットで、標準、使用率だけ、端に収納を順に切り替えられます",
+      ],
+    },
+  },
+];
+
+export const LATEST_VERSION = NEWS[0].version;
 
 export interface Content {
   langLabel: string;
@@ -62,6 +104,7 @@ export interface Content {
     apiBody: string;
     termsLink: string;
   };
+  news: { badge: string; heading: string; lead: string; allReleases: string };
   install: { heading: string; lead: string; steps: Step[]; guideLink: string; checksum: string };
   footer: { unofficial: string; notTheFoodApp: string; trademarks: string; license: string; privacy: string };
   video: { label: string };
@@ -128,6 +171,12 @@ export const CONTENT: Record<Lang, Content> = {
       apiBody:
         "Hachibu can use the login that Claude Code saved in your keychain to ask Anthropic's usage endpoint, which adds per-model limits and keeps updating without a terminal. Anthropic's terms for Claude Code restrict third-party use of that login, so Hachibu shows you the wording and only turns this on if you choose to. You can turn it off at any time.",
       termsLink: "Read the terms",
+    },
+    news: {
+      badge: "New: effort follows /effort, and update notices",
+      heading: "What's new",
+      lead: "Hachibu checks for a new version once a day and lets you know. Download the new version and replace the app in your Applications folder; your settings stay.",
+      allReleases: "All releases",
     },
     install: {
       heading: "Install",
@@ -214,6 +263,12 @@ export const CONTENT: Record<Lang, Content> = {
       apiBody:
         "Claude Codeがキーチェーンに保存したログイン情報を使って、Anthropicの使用率のエンドポイントに問い合わせることもできます。モデル別の枠が加わり、ターミナルを開いていなくても更新されます。Claude Codeの規約は、このログイン情報の第三者による利用を制限しています。Hachibuはその文面を示し、利用者が選んだ場合だけ有効にします。いつでも無効にできます。",
       termsLink: "規約を読む",
+    },
+    news: {
+      badge: "新機能：effortが/effortに追従、更新のお知らせ",
+      heading: "更新のお知らせ",
+      lead: "Hachibuは1日に1回新しい版を確認して知らせます。新しい版をダウンロードし、アプリケーションフォルダのアプリと入れ替えてください。設定はそのまま残ります。",
+      allReleases: "すべてのリリース",
     },
     install: {
       heading: "インストール",

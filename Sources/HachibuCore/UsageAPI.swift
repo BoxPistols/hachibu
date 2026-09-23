@@ -105,6 +105,6 @@ public enum ModelInfo {
             ctx = " (\(c) context)"
             s.removeSubrange(r)
         }
-        return s.prefix(1).uppercased() + s.dropFirst() + ctx
+        return s.prefix(1).uppercased() + String(s.dropFirst()) + ctx
     }
 }
