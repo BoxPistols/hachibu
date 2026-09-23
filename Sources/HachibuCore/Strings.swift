@@ -119,6 +119,22 @@ public struct Strings {
     public let logOpened: String
     public let logLanguageChanged: (String) -> String
 
+    // 新しい版の確認
+    public let menuUpdates: String
+    /// 引数は動いている版
+    public let updateCurrentVersion: (String) -> String
+    public let menuUpdateAutoCheck: String
+    public let menuUpdateCheckNow: String
+    /// メニューの先頭に出す。引数は新しい版
+    public let updateAvailable: (String) -> String
+    public let updateNotificationTitle: (String) -> String
+    public let updateNotificationBody: String
+    public let updateUpToDate: (String) -> String
+    public let updateCheckFailed: (String) -> String
+    public let logUpdateAvailable: (String) -> String
+    public let logUpdateAutoCheckOn: String
+    public let logUpdateAutoCheckOff: String
+
     public static let en = Strings(
         language: .en,
         menuLayout: "Display",
@@ -230,7 +246,19 @@ public struct Strings {
         logLoginItemOn: "Set Hachibu to launch at login",
         logLoginItemOff: "Stopped launching at login",
         logOpened: "Opened the action log",
-        logLanguageChanged: { "Changed the language to \($0)" }
+        logLanguageChanged: { "Changed the language to \($0)" },
+        menuUpdates: "Updates",
+        updateCurrentVersion: { "This version: \($0)" },
+        menuUpdateAutoCheck: "Check for Updates Automatically",
+        menuUpdateCheckNow: "Check Now",
+        updateAvailable: { "Hachibu \($0) is available. Open the Download Page…" },
+        updateNotificationTitle: { "Hachibu \($0) is available" },
+        updateNotificationBody: "Click to open the download page.",
+        updateUpToDate: { "Hachibu \($0) is the latest version." },
+        updateCheckFailed: { "Could not check for updates (\($0))" },
+        logUpdateAvailable: { "Found a new version, \($0)" },
+        logUpdateAutoCheckOn: "Turned on checking for updates automatically",
+        logUpdateAutoCheckOff: "Turned off checking for updates automatically"
     )
 
     public static let ja = Strings(
@@ -346,7 +374,19 @@ public struct Strings {
         logLoginItemOn: "ログイン時に起動するようにしました",
         logLoginItemOff: "ログイン時の起動をやめました",
         logOpened: "操作ログを開きました",
-        logLanguageChanged: { "言語を\($0)にしました" }
+        logLanguageChanged: { "言語を\($0)にしました" },
+        menuUpdates: "アップデート",
+        updateCurrentVersion: { "この版：\($0)" },
+        menuUpdateAutoCheck: "新しい版を自動で確認",
+        menuUpdateCheckNow: "今すぐ確認",
+        updateAvailable: { "Hachibu \($0)が出ています。ダウンロードのページを開く…" },
+        updateNotificationTitle: { "Hachibu \($0)が出ました" },
+        updateNotificationBody: "クリックするとダウンロードのページを開きます",
+        updateUpToDate: { "Hachibu \($0)は最新の版です" },
+        updateCheckFailed: { "新しい版を確認できませんでした（\($0)）" },
+        logUpdateAvailable: { "新しい版\($0)が出ていました" },
+        logUpdateAutoCheckOn: "新しい版の自動確認を有効にしました",
+        logUpdateAutoCheckOff: "新しい版の自動確認をやめました"
     )
 
     public static func `for`(_ language: Language) -> Strings {

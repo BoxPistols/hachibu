@@ -1,0 +1,51 @@
+# リリース。mainで手動で起動する（Actions > Release > Run workflow）。
+#
+# scripts/build-app.shのVERSIONを版とし、docs/releases/v<版>.mdをリリースの本文にする。
+# テストが通ったら、両方のCPU向けのアプリを組み立ててzipにし、タグv<版>とリリースを作る。
+# zipとscripts/statusline.shを添付し（READMEがreleases/latest/download/…で指す）、本文の末尾にzipのSHA-256を足す。同じ版のリリースがすでにあれば何もせず失敗する
+name: Release
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Read the version
+        id: version
+        run: |
+          VERSION="$(sed -n 's/^VERSION="\(.*\)"$/\1/p' scripts/build-app.sh)"
+          NOTES="docs/releases/v${VERSION}.md"
+          test -n "$VERSION"
+          test -f "$NOTES" || { echo "missing $NOTES" >&2; exit 1; }
+          if gh release view "v${VERSION}" >/dev/null 2>&1; then
+            echo "v${VERSION} is already released" >&2
+            exit 1
+          fi
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "notes=$NOTES" >> "$GITHUB_OUTPUT"
+        env:
+          GH_TOKEN: ${{ github.token }}
+      - name: Test
+        run: scripts/test.sh
+      - name: Build
+        run: scripts/build-app.sh --zip
+      - name: Check the bundle
+        run: |
+          test "$(/usr/libexec/PlistBuddy -c 'Print CFBundleShortVersionString' build/Hachibu.app/Contents/Info.plist)" = "${{ steps.version.outputs.version }}"
+          lipo -archs build/Hachibu.app/Contents/MacOS/Hachibu | grep -q arm64
+          lipo -archs build/Hachibu.app/Contents/MacOS/Hachibu | grep -q x86_64
+      - name: Create the release
+        run: |
+          VERSION="${{ steps.version.outputs.version }}"
+          SHA="$(shasum -a 256 build/Hachibu-macos.zip | cut -d' ' -f1)"
+          { cat "${{ steps.version.outputs.notes }}"; echo; echo "SHA-256 of Hachibu-macos.zip: \`${SHA}\`"; } > "$RUNNER_TEMP/notes.md"
+          gh release create "v${VERSION}" build/Hachibu-macos.zip scripts/statusline.sh \
+            --target "$GITHUB_SHA" --title "Hachibu ${VERSION}" --notes-file "$RUNNER_TEMP/notes.md"
+        env:
+          GH_TOKEN: ${{ github.token }}

@@ -50,6 +50,7 @@ final class StatusItemController: NSObject, NSMenuDelegate {
 
     func menuNeedsUpdate(_ menu: NSMenu) {
         menu.removeAllItems()
+        builder.updateAvailableItems().forEach(menu.addItem)
         builder.usageItems().forEach(menu.addItem)
         builder.usageAPIItems().forEach(menu.addItem)
         menu.addItem(.separator())
@@ -69,6 +70,7 @@ final class StatusItemController: NSObject, NSMenuDelegate {
         builder.shortcutItems().forEach(menu.addItem)
         menu.addItem(builder.languageMenuItem())
         builder.loginItems().forEach(menu.addItem)
+        if let item = builder.updatesMenuItem() { menu.addItem(item) }
         menu.addItem(builder.resetPositionItem())
         menu.addItem(builder.openLogItem())
         menu.addItem(builder.legendMenuItem())
