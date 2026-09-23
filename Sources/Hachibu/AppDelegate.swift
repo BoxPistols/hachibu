@@ -11,6 +11,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private var builder: MenuBuilder!
     private let consent = UsageAPIConsent()
     private var statusItem: StatusItemController?
+    private var updates: UpdateChecker?
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         // 同じアプリの別のコピーがすでに動いていれば、そちらに帯を出させて終わる（帯を重ねて出さない）
@@ -58,6 +59,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         // 撮影用の起動ではメニューバーの項目を作らない（macOSの「メニューバー」の設定の一覧に行を増やさないため）
         if !isDemo {
             statusItem = StatusItemController(source: source, strip: strip, builder: builder)
+            let updates = UpdateChecker()
+            builder.updates = updates
+            updates.start()
+            self.updates = updates
         }
         builder.menuBarItemIsHidden = { [weak self] in self?.statusItem?.isHiddenBySystem ?? false }
 

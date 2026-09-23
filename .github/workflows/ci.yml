@@ -1,0 +1,21 @@
+# テストとアプリの組み立て。アプリはAppKitを使うので、macOSのランナーで動かす
+name: CI
+
+on:
+  push:
+    branches: ["**"]
+    paths-ignore: ["site/**", "docs/**", "README.md"]
+  pull_request:
+    paths-ignore: ["site/**", "docs/**", "README.md"]
+
+jobs:
+  test:
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Swift version
+        run: swift --version
+      - name: Test
+        run: scripts/test.sh
+      - name: Build the app
+        run: scripts/build-app.sh

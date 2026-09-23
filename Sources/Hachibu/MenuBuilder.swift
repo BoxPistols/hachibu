@@ -23,8 +23,12 @@ final class MenuBuilder {
     var menuBarItemIsHidden: () -> Bool = { false }
     private static let menuBarSettingsURL = URL(string: "x-apple.systempreferences:com.apple.ControlCenter-Settings.extension")!
 
+    /// 新しい版の確認（撮影用の起動では作らない）
+    var updates: UpdateChecker?
+
     func contextMenu() -> NSMenu {
         let menu = NSMenu()
+        updateAvailableItems().forEach(menu.addItem)
         usageItems().forEach(menu.addItem)
         // 使用率APIはメニューバーからだけでなく、帯からもいつでも止められるようにする
         usageAPIItems().forEach(menu.addItem)
@@ -38,6 +42,7 @@ final class MenuBuilder {
         // メニューバーの項目はmacOSの設定で隠せる。隠されても帯だけで全部の操作に届くようにする
         menu.addItem(languageMenuItem())
         loginItems().forEach(menu.addItem)
+        if let item = updatesMenuItem() { menu.addItem(item) }
         menu.addItem(openLogItem())
         menu.addItem(legendMenuItem())
         if menuBarItemIsHidden() {
@@ -49,6 +54,32 @@ final class MenuBuilder {
         menu.addItem(.separator())
         menu.addItem(quitItem())
         return menu
+    }
+
+    /// 新しい版が出ていれば、メニューの先頭にダウンロードのページを開く項目を出す
+    func updateAvailableItems() -> [NSMenuItem] {
+        guard let release = updates?.available else { return [] }
+        let item = choice(L10n.current.updateAvailable(release.version), selected: false) {
+            NSWorkspace.shared.open(release.url)
+        }
+        return [item, .separator()]
+    }
+
+    /// 「アップデート」。動いている版、自動確認の切り替え、今すぐ確認
+    func updatesMenuItem() -> NSMenuItem? {
+        guard let updates else { return nil }
+        let s = L10n.current
+        var items = [info(s.updateCurrentVersion(UpdateChecker.currentVersion))]
+        items.append(choice(s.menuUpdateAutoCheck, selected: Prefs.updateAutoCheck) {
+            Prefs.updateAutoCheck.toggle()
+            ActionLog.append(Prefs.updateAutoCheck ? L10n.current.logUpdateAutoCheckOn : L10n.current.logUpdateAutoCheckOff)
+            updates.autoCheckChanged()
+        })
+        items.append(choice(s.menuUpdateCheckNow, selected: false) { updates.check(manual: true) })
+        if let failure = updates.lastFailure {
+            items.append(info(s.updateCheckFailed(failure.summary)))
+        }
+        return submenu(s.menuUpdates, items)
     }
 
     /// 使用率の行。黄や赤の段階にある枠には、その色の点を付ける
