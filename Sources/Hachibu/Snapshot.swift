@@ -15,7 +15,6 @@ enum Snapshot {
         let limits = [
             UsageLimit(kind: .fiveHour, percent: 42, resetsAt: nil),
             UsageLimit(kind: .weekly, percent: 76, resetsAt: nil),
-            UsageLimit(kind: .model("Fable"), percent: 93, resetsAt: nil),
         ]
         let slot = Slot(id: Slot.statusID, text: Usage.statusText(model: "Opus5 1M", effort: "xhigh", limits: limits),
                         background: .idleBackground, foreground: .idleForeground, help: "")
@@ -32,7 +31,6 @@ enum Snapshot {
                 store.slots = LayoutRules.visibleSlots([slot], layout: layout, usageText: usageText)
                 write(StripView(store: store), to: dir.appendingPathComponent("strip-\(layout)-\(tag).png"))
             }
-            write(ConsentView(onEnable: {}, onDecline: {}), to: dir.appendingPathComponent("consent-\(tag).png"))
 
             let candidate = Shortcut(keyCode: 40, modifiers: [.control, .option, .command], keyLabel: "K")
             let phases: [(String, RecorderModel.Result, String, Bool)] = [
@@ -55,7 +53,7 @@ enum Snapshot {
 
     /// メニューバーの絵を、明るい地と暗い地の両方に2倍の解像度で描く
     private static func writeMenuBarIcon(to url: URL) {
-        let segments = UsageMarkup.segments("Opus5 1M xhigh · S42 W76 F93", thresholds: UsageThresholds(warning: 70, critical: 90)!)
+        let segments = UsageMarkup.segments("Opus5 1M xhigh · S42 W76", thresholds: UsageThresholds(warning: 70, critical: 90)!)
         let images = [MenuBarIcon.image(), MenuBarIcon.image(segments: segments)]
             + [8, 42, 76, 93].map { MenuBarIcon.gaugeImage(label: "\($0)", percent: $0, level: UsageThresholds(warning: 70, critical: 90)!.level($0)) }
         let width = (images.map(\.size.width).max() ?? 0) + 24

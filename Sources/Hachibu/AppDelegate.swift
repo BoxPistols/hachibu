@@ -9,9 +9,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private var cycleKeys: HotKeyCenter!
     private var cycleRecorder: ShortcutRecorder!
     private var builder: MenuBuilder!
-    private let consent = UsageAPIConsent()
     private var statusItem: StatusItemController?
-    private var updates: UpdateChecker?
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         // 同じアプリの別のコピーがすでに動いていれば、そちらに帯を出させて終わる（帯を重ねて出さない）
@@ -53,16 +51,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         recorder = ShortcutRecorder(hotKeys: hotKeys, usedElsewhere: { [weak cycleKeys] in cycleKeys?.shortcut })
         cycleRecorder = ShortcutRecorder(hotKeys: cycleKeys, title: { L10n.current.recorderCycleTitle },
                                          usedElsewhere: { [weak hotKeys] in hotKeys?.shortcut })
-        builder = MenuBuilder(source: source, strip: strip, hotKeys: hotKeys, recorder: recorder, consent: consent)
+        builder = MenuBuilder(source: source, strip: strip, hotKeys: hotKeys, recorder: recorder)
         builder.cycleKeys = cycleKeys
         builder.cycleRecorder = cycleRecorder
         // 撮影用の起動ではメニューバーの項目を作らない（macOSの「メニューバー」の設定の一覧に行を増やさないため）
         if !isDemo {
             statusItem = StatusItemController(source: source, strip: strip, builder: builder)
-            let updates = UpdateChecker()
-            builder.updates = updates
-            updates.start()
-            self.updates = updates
         }
         builder.menuBarItemIsHidden = { [weak self] in self?.statusItem?.isHiddenBySystem ?? false }
 
@@ -75,17 +69,6 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
         source.onSlots = { [weak strip] slots in strip?.update(slots) }
         source.start()
-
-        // 基本表示で、まだ尋ねていなければ、使用率APIを使うかを最初に一度だけ尋ねる
-        if let basic = source as? BasicSource, Prefs.usageAPIConsent == nil {
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) { [weak self] in
-                self?.consent.show { enabled in
-                    Prefs.usageAPIConsent = enabled
-                    ActionLog.append(enabled ? L10n.current.logUsageAPIEnabled : L10n.current.logUsageAPIDeclined)
-                    basic.usageAPISettingChanged()
-                }
-            }
-        }
     }
 
     /// メニューバーの項目をmacOSの設定で隠していても、Finderなどからもう一度開けば帯を呼び出せるようにする

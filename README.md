@@ -12,13 +12,11 @@ Hachibu is an unofficial tool made by an individual. It is not affiliated with, 
 
 [Download Hachibu for macOS](https://github.com/BoxPistols/hachibu/releases/latest/download/Hachibu-macos.zip) (macOS 14 or later, Apple Silicon or Intel). macOS blocks the first launch because the app is not notarized yet. You need to allow it once in System Settings > Privacy & Security; [First launch](#first-launch-allow-it-once-in-system-settings) shows each step.
 
-> **Using 0.3.2 or earlier?** Those versions cannot tell you about updates. Download 0.4.0 once and replace `Hachibu.app` in your Applications folder; your settings stay. From 0.4.0 on, Hachibu lets you know when a new version is out. See [Updates](#updates).
-
 [Site](https://cc-hachibu.vercel.app/) · [How it was built (Japanese)](https://zenn.dev/ait/articles/hachibu-claude-code-usage-bar) · [日本語の説明はこちら](#日本語)
 
 ## What it shows
 
-`Opus5• xhigh · S42 W76 F93` reads as: model, effort, then usage. The small dot after the model name means a 1M context. S is the 5-hour limit, W the weekly limit, and F a per-model weekly limit (the first letter of the model's name). The menu has How to Read the Strip, which lists the same.
+`Opus5• xhigh · S42 W76` reads as: model, effort, then usage. The small dot after the model name means a 1M context. S is the 5-hour limit and W the weekly limit. The menu has How to Read the Strip, which lists the same.
 
 - A usage number turns yellow at 70% and red at 90% by default. You can change both thresholds
 - Hover over the strip or open the menu bar item to see when each limit resets
@@ -27,15 +25,10 @@ Hachibu is an unofficial tool made by an individual. It is not affiliated with, 
 
 ## Where the numbers come from
 
-Hachibu works on its own. No other tools are needed.
+Everything comes from files on your Mac. Hachibu does not read your keychain, does not call any API, and does not connect to the network at all.
 
 - Model and effort: the conversation Claude Code saved most recently on this Mac, and `~/.claude/settings.json`. Effort follows `/effort`: a level you change during a session is read from the conversation, and `effortLevel` in `settings.json` is used only when the conversation has none. If you set up the statusLine below, its values are used when they are newer
-- Usage: you choose one of two sources
-
-1. Usage API (optional). The first time Hachibu opens, it asks whether to use it. If you turn it on, Hachibu uses the login that Claude Code saved in your keychain to ask Anthropic's usage endpoint every 5 minutes. S, W, and F then stay up to date even when you are not using the terminal. Anthropic's [terms for Claude Code](https://code.claude.com/docs/en/legal-and-compliance) say that its OAuth login is designed to support "ordinary use of Claude Code and other native Anthropic applications", and that developers "may not collect, store, or intermediate Claude.ai credentials or session tokens". Hachibu is not an Anthropic application, so using this may be treated as a violation of those terms. Anthropic says it may enforce them without prior notice, and any measures would apply to your account. The endpoint is also not publicly documented and may stop working. The login is used only for this request and is not saved or logged
-2. statusLine (official). Claude Code's statusLine passes the 5-hour and weekly usage to a command you choose. It updates only while you use Claude Code in the terminal, and it does not include per-model limits. See [statusLine setup](#statusline-setup)
-
-You can switch the usage API on or off at any time from the menu bar item or the strip's right-click menu. Turning it off takes effect immediately: Hachibu stops reading the keychain and sending requests, and drops the values it got from the API. Hachibu does not create a login of its own, so there is nothing to revoke on Anthropic's side.
+- Usage: Claude Code's statusLine, an official extension point that passes the 5-hour and weekly usage to a command you choose. It updates while you use Claude Code in the terminal. See [statusLine setup](#statusline-setup). Without it, the strip shows the model and effort but no usage
 
 ## Stays out of the way
 
@@ -46,7 +39,7 @@ Pick how much of the strip you want to see. Hover to expand it to Standard tempo
 | Mode | Shows |
 |---|---|
 | Standard | Model, effort, and usage |
-| Usage only | Usage numbers such as `S42 W76 F93` |
+| Usage only | Usage numbers such as `S42 W76` |
 | Tucked | A small handle at the edge of the screen. Its ring shows the highest usage level |
 | Hidden | Nothing. Show it with the shortcut or from the menu bar |
 
@@ -84,7 +77,7 @@ You need to do this once for each download. Hachibu is not from the App Store an
    <img src="docs/images/first-launch-open-anyway.png" width="600" alt="The blocked message and the Open Anyway button in Privacy & Security">
 
 4. Enter your login password (or use Touch ID), then click OK
-5. If Hachibu does not open by itself, open it again. On its first run it asks whether to use the usage API (see [Where the numbers come from](#where-the-numbers-come-from))
+5. If Hachibu does not open by itself, open it again. Then set up the statusLine so that usage appears (see [statusLine setup](#statusline-setup))
 
 From then on Hachibu opens normally, including at login. When you download a new version, you need to do this again.
 
@@ -107,19 +100,15 @@ Allowing an app that Apple has not checked is a decision you make. Some ways to 
 
 ### Permissions it may ask for
 
-- Notifications. When Hachibu finds a new version for the first time, macOS asks whether to allow its notifications. If you do not allow them, the new version still shows at the top of the menu
-- Keychain. If you turn on the usage API, macOS may ask whether to allow access to the "Claude Code-credentials" item
 - Login Items. When you turn on Launch at Login, macOS tells you that Hachibu will open at login. You can manage it in System Settings > General > Login Items (Login Items & Extensions on newer versions of macOS)
 
 After you update to a new version, macOS may ask again, because the app is not signed with a fixed Developer ID yet.
 
 ### Updates
 
-Hachibu checks GitHub for a new version once a day. When it finds one, it sends one notification for that version and shows Hachibu x.y.z is available at the top of the menu bar item and the strip's right-click menu. Click either to open the download page.
+Hachibu does not check for new versions, so it never connects to the network. To hear about releases, use Watch > Custom > Releases on this repository, or check the [releases page](https://github.com/BoxPistols/hachibu/releases).
 
 To update, download the new `Hachibu-macos.zip`, quit Hachibu, and replace `Hachibu.app` in your Applications folder. Your settings stay. You need to allow the first launch in System Settings again, as described above.
-
-Updates in the menu shows the version you are running, lets you turn off Check for Updates Automatically, and has Check Now. Release notes for every version are on the [releases page](https://github.com/BoxPistols/hachibu/releases).
 
 ### Uninstall
 
@@ -136,7 +125,7 @@ rm -rf ~/Library/Logs/Hachibu ~/"Library/Application Support/Hachibu"
 
 ## statusLine setup
 
-This is optional. Use it if you leave the usage API off, or if you want the model and effort of the session you are working in.
+Usage comes only from here. It also gives the strip the model and effort of the session you are working in.
 
 `statusline.sh` saves the JSON that Claude Code passes to the statusLine to `~/Library/Application Support/Hachibu/statusline.json`, which Hachibu reads. Download it from the release (or use `scripts/statusline.sh` in a clone) and make it executable:
 
@@ -165,15 +154,13 @@ Usage limits (`rate_limits`) appear in the statusLine data on Pro and Max plans,
 
 ## Using only the Claude Code desktop app
 
-- With the usage API turned on, usage keeps updating whether you use the terminal or the desktop app
-- With the usage API off, usage comes only from the terminal's statusLine, so it stops updating while you use only the desktop app. The strip keeps showing the last known values, dims them after 30 minutes, and tells you when they were last updated. See [#6](https://github.com/BoxPistols/hachibu/issues/6)
+Usage comes only from the terminal's statusLine, so it stops updating while you use only the desktop app. The strip keeps showing the last known values, dims them after 30 minutes, and tells you when they were last updated. See [#6](https://github.com/BoxPistols/hachibu/issues/6).
 
 ## Data
 
 - Hachibu reads local files: Claude Code's saved conversations (only to find the most recently used model and effort), `~/.claude/settings.json`, and the statusLine file above
-- It connects to the network for two things: the usage API, only if you turn it on (`api.anthropic.com`), and the update check once a day (`api.github.com`, which you can turn off from Updates in the menu). The update check sends only the app's name and version as the User-Agent
-- It reads the Claude Code login from the keychain only for that request, and does not save or log it
-- Settings changes and failed usage requests are logged to `~/Library/Logs/Hachibu/actions.log`
+- It does not connect to the network, and it does not read the keychain
+- Settings changes are logged to `~/Library/Logs/Hachibu/actions.log`
 
 ## Build from source
 
@@ -212,8 +199,6 @@ MIT
 
 名前は「腹八分」から取りました。
 
-> **0.3.2以前をお使いの方へ**: これらの版には新しい版を知らせる仕組みがありません。一度だけ0.4.0をダウンロードし、アプリケーションフォルダの`Hachibu.app`と入れ替えてください。設定はそのまま残ります。0.4.0からは、新しい版が出るとアプリが知らせます。手順は[アップデート](#アップデート)にあります。
-
 Hachibuは個人が作った非公式のツールで、Anthropic, PBCとは関係がなく、同社の承認や支援も受けていません。
 
 ![Hachibuのバー](docs/images/ja-strip-basic.png)
@@ -222,7 +207,7 @@ Hachibuは個人が作った非公式のツールで、Anthropic, PBCとは関�
 
 ### 表示の読み方
 
-`Opus5• xhigh · S42 W76 F93`は、モデル、effort、使用率の順です。モデル名の後ろの小さな点は、1Mコンテキストを表します。Sは5時間枠、Wは週枠、Fはモデル別の週枠（モデル名の頭文字）です。同じ内容は、メニューの「表示の読み方」にもあります。
+`Opus5• xhigh · S42 W76`は、モデル、effort、使用率の順です。モデル名の後ろの小さな点は、1Mコンテキストを表します。Sは5時間枠、Wは週枠です。同じ内容は、メニューの「表示の読み方」にもあります。
 
 - 使用率が既定で70%以上なら黄、90%以上なら赤の札で数字を囲みます。閾値はどちらも変えられます
 - バーにマウスを乗せるか、メニューバーの項目を開くと、各枠がいつリセットされるかが分かります
@@ -231,15 +216,10 @@ Hachibuは個人が作った非公式のツールで、Anthropic, PBCとは関�
 
 ### 値の出どころ
 
-Hachibuだけで動きます。ほかの道具は要りません。
+すべてこのMacの中のファイルから読みます。Hachibuはキーチェーンを読まず、APIも呼ばず、ネットワークにも一切接続しません。
 
 - モデルとeffort: このMacでClaude Codeが最後に保存した会話と、`~/.claude/settings.json`から読みます。effortは`/effort`に追従します。セッション中に変えた値は会話から読み、会話に無いときだけ`settings.json`の`effortLevel`を使います。下のstatusLineを設定していれば、そちらが新しいときはそちらを使います
-- 使用率: 次の2つから選べます
-
-1. 使用率API（任意）。初めて起動したときに、使うかどうかを尋ねます。有効にすると、Claude Codeがキーチェーンに保存したログイン情報を使い、5分ごとにAnthropicの使用率のエンドポイントへ問い合わせます。S、W、Fが、ターミナルを使っていないときも更新されます。[Claude Codeの規約](https://code.claude.com/docs/en/legal-and-compliance)は、OAuthによるログインを「ordinary use of Claude Code and other native Anthropic applications」（Claude Codeと、Anthropic純正のアプリの通常の利用）のためのものとし、開発者は「may not collect, store, or intermediate Claude.ai credentials or session tokens」（Claude.aiのログイン情報やセッショントークンを収集、保存、仲介してはならない）としています。HachibuはAnthropicのアプリではないため、この機能を使うと規約違反と判断されるおそれがあります。Anthropicは予告なく制限を執行しうるとしており、その措置はあなたのアカウントに及びます。エンドポイント自体も公開されておらず、使えなくなることがあります。ログイン情報はこの問い合わせにだけ使い、保存も記録もしません
-2. statusLine（公式）。Claude CodeのstatusLineが、5時間枠と週枠の使用率を指定したコマンドに渡します。更新されるのはターミナルでClaude Codeを使っている間だけで、モデル別の枠は含まれません。[statusLineの設定](#statuslineの設定)を参照してください
-
-使用率APIは、メニューバーの項目かバーの右クリックメニューから、いつでも有効・無効を切り替えられます。無効にするとすぐに、キーチェーンの読み取りと問い合わせをやめ、APIから得た値も捨てます。Hachibuは独自のログインを作らないので、Anthropic側で取り消すものはありません。
+- 使用率: Claude CodeのstatusLine（公式の拡張点）が、5時間枠と週枠の使用率を指定したコマンドに渡します。更新されるのは、ターミナルでClaude Codeを使っている間です。[statusLineの設定](#statuslineの設定)を参照してください。設定していないときは、モデルとeffortだけが出て、使用率は出ません
 
 ### 表示を控えめにする
 
@@ -250,7 +230,7 @@ Hachibuだけで動きます。ほかの道具は要りません。
 | モード | 出るもの |
 |---|---|
 | 標準 | モデル、effort、使用率 |
-| 使用率だけ | `S42 W76 F93`のような使用率だけ |
+| 使用率だけ | `S42 W76`のような使用率だけ |
 | 端に収納 | 画面の端の小さなつまみだけ。輪の色で、いちばん高い使用率の段階を示す |
 | 隠す | 何も出さない。ショートカットかメニューバーから出す |
 
@@ -286,7 +266,7 @@ v0.2.0まではSlashstripという名前でした。Slashstripを入れていた
    <img src="docs/images/first-launch-open-anyway.png" width="600" alt="「プライバシーとセキュリティ」のブロックの表示と「このまま開く」">
 
 4. ログインパスワードを入力するか、Touch IDを使い、「OK」をクリックします
-5. 自動で開かなかった場合は、もう一度Hachibuを開きます。初回は、使用率APIを使うかを尋ねます（[値の出どころ](#値の出どころ)）
+5. 自動で開かなかった場合は、もう一度Hachibuを開きます。そのあと、使用率が出るようにstatusLineを設定します（[statusLineの設定](#statuslineの設定)）
 
 これ以降は、ログイン時の起動も含めて普通に開きます。新しい版をダウンロードしたときは、もう一度この手順が要ります。
 
@@ -309,19 +289,15 @@ Appleが確認していないアプリを開くかどうかは、使う人の判
 
 #### 求められることがある権限
 
-- 通知。新しい版を初めて見つけたときに、通知を許可するかをmacOSが尋ねます。許可しなくても、新しい版はメニューの先頭に出ます
-- キーチェーン。使用率APIを有効にすると、「Claude Code-credentials」の項目へのアクセスを許可するかをmacOSが尋ねることがあります
 - ログイン項目。「ログイン時に起動」を有効にすると、ログイン時に開く旨をmacOSが知らせます。「システム設定」＞「一般」＞「ログイン項目」（新しいmacOSでは「ログイン項目と機能拡張」）で管理できます
 
 まだ決まったDeveloper IDで署名していないため、新しい版に更新すると、もう一度尋ねられることがあります。
 
 #### アップデート
 
-Hachibuは1日に1回、GitHubで新しい版を確認します。見つけたら、その版につき1回だけ通知し、メニューバーの項目とバーの右クリックメニューの先頭に「Hachibu x.y.zが出ています」と出します。どちらを押してもダウンロードのページが開きます。
+Hachibuは新しい版を確認しません。そのため、ネットワークには一切接続しません。新しい版を知るには、このリポジトリのWatch＞Custom＞Releasesを使うか、[リリースのページ](https://github.com/BoxPistols/hachibu/releases)を見てください。
 
 更新するには、新しい`Hachibu-macos.zip`をダウンロードし、Hachibuを終了してから、アプリケーションフォルダの`Hachibu.app`と入れ替えます。設定はそのまま残ります。初回の起動の許可は、上の手順でもう一度必要です。
-
-メニューの「アップデート」には、動いている版、「新しい版を自動で確認」の切り替え、「今すぐ確認」があります。各版の変更点は[リリースのページ](https://github.com/BoxPistols/hachibu/releases)にあります。
 
 #### アンインストール
 
@@ -338,7 +314,7 @@ rm -rf ~/Library/Logs/Hachibu ~/"Library/Application Support/Hachibu"
 
 ### statusLineの設定
 
-任意です。使用率APIを使わない場合や、作業中のセッションのモデルとeffortを出したい場合に設定します。
+使用率はここからだけ届きます。作業中のセッションのモデルとeffortも、ここから出せます。
 
 `statusline.sh`は、Claude CodeがstatusLineに渡すJSONを`~/Library/Application Support/Hachibu/statusline.json`に保存し、Hachibuはそれを読みます。リリースから入手して（クローンした場合は`scripts/statusline.sh`）、実行できるようにします。
 
@@ -353,15 +329,13 @@ chmod +x ~/.claude/hachibu-statusline.sh
 
 ### デスクトップアプリだけで使う場合
 
-- 使用率APIを有効にしていれば、ターミナルとデスクトップアプリのどちらを使っていても使用率は更新されます
-- 使用率APIを使わない場合、使用率はターミナルのstatusLineからしか届かないため、デスクトップアプリだけを使っている間は更新されません。バーは最後に分かっている値を出し続け、30分を過ぎると薄く表示して、何時点の値かを添えます。[#6](https://github.com/BoxPistols/hachibu/issues/6)を参照してください
+使用率はターミナルのstatusLineからしか届かないため、デスクトップアプリだけを使っている間は更新されません。バーは最後に分かっている値を出し続け、30分を過ぎると薄く表示して、何時点の値かを添えます。[#6](https://github.com/BoxPistols/hachibu/issues/6)を参照してください。
 
 ### データの扱い
 
 - 読むのはローカルのファイルです。Claude Codeが保存した会話（最後に使われたモデルとeffortを知るためだけ）、`~/.claude/settings.json`、上のstatusLineのファイル
-- ネットワークに接続するのは2つだけです。使用率APIを有効にした場合の`api.anthropic.com`と、1日に1回の新しい版の確認の`api.github.com`です（確認はメニューの「アップデート」で止められます）。新しい版の確認で送るのは、User-Agentのアプリ名と版だけです
-- キーチェーンのログイン情報は、その問い合わせのときだけ読み、保存も記録もしません
-- 設定の変更と、使用率の取得に失敗したことは`~/Library/Logs/Hachibu/actions.log`に残ります
+- ネットワークには接続しません。キーチェーンも読みません
+- 設定の変更は`~/Library/Logs/Hachibu/actions.log`に残ります
 
 ### ソースからビルド
 

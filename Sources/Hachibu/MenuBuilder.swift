@@ -7,15 +7,12 @@ final class MenuBuilder {
     private let strip: StripController
     private let hotKeys: HotKeyCenter
     private let recorder: ShortcutRecorder
-    private let consent: UsageAPIConsent
 
-    init(source: DataSource, strip: StripController, hotKeys: HotKeyCenter, recorder: ShortcutRecorder,
-         consent: UsageAPIConsent) {
+    init(source: DataSource, strip: StripController, hotKeys: HotKeyCenter, recorder: ShortcutRecorder) {
         self.source = source
         self.strip = strip
         self.hotKeys = hotKeys
         self.recorder = recorder
-        self.consent = consent
     }
 
     /// 帯の右クリック。表示の切り替えをその場で行えるよう、モードは入れ子にせず並べる
@@ -23,15 +20,9 @@ final class MenuBuilder {
     var menuBarItemIsHidden: () -> Bool = { false }
     private static let menuBarSettingsURL = URL(string: "x-apple.systempreferences:com.apple.ControlCenter-Settings.extension")!
 
-    /// 新しい版の確認（撮影用の起動では作らない）
-    var updates: UpdateChecker?
-
     func contextMenu() -> NSMenu {
         let menu = NSMenu()
-        updateAvailableItems().forEach(menu.addItem)
         usageItems().forEach(menu.addItem)
-        // 使用率APIはメニューバーからだけでなく、帯からもいつでも止められるようにする
-        usageAPIItems().forEach(menu.addItem)
         menu.addItem(.separator())
         layoutItems().forEach(menu.addItem)
         menu.addItem(opacityMenuItem())
@@ -42,7 +33,6 @@ final class MenuBuilder {
         // メニューバーの項目はmacOSの設定で隠せる。隠されても帯だけで全部の操作に届くようにする
         menu.addItem(languageMenuItem())
         loginItems().forEach(menu.addItem)
-        if let item = updatesMenuItem() { menu.addItem(item) }
         menu.addItem(openLogItem())
         menu.addItem(legendMenuItem())
         if menuBarItemIsHidden() {
@@ -54,32 +44,6 @@ final class MenuBuilder {
         menu.addItem(.separator())
         menu.addItem(quitItem())
         return menu
-    }
-
-    /// 新しい版が出ていれば、メニューの先頭にダウンロードのページを開く項目を出す
-    func updateAvailableItems() -> [NSMenuItem] {
-        guard let release = updates?.available else { return [] }
-        let item = choice(L10n.current.updateAvailable(release.version), selected: false) {
-            NSWorkspace.shared.open(release.url)
-        }
-        return [item, .separator()]
-    }
-
-    /// 「アップデート」。動いている版、自動確認の切り替え、今すぐ確認
-    func updatesMenuItem() -> NSMenuItem? {
-        guard let updates else { return nil }
-        let s = L10n.current
-        var items = [info(s.updateCurrentVersion(UpdateChecker.currentVersion))]
-        items.append(choice(s.menuUpdateAutoCheck, selected: Prefs.updateAutoCheck) {
-            Prefs.updateAutoCheck.toggle()
-            ActionLog.append(Prefs.updateAutoCheck ? L10n.current.logUpdateAutoCheckOn : L10n.current.logUpdateAutoCheckOff)
-            updates.autoCheckChanged()
-        })
-        items.append(choice(s.menuUpdateCheckNow, selected: false) { updates.check(manual: true) })
-        if let failure = updates.lastFailure {
-            items.append(info(s.updateCheckFailed(failure.summary)))
-        }
-        return submenu(s.menuUpdates, items)
     }
 
     /// 使用率の行。黄や赤の段階にある枠には、その色の点を付ける
@@ -121,29 +85,6 @@ final class MenuBuilder {
         let items = [disabled(L10n.current.thresholdWarningHeader)] + warning + [.separator()]
             + [disabled(L10n.current.thresholdCriticalHeader)] + critical
         return submenu(L10n.current.menuThresholds, items)
-    }
-
-    /// 撮影用の架空の値では出さない。有効にするときは、何を使いどんなリスクがあるかを先に示す
-    func usageAPIItems() -> [NSMenuItem] {
-        guard let basic = source as? BasicSource else { return [] }
-        let item = choice(L10n.current.menuUsageAPI, selected: Prefs.usageAPIConsent == true) { [weak self] in
-            if Prefs.usageAPIConsent == true {
-                Prefs.usageAPIConsent = false
-                ActionLog.append(L10n.current.logUsageAPIDisabled)
-                basic.usageAPISettingChanged()
-            } else {
-                self?.consent.show { enabled in
-                    Prefs.usageAPIConsent = enabled
-                    ActionLog.append(enabled ? L10n.current.logUsageAPIEnabled : L10n.current.logUsageAPIDeclined)
-                    basic.usageAPISettingChanged()
-                }
-            }
-        }
-        var items = [item]
-        if Prefs.usageAPIConsent == true, let failure = basic.apiFailure {
-            items.append(info(L10n.current.usageAPIFailed(failure.summary)))
-        }
-        return items
     }
 
     /// 項目に乗せると帯をそのモードで仮に表示し、選ぶと確定する

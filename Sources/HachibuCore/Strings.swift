@@ -67,17 +67,6 @@ public struct Strings {
     public let menuBarStyleName: (MenuBarStyle) -> String
 
     public let basicNoUsage: String
-    public let menuUsageAPI: String
-    public let usageAPIFailed: (String) -> String
-    public let consentTitle: String
-    public let consentWhat: String
-    public let consentRisk: String
-    public let consentPrivacy: String
-    public let consentWithout: String
-    /// 規約のページへのリンクの文言
-    public let consentTerms: String
-    public let consentEnable: String
-    public let consentDecline: String
     public let dragHandle: String
 
     public let limitFiveHour: String
@@ -111,29 +100,10 @@ public struct Strings {
     public let logShortcutCommitted: (String) -> String
     public let logShortcutDisabled: String
     public let logShortcutFailed: (String) -> String
-    public let logUsageAPIEnabled: String
-    public let logUsageAPIDeclined: String
-    public let logUsageAPIDisabled: String
     public let logLoginItemOn: String
     public let logLoginItemOff: String
     public let logOpened: String
     public let logLanguageChanged: (String) -> String
-
-    // 新しい版の確認
-    public let menuUpdates: String
-    /// 引数は動いている版
-    public let updateCurrentVersion: (String) -> String
-    public let menuUpdateAutoCheck: String
-    public let menuUpdateCheckNow: String
-    /// メニューの先頭に出す。引数は新しい版
-    public let updateAvailable: (String) -> String
-    public let updateNotificationTitle: (String) -> String
-    public let updateNotificationBody: String
-    public let updateUpToDate: (String) -> String
-    public let updateCheckFailed: (String) -> String
-    public let logUpdateAvailable: (String) -> String
-    public let logUpdateAutoCheckOn: String
-    public let logUpdateAutoCheckOff: String
 
     public static let en = Strings(
         language: .en,
@@ -202,17 +172,7 @@ public struct Strings {
             case .status: return "Full status"
             }
         },
-        basicNoUsage: "Usage is not known yet. Turn on Get Usage from the API, or set up statusline.sh as described in the README.",
-        menuUsageAPI: "Get Usage from the API…",
-        usageAPIFailed: { "Could not get usage from the API (\($0))" },
-        consentTitle: "Get usage from Anthropic's server?",
-        consentWhat: "If you turn this on, Hachibu uses the login that Claude Code saved on this Mac (the \"Claude Code-credentials\" item in your keychain) to ask Anthropic's usage endpoint every 5 minutes. The 5-hour, weekly, and per-model weekly usage then stay up to date even when you are not using the terminal.",
-        consentRisk: "Anthropic's terms for Claude Code say that its OAuth login is designed to support \"ordinary use of Claude Code and other native Anthropic applications\", and that developers \"may not collect, store, or intermediate Claude.ai credentials or session tokens\". Hachibu is not an Anthropic application, so using this may be treated as a violation of those terms. Anthropic says it may enforce them without prior notice, and any measures would apply to your account. The usage endpoint is also not publicly documented and may stop working.",
-        consentPrivacy: "The login is used only for this request. It is not saved or logged, and nothing else is sent. The first time, macOS may ask whether to allow access to the keychain item.",
-        consentWithout: "If you leave it off, Hachibu shows only the 5-hour and weekly usage from Claude Code's statusLine, which updates while you use Claude Code in the terminal. You can change this later from the menu bar item or the strip's right-click menu.",
-        consentTerms: "Read the terms (Claude Code: Legal and compliance)",
-        consentEnable: "Turn On",
-        consentDecline: "Not Now",
+        basicNoUsage: "Usage is not known yet. Set up statusline.sh as described in the README.",
         dragHandle: "Drag to move",
         limitFiveHour: "5-hour",
         limitWeekly: "Weekly",
@@ -240,25 +200,10 @@ public struct Strings {
         logShortcutCommitted: { "Set the shortcut to \($0) (confirmed that it arrives)" },
         logShortcutDisabled: "Turned off the shortcut",
         logShortcutFailed: { "Could not register the shortcut \($0)" },
-        logUsageAPIEnabled: "Turned on getting usage from the API",
-        logUsageAPIDeclined: "Left getting usage from the API off",
-        logUsageAPIDisabled: "Stopped getting usage from the API",
         logLoginItemOn: "Set Hachibu to launch at login",
         logLoginItemOff: "Stopped launching at login",
         logOpened: "Opened the action log",
-        logLanguageChanged: { "Changed the language to \($0)" },
-        menuUpdates: "Updates",
-        updateCurrentVersion: { "This version: \($0)" },
-        menuUpdateAutoCheck: "Check for Updates Automatically",
-        menuUpdateCheckNow: "Check Now",
-        updateAvailable: { "Hachibu \($0) is available. Open the Download Page…" },
-        updateNotificationTitle: { "Hachibu \($0) is available" },
-        updateNotificationBody: "Click to open the download page.",
-        updateUpToDate: { "Hachibu \($0) is the latest version." },
-        updateCheckFailed: { "Could not check for updates (\($0))" },
-        logUpdateAvailable: { "Found a new version, \($0)" },
-        logUpdateAutoCheckOn: "Turned on checking for updates automatically",
-        logUpdateAutoCheckOff: "Turned off checking for updates automatically"
+        logLanguageChanged: { "Changed the language to \($0)" }
     )
 
     public static let ja = Strings(
@@ -328,17 +273,7 @@ public struct Strings {
             case .status: return "状態の全文"
             }
         },
-        basicNoUsage: "使用率はまだ分かりません。「使用率をAPIから取得」を有効にするか、READMEの手順でstatusline.shを設定してください",
-        menuUsageAPI: "使用率をAPIから取得…",
-        usageAPIFailed: { "APIから使用率を取得できませんでした（\($0)）" },
-        consentTitle: "使用率をAnthropicのサーバーから取得しますか？",
-        consentWhat: "有効にすると、Claude Codeがこのマシンに保存したログイン情報（キーチェーンの「Claude Code-credentials」）を使い、5分ごとにAnthropicの使用率のエンドポイントへ問い合わせます。5時間枠、週枠、モデル別の週枠が、ターミナルを使っていないときも更新されます。",
-        consentRisk: "Claude Codeの規約は、OAuthによるログインを「ordinary use of Claude Code and other native Anthropic applications」（Claude Codeと、Anthropic純正のアプリの通常の利用）のためのものとし、開発者は「may not collect, store, or intermediate Claude.ai credentials or session tokens」（Claude.aiのログイン情報やセッショントークンを収集、保存、仲介してはならない）としています。HachibuはAnthropicのアプリではないため、この機能を使うと規約違反と判断されるおそれがあります。Anthropicは予告なく制限を執行しうるとしており、その措置はあなたのアカウントに及びます。使用率のエンドポイント自体も公開されておらず、予告なく使えなくなることがあります。",
-        consentPrivacy: "ログイン情報はこの問い合わせにだけ使い、保存も記録もしません。ほかには何も送りません。初回は、キーチェーンの項目へのアクセスを許可するかをmacOSが尋ねることがあります。",
-        consentWithout: "有効にしない場合は、Claude CodeのstatusLineから5時間枠と週枠だけを表示します。値が更新されるのは、ターミナルでClaude Codeを使っている間です。あとからメニューバーの項目かバーの右クリックメニューで変えられます。",
-        consentTerms: "規約を読む（Claude Code: Legal and compliance）",
-        consentEnable: "有効にする",
-        consentDecline: "今はしない",
+        basicNoUsage: "使用率はまだ分かりません。READMEの手順でstatusline.shを設定してください",
         dragHandle: "ドラッグで移動",
         limitFiveHour: "5時間枠",
         limitWeekly: "週枠",
@@ -368,25 +303,10 @@ public struct Strings {
         logShortcutCommitted: { "ショートカットを\($0)にしました（届くことを確認済み）" },
         logShortcutDisabled: "ショートカットを無効にしました",
         logShortcutFailed: { "ショートカット\($0)の登録に失敗しました" },
-        logUsageAPIEnabled: "使用率APIからの取得を有効にしました",
-        logUsageAPIDeclined: "使用率APIからの取得は有効にしませんでした",
-        logUsageAPIDisabled: "使用率APIからの取得をやめました",
         logLoginItemOn: "ログイン時に起動するようにしました",
         logLoginItemOff: "ログイン時の起動をやめました",
         logOpened: "操作ログを開きました",
-        logLanguageChanged: { "言語を\($0)にしました" },
-        menuUpdates: "アップデート",
-        updateCurrentVersion: { "この版：\($0)" },
-        menuUpdateAutoCheck: "新しい版を自動で確認",
-        menuUpdateCheckNow: "今すぐ確認",
-        updateAvailable: { "Hachibu \($0)が出ています。ダウンロードのページを開く…" },
-        updateNotificationTitle: { "Hachibu \($0)が出ました" },
-        updateNotificationBody: "クリックするとダウンロードのページを開きます",
-        updateUpToDate: { "Hachibu \($0)は最新の版です" },
-        updateCheckFailed: { "新しい版を確認できませんでした（\($0)）" },
-        logUpdateAvailable: { "新しい版\($0)が出ていました" },
-        logUpdateAutoCheckOn: "新しい版の自動確認を有効にしました",
-        logUpdateAutoCheckOff: "新しい版の自動確認をやめました"
+        logLanguageChanged: { "言語を\($0)にしました" }
     )
 
     public static func `for`(_ language: Language) -> Strings {
