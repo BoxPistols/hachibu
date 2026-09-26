@@ -1,40 +1,5 @@
 import Foundation
 
-/// 使用率APIの応答の解釈。呼ぶのは利用者が有効にしたときだけ（アプリ側のUsageAPIClient）。
-public enum UsageAPI {
-    /// limits[] を優先して読む。kindはsession・weekly_all・weekly_scopedの3種で、percentは0〜100の整数
-    public static func parse(_ obj: [String: Any]) -> [UsageLimit] {
-        var out: [UsageLimit] = []
-        for lim in (obj["limits"] as? [[String: Any]]) ?? [] {
-            guard let percent = (lim["percent"] as? NSNumber)?.intValue else { continue }
-            let resets = ResetFormatter.parseISO(lim["resets_at"] as? String)
-            switch lim["kind"] as? String {
-            case "session":
-                out.append(UsageLimit(kind: .fiveHour, percent: percent, resetsAt: resets))
-            case "weekly_all":
-                out.append(UsageLimit(kind: .weekly, percent: percent, resetsAt: resets))
-            case "weekly_scoped":
-                let model = (lim["scope"] as? [String: Any])?["model"] as? [String: Any]
-                if let name = (model?["display_name"] as? String)?.trimmingCharacters(in: .whitespaces), !name.isEmpty {
-                    out.append(UsageLimit(kind: .model(name), percent: percent, resetsAt: resets))
-                }
-            default:
-                continue
-            }
-        }
-        if !out.isEmpty { return out }
-
-        // limits[] が無い応答向け。utilizationは百分率で来る（2026-09-18の実測で11.0のような値）
-        for (key, kind) in [("five_hour", UsageLimit.Kind.fiveHour), ("seven_day", .weekly)] {
-            guard let item = obj[key] as? [String: Any],
-                  let value = (item["utilization"] as? NSNumber)?.doubleValue else { continue }
-            out.append(UsageLimit(kind: kind, percent: Int(value.rounded()),
-                                  resetsAt: ResetFormatter.parseISO(item["resets_at"] as? String)))
-        }
-        return out
-    }
-}
-
 /// 基本表示のモデル名とeffort。statusLineが無くても出せるよう、会話記録と設定から組み立てる
 public enum ModelInfo {
     /// モデルのID（"claude-opus-5"、"claude-opus-5-20260101"、"claude-opus-5[1m]"）を帯の形にする: "Opus5"、"Opus5 1M"

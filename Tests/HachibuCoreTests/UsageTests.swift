@@ -125,9 +125,8 @@ import Testing
         let s = Strings.en
         let lines = [
             s.logShortcutCommitted("⌥⌘/"), s.logShortcutDisabled, s.logShortcutFailed("⌥⌘/"),
-            s.logUsageAPIEnabled, s.logUsageAPIDeclined, s.logUsageAPIDisabled,
             s.logLoginItemOn, s.logLoginItemOff, s.logOpened, s.logLanguageChanged("English"),
-            s.usageAPIFailed("HTTP 500"), s.loginItemFailed("example error"),
+            s.loginItemFailed("example error"),
         ]
         for line in lines {
             #expect(!line.unicodeScalars.contains { (0x3000...0x9FFF).contains($0.value) }, "\(line)")

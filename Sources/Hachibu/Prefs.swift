@@ -10,24 +10,14 @@ enum Prefs {
         return suite.flatMap { UserDefaults(suiteName: $0) } ?? .standard
     }()
 
-    private static let usageAPIConsentKey = "usageAPIConsent"
     private static let languageKey = "language"
     private static let layoutKey = "restLayout"
     private static let opacityKey = "opacity"
     private static let menuBarKey = "menuBarStyle"
     private static let warningKey = "warningThreshold"
     private static let criticalKey = "criticalThreshold"
-    private static let updateAutoCheckKey = "updateAutoCheck"
-    private static let lastUpdateCheckKey = "lastUpdateCheck"
-    private static let notifiedUpdateVersionKey = "notifiedUpdateVersion"
 
     static let opacityChoices: [Double] = [1.0, 0.85, 0.7, 0.5, 0.3]
-
-    /// 使用率APIを使うことへの同意。nilはまだ尋ねていない
-    static var usageAPIConsent: Bool? {
-        get { defaults.object(forKey: usageAPIConsentKey) as? Bool }
-        set { defaults.set(newValue, forKey: usageAPIConsentKey) }
-    }
 
     /// 画面の言語（Language.rawValue）。nilはmacOSに合わせる
     static var language: String? {
@@ -58,23 +48,6 @@ enum Prefs {
             Prefs.defaults.set(newValue.warning, forKey: warningKey)
             Prefs.defaults.set(newValue.critical, forKey: criticalKey)
         }
-    }
-
-    /// 新しい版を1日に1回確認するか。既定は確認する
-    static var updateAutoCheck: Bool {
-        get { defaults.object(forKey: updateAutoCheckKey) as? Bool ?? true }
-        set { defaults.set(newValue, forKey: updateAutoCheckKey) }
-    }
-
-    static var lastUpdateCheck: Date? {
-        get { defaults.object(forKey: lastUpdateCheckKey) as? Date }
-        set { defaults.set(newValue, forKey: lastUpdateCheckKey) }
-    }
-
-    /// 通知を出した最後の版。同じ版を何度も知らせない
-    static var notifiedUpdateVersion: String? {
-        get { defaults.string(forKey: notifiedUpdateVersionKey) }
-        set { defaults.set(newValue, forKey: notifiedUpdateVersionKey) }
     }
 
     static var menuBarStyle: MenuBarStyle {
