@@ -19,3 +19,5 @@ jobs:
         run: scripts/test.sh
       - name: Build the app
         run: scripts/build-app.sh
+      - name: Build the App Store variant
+        run: scripts/build-app.sh --app-store

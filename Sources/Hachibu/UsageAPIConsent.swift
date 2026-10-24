@@ -1,3 +1,5 @@
+// App Store版（HACHIBU_APP_STORE=1）には入れない。キーチェーンの読み取りと通信はGitHub版だけで行う
+#if !APP_STORE
 import AppKit
 import HachibuCore
 import SwiftUI
@@ -87,3 +89,4 @@ final class ConsentPanel: NSPanel {
 
     override var canBecomeKey: Bool { true }
 }
+#endif
