@@ -9,9 +9,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private var cycleKeys: HotKeyCenter!
     private var cycleRecorder: ShortcutRecorder!
     private var builder: MenuBuilder!
-    private let consent = UsageAPIConsent()
     private var statusItem: StatusItemController?
+    #if !APP_STORE
+    private let consent = UsageAPIConsent()
     private var updates: UpdateChecker?
+    #endif
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         // 同じアプリの別のコピーがすでに動いていれば、そちらに帯を出させて終わる（帯を重ねて出さない）
@@ -53,16 +55,21 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         recorder = ShortcutRecorder(hotKeys: hotKeys, usedElsewhere: { [weak cycleKeys] in cycleKeys?.shortcut })
         cycleRecorder = ShortcutRecorder(hotKeys: cycleKeys, title: { L10n.current.recorderCycleTitle },
                                          usedElsewhere: { [weak hotKeys] in hotKeys?.shortcut })
-        builder = MenuBuilder(source: source, strip: strip, hotKeys: hotKeys, recorder: recorder, consent: consent)
+        builder = MenuBuilder(source: source, strip: strip, hotKeys: hotKeys, recorder: recorder)
+        #if !APP_STORE
+        builder.consent = consent
+        #endif
         builder.cycleKeys = cycleKeys
         builder.cycleRecorder = cycleRecorder
         // 撮影用の起動ではメニューバーの項目を作らない（macOSの「メニューバー」の設定の一覧に行を増やさないため）
         if !isDemo {
             statusItem = StatusItemController(source: source, strip: strip, builder: builder)
+            #if !APP_STORE
             let updates = UpdateChecker()
             builder.updates = updates
             updates.start()
             self.updates = updates
+            #endif
         }
         builder.menuBarItemIsHidden = { [weak self] in self?.statusItem?.isHiddenBySystem ?? false }
 
@@ -76,6 +83,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         source.onSlots = { [weak strip] slots in strip?.update(slots) }
         source.start()
 
+        #if !APP_STORE
         // 基本表示で、まだ尋ねていなければ、使用率APIを使うかを最初に一度だけ尋ねる
         if let basic = source as? BasicSource, Prefs.usageAPIConsent == nil {
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) { [weak self] in
@@ -86,6 +94,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                 }
             }
         }
+        #endif
     }
 
     /// メニューバーの項目をmacOSの設定で隠していても、Finderなどからもう一度開けば帯を呼び出せるようにする

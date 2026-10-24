@@ -7,15 +7,12 @@ final class MenuBuilder {
     private let strip: StripController
     private let hotKeys: HotKeyCenter
     private let recorder: ShortcutRecorder
-    private let consent: UsageAPIConsent
 
-    init(source: DataSource, strip: StripController, hotKeys: HotKeyCenter, recorder: ShortcutRecorder,
-         consent: UsageAPIConsent) {
+    init(source: DataSource, strip: StripController, hotKeys: HotKeyCenter, recorder: ShortcutRecorder) {
         self.source = source
         self.strip = strip
         self.hotKeys = hotKeys
         self.recorder = recorder
-        self.consent = consent
     }
 
     /// 帯の右クリック。表示の切り替えをその場で行えるよう、モードは入れ子にせず並べる
@@ -23,8 +20,12 @@ final class MenuBuilder {
     var menuBarItemIsHidden: () -> Bool = { false }
     private static let menuBarSettingsURL = URL(string: "x-apple.systempreferences:com.apple.ControlCenter-Settings.extension")!
 
+    #if !APP_STORE
+    /// 使用率APIを使うかを尋ねる窓（AppDelegateが渡す）
+    var consent: UsageAPIConsent?
     /// 新しい版の確認（撮影用の起動では作らない）
     var updates: UpdateChecker?
+    #endif
 
     func contextMenu() -> NSMenu {
         let menu = NSMenu()
@@ -58,15 +59,22 @@ final class MenuBuilder {
 
     /// 新しい版が出ていれば、メニューの先頭にダウンロードのページを開く項目を出す
     func updateAvailableItems() -> [NSMenuItem] {
+        #if APP_STORE
+        return []
+        #else
         guard let release = updates?.available else { return [] }
         let item = choice(L10n.current.updateAvailable(release.version), selected: false) {
             NSWorkspace.shared.open(release.url)
         }
         return [item, .separator()]
+        #endif
     }
 
     /// 「アップデート」。動いている版、自動確認の切り替え、今すぐ確認
     func updatesMenuItem() -> NSMenuItem? {
+        #if APP_STORE
+        return nil
+        #else
         guard let updates else { return nil }
         let s = L10n.current
         var items = [info(s.updateCurrentVersion(UpdateChecker.currentVersion))]
@@ -80,6 +88,7 @@ final class MenuBuilder {
             items.append(info(s.updateCheckFailed(failure.summary)))
         }
         return submenu(s.menuUpdates, items)
+        #endif
     }
 
     /// 使用率の行。黄や赤の段階にある枠には、その色の点を付ける
@@ -125,6 +134,9 @@ final class MenuBuilder {
 
     /// 撮影用の架空の値では出さない。有効にするときは、何を使いどんなリスクがあるかを先に示す
     func usageAPIItems() -> [NSMenuItem] {
+        #if APP_STORE
+        return []
+        #else
         guard let basic = source as? BasicSource else { return [] }
         let item = choice(L10n.current.menuUsageAPI, selected: Prefs.usageAPIConsent == true) { [weak self] in
             if Prefs.usageAPIConsent == true {
@@ -132,7 +144,7 @@ final class MenuBuilder {
                 ActionLog.append(L10n.current.logUsageAPIDisabled)
                 basic.usageAPISettingChanged()
             } else {
-                self?.consent.show { enabled in
+                self?.consent?.show { enabled in
                     Prefs.usageAPIConsent = enabled
                     ActionLog.append(enabled ? L10n.current.logUsageAPIEnabled : L10n.current.logUsageAPIDeclined)
                     basic.usageAPISettingChanged()
@@ -144,6 +156,7 @@ final class MenuBuilder {
             items.append(info(L10n.current.usageAPIFailed(failure.summary)))
         }
         return items
+        #endif
     }
 
     /// 項目に乗せると帯をそのモードで仮に表示し、選ぶと確定する

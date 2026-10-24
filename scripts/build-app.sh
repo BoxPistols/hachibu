@@ -4,14 +4,17 @@
 #   scripts/build-app.sh：ビルドのみ
 #   scripts/build-app.sh --install：~/Applicationsに置き換えて起動し直す
 #   scripts/build-app.sh --zip：配布用のbuild/Hachibu-macos.zipとSHA-256も作る（組み合わせてよい）
+#   scripts/build-app.sh --app-store：使用率APIと更新確認を外したApp Store版を作る（通信せず、statusLineだけを使う）
 set -euo pipefail
 
 INSTALL=0
 ZIP=0
+APP_STORE=0
 for arg in "$@"; do
   case "$arg" in
     --install) INSTALL=1 ;;
     --zip) ZIP=1 ;;
+    --app-store) APP_STORE=1 ;;
     *) echo "unknown option: $arg" >&2; exit 2 ;;
   esac
 done
@@ -23,6 +26,11 @@ VERSION="0.4.0"
 cd "$ROOT"
 # アプリのリリースビルドはテスト（swift test）と別の作業ディレクトリで行い、構成の違うビルドが.buildを取り合わないようにする
 SCRATCH="$ROOT/.build-release"
+# App Store版は別の作業ディレクトリにし、GitHub版のビルド結果と混ざらないようにする
+if [ "$APP_STORE" = 1 ]; then
+  export HACHIBU_APP_STORE=1
+  SCRATCH="$ROOT/.build-release-app-store"
+fi
 # Apple SiliconとIntelの両方で動くように、2つのCPU向けを1つのバイナリにまとめる
 ARCHS=(--arch arm64 --arch x86_64)
 swift build -c release --product Hachibu --scratch-path "$SCRATCH" "${ARCHS[@]}"

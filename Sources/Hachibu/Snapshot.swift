@@ -32,7 +32,9 @@ enum Snapshot {
                 store.slots = LayoutRules.visibleSlots([slot], layout: layout, usageText: usageText)
                 write(StripView(store: store), to: dir.appendingPathComponent("strip-\(layout)-\(tag).png"))
             }
+            #if !APP_STORE
             write(ConsentView(onEnable: {}, onDecline: {}), to: dir.appendingPathComponent("consent-\(tag).png"))
+            #endif
 
             let candidate = Shortcut(keyCode: 40, modifiers: [.control, .option, .command], keyLabel: "K")
             let phases: [(String, RecorderModel.Result, String, Bool)] = [

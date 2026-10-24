@@ -5,12 +5,15 @@ import HachibuCore
 ///
 /// - モデル名とeffort: statusLineのJSON（scripts/statusline.shが書く）があればそれ、無ければ最後の会話記録、それも無ければ~/.claude/settings.json
 /// - 使用率: 利用者が有効にしていれば使用率API（5分ごと）、そうでなければstatusLineのrate_limits
+///   App Store版（APP_STORE）は使用率APIを持たず、statusLineのrate_limitsだけを使う
 final class BasicSource: DataSource {
     var onSlots: (([Slot]) -> Void)?
     private(set) var limits: [UsageLimit] = []
     private(set) var usageAsOf: Date?
+    #if !APP_STORE
     /// 直近のAPIの失敗。メニューに出す
     private(set) var apiFailure: UsageAPIClient.Failure?
+    #endif
 
     static let statusLineFile = FileManager.default.homeDirectoryForCurrentUser
         .appendingPathComponent("Library/Application Support/Hachibu/statusline.json")
@@ -52,7 +55,9 @@ final class BasicSource: DataSource {
     /// 「使用率をAPIから取得」を切り替えたとき。有効にしたらすぐ取りに行く
     func usageAPISettingChanged() {
         lastFetch = .distantPast
+        #if !APP_STORE
         apiFailure = nil
+        #endif
         if Prefs.usageAPIConsent != true {
             apiLimits = []
             apiAt = nil
@@ -127,6 +132,7 @@ final class BasicSource: DataSource {
     // MARK: - 使用率API
 
     private func maybeFetch(now: Date) {
+        #if !APP_STORE
         guard Prefs.usageAPIConsent == true, !fetching, now.timeIntervalSince(lastFetch) >= Self.fetchInterval else { return }
         // 取得前に時刻を進めておく（失敗時に毎ティック叩き直さない）
         lastFetch = now
@@ -152,6 +158,7 @@ final class BasicSource: DataSource {
                 self.publish()
             }
         }
+        #endif
     }
 
     // MARK: - 表示
@@ -164,16 +171,22 @@ final class BasicSource: DataSource {
             ?? ModelInfo.displayName(transcriptModelID: transcriptModelID, settingsModel: settings.model)
         let effort = (statusLineIsNewer ? statusLine?.effort : nil) ?? transcriptEffort ?? settings.effort
 
+        #if APP_STORE
+        let useAPI = false
+        #else
         let useAPI = Prefs.usageAPIConsent == true && !apiLimits.isEmpty
+        #endif
         limits = useAPI ? apiLimits : statusLineLimits
         usageAsOf = useAPI ? apiAt : statusLineLimitsAt
 
         let stale = Usage.isStale(usageAsOf)
         var lines = limits.isEmpty ? [L10n.current.basicNoUsage] : limits.map { $0.line() }
         if stale, let asOf = usageAsOf { lines.append(L10n.current.usageAsOf(ResetFormatter.text(asOf))) }
+        #if !APP_STORE
         if let apiFailure, Prefs.usageAPIConsent == true {
             lines.append(L10n.current.usageAPIFailed(apiFailure.summary))
         }
+        #endif
         let slot = Slot(id: Slot.statusID,
                         text: Usage.statusText(model: model, effort: effort, limits: limits),
                         background: .idleBackground, foreground: .idleForeground,

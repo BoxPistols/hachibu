@@ -185,8 +185,11 @@ The landing page at <https://cc-hachibu.vercel.app/> lives in `site/`; see [site
 scripts/build-app.sh            # builds build/Hachibu.app
 scripts/build-app.sh --install  # copies it to ~/Applications and launches it
 scripts/build-app.sh --zip      # also writes build/Hachibu-macos.zip and its SHA-256
+scripts/build-app.sh --app-store  # builds the App Store variant (see below)
 scripts/test.sh                 # runs the tests
 ```
+
+The App Store variant leaves out the usage API and the update check. It makes no network requests and reads usage only from the statusLine, so it shows S and W but not F. The release on GitHub is the regular build.
 
 ### Releasing
 
@@ -373,8 +376,11 @@ macOS 14以降と、Xcode Command Line Tools（Xcode本体は不要です）が�
 scripts/build-app.sh            # build/Hachibu.appを作る
 scripts/build-app.sh --install  # ~/Applicationsに置いて起動する
 scripts/build-app.sh --zip      # build/Hachibu-macos.zipとSHA-256も作る
+scripts/build-app.sh --app-store  # App Store版を作る（下記）
 scripts/test.sh                 # テスト
 ```
+
+App Store版は、使用率APIと新しい版の確認を外したビルドです。通信せず、使用率はstatusLineからだけ読むので、SとWは出ますがFは出ません。GitHubのリリースは通常のビルドです。
 
 #### リリースの手順
 
