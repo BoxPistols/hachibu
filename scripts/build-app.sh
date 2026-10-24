@@ -21,15 +21,18 @@ done
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 APP="$ROOT/build/Hachibu.app"
+ZIPFILE="$ROOT/build/Hachibu-macos.zip"
 VERSION="0.4.0"
 
 cd "$ROOT"
 # アプリのリリースビルドはテスト（swift test）と別の作業ディレクトリで行い、構成の違うビルドが.buildを取り合わないようにする
 SCRATCH="$ROOT/.build-release"
-# App Store版は別の作業ディレクトリにし、GitHub版のビルド結果と混ざらないようにする
+# App Store版は作業ディレクトリも出力も別にし、GitHub版のビルド結果やリリース用のzipを上書きしないようにする
 if [ "$APP_STORE" = 1 ]; then
   export HACHIBU_APP_STORE=1
   SCRATCH="$ROOT/.build-release-app-store"
+  APP="$ROOT/build/Hachibu-app-store.app"
+  ZIPFILE="$ROOT/build/Hachibu-macos-app-store.zip"
 fi
 # Apple SiliconとIntelの両方で動くように、2つのCPU向けを1つのバイナリにまとめる
 ARCHS=(--arch arm64 --arch x86_64)
@@ -68,7 +71,6 @@ echo "built: $APP"
 
 if [ "$ZIP" = 1 ]; then
   # リリースに添付する名前は版の番号を含めない（releases/latest/download/…が常に最新を指すように）
-  ZIPFILE="$ROOT/build/Hachibu-macos.zip"
   rm -f "$ZIPFILE"
   ditto -c -k --sequesterRsrc --keepParent "$APP" "$ZIPFILE"
   echo "zipped: $ZIPFILE"
