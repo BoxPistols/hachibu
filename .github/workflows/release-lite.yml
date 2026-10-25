@@ -13,6 +13,8 @@ permissions:
 
 jobs:
   release:
+    # 別のブランチを選んで起動しても、mainでなければ何もしない
+    if: github.ref == 'refs/heads/main'
     runs-on: macos-15
     steps:
       - uses: actions/checkout@v5
@@ -25,6 +27,11 @@ jobs:
           test -f "$NOTES" || { echo "missing $NOTES" >&2; exit 1; }
           if gh release view "lite-v${VERSION}" >/dev/null 2>&1; then
             echo "lite-v${VERSION} is already released" >&2
+            exit 1
+          fi
+          # タグだけが残っていると、gh release createはそれを使い、別のコミットのタグに今回のアプリを添付してしまう
+          if git ls-remote --exit-code --tags origin "refs/tags/lite-v${VERSION}" >/dev/null; then
+            echo "tag lite-v${VERSION} already exists" >&2
             exit 1
           fi
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
