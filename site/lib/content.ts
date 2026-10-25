@@ -10,6 +10,9 @@ export const FIRST_LAUNCH_URL: Record<Lang, string> = {
   en: `${REPO_URL}#first-launch-allow-it-once-in-system-settings`,
   ja: `${REPO_URL}#インストール`,
 };
+// Liteのリリースは「最新」にしないので、一覧をlite-vのタグで絞って見せる
+export const LITE_RELEASES_URL = `${ALL_RELEASES_URL}?q=lite-v&expanded=true`;
+export const LITE_README_URL = `${REPO_URL}/tree/main/lite`;
 export const TERMS_URL = "https://code.claude.com/docs/en/legal-and-compliance";
 export const ARTICLE_URL = "https://zenn.dev/ait/articles/hachibu-claude-code-usage-bar";
 
@@ -106,6 +109,16 @@ export interface Content {
   };
   news: { badge: string; heading: string; lead: string; legacy: string; allReleases: string };
   install: { heading: string; lead: string; steps: Step[]; guideLink: string; checksum: string };
+  /** 軽量版の紹介。rowsは[項目, Hachibu, Hachibu Lite] */
+  lite: {
+    heading: string;
+    lead: string;
+    columns: [string, string, string];
+    rows: [string, string, string][];
+    note: string;
+    releaseLink: string;
+    readmeLink: string;
+  };
   footer: { unofficial: string; notTheFoodApp: string; trademarks: string; license: string; privacy: string };
   video: { label: string };
 }
@@ -192,6 +205,20 @@ export const CONTENT: Record<Lang, Content> = {
       ],
       guideLink: "Steps with screenshots",
       checksum: "The SHA-256 of each download is on the release page.",
+    },
+    lite: {
+      heading: "Hachibu Lite",
+      lead: "A lightweight edition in the same repository: one Swift file and AppKit only, made for Intel Macs on macOS 13. It reads the same statusline.sh, so you can switch between the two without changing your setup. Its menus are in Japanese. It was called TokenBar up to 0.2.0.",
+      columns: ["", "Hachibu", "Hachibu Lite"],
+      rows: [
+        ["Macs", "macOS 14 or later, Apple Silicon and Intel", "macOS 13 or later, Intel only"],
+        ["Usage shown", "5-hour and weekly. The per-model weekly limit too, with the usage API turned on", "5-hour and weekly"],
+        ["Network", "The update check, and the usage API only if you turn it on", "The update check only"],
+        ["Memory (2017 MacBook)", "About 20 MB", "About 5.5 MB"],
+      ],
+      note: "Use one at a time. Both use ⌥⌘/, and only the one that started first gets it.",
+      releaseLink: "Download Hachibu Lite",
+      readmeLink: "How to install it, and how to move from TokenBar",
     },
     footer: {
       unofficial:
@@ -285,6 +312,20 @@ export const CONTENT: Record<Lang, Content> = {
       ],
       guideLink: "画像付きの手順",
       checksum: "各ダウンロードのSHA-256は、リリースのページにあります。",
+    },
+    lite: {
+      heading: "Hachibu Lite",
+      lead: "同じリポジトリにある軽量版です。SwiftのファイルひとつとAppKitだけで書いていて、macOS 13のIntel Mac向けに作りました。同じstatusline.shを読むので、設定を変えずに行き来できます。メニューは日本語だけです。0.2.0まではTokenBarという名前でした。",
+      columns: ["", "Hachibu", "Hachibu Lite"],
+      rows: [
+        ["対応", "macOS 14以降、Apple SiliconとIntel", "macOS 13以降、Intelのみ"],
+        ["出せる値", "5時間枠と週枠。使用率APIを有効にすると、モデル別の週枠も", "5時間枠と週枠"],
+        ["通信", "新しい版の確認。使用率APIは有効にしたときだけ", "新しい版の確認だけ"],
+        ["メモリ（2017年のMacBook）", "約20 MB", "約5.5 MB"],
+      ],
+      note: "同時に使うのは一方だけにしてください。どちらも⌥⌘/を使い、先に起動した方にしか効きません。",
+      releaseLink: "Hachibu Liteをダウンロード",
+      readmeLink: "インストールの手順と、TokenBarからの移り方",
     },
     footer: {
       unofficial: "Hachibuは個人が作った非公式のツールで、Anthropic, PBCとは関係がなく、同社の承認や支援も受けていません。",
