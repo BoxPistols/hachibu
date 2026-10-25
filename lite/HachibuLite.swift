@@ -148,6 +148,8 @@ final class Strip {
     let panel: NSPanel
     let view = StripView(frame: .zero)
     var hovering = false
+    // 「今すぐ更新」の結果。帯の右クリックから押した人にも見えるよう、帯にも出す
+    var flash: String?
 
     init() {
         panel = NSPanel(contentRect: NSRect(x: 0, y: 0, width: 100, height: 22), styleMask: [.borderless, .nonactivatingPanel], backing: .buffered, defer: false)
@@ -171,9 +173,14 @@ final class Strip {
         let shown: Mode = hovering && mode != .standard ? .standard : mode
         view.tucked = shown == .tucked
         view.ring = levelColor(worstLevel(s)) ?? .systemGray
-        view.label.attributedStringValue = statusText(s, full: shown == .standard, font: .monospacedDigitSystemFont(ofSize: 12, weight: .medium), plain: .white)
+        let font = NSFont.monospacedDigitSystemFont(ofSize: 12, weight: .medium)
+        // 結果を出す間は、しまった状態でも文字が読める大きさに広げる
+        let tucked = shown == .tucked && flash == nil
+        view.tucked = tucked
+        view.label.attributedStringValue = flash.map { NSAttributedString(string: $0, attributes: [.font: font, .foregroundColor: NSColor.white]) }
+            ?? statusText(s, full: shown == .standard, font: font, plain: .white)
         view.label.sizeToFit()
-        let size = shown == .tucked ? NSSize(width: 16, height: 16) : NSSize(width: view.label.frame.width + 16, height: 22)
+        let size = tucked ? NSSize(width: 16, height: 16) : NSSize(width: view.label.frame.width + 16, height: 22)
         panel.alphaValue = Prefs.opacity
         let origin = Prefs.stripOrigin ?? defaultOrigin(size)
         panel.setFrame(clamped(NSRect(origin: origin, size: size)), display: true)
@@ -254,31 +261,74 @@ enum Updates {
     static let tagPrefix = "lite-v"
     static var available: (version: String, page: URL)?
 
-    /// done には確認できたかを渡す。失敗しても available は前回の結果のまま残す
-    static func check(_ done: @escaping (Bool) -> Void) {
-        var req = URLRequest(url: url, timeoutInterval: 30)
+    /// 確認の結果。失敗の理由を分けて、メニューに何が起きたかを出す
+    enum Result: Equatable {
+        case ok, offline, rateLimited, http(Int), badResponse
+        /// メニューバーと帯に出す短い語（幅を取らないように）
+        var short: String {
+            switch self {
+            case .ok: return Updates.available.map { "\($0.version) あり" } ?? "最新"
+            case .offline: return "オフライン"
+            case .rateLimited: return "確認は制限中"
+            case .http, .badResponse: return "確認できず"
+            }
+        }
+        /// メニューに出す説明
+        var detail: String {
+            switch self {
+            case .ok: return Updates.available.map { "\($0.version) が出ています" } ?? "最新版です"
+            case .offline: return "ネットワークにつながらず確認できませんでした"
+            case .rateLimited: return "GitHub の回数制限で確認できませんでした（1 時間ほどで戻ります）"
+            case .http(let code): return "GitHub が HTTP \(code) を返しました"
+            case .badResponse: return "GitHub の応答を読めませんでした"
+            }
+        }
+    }
+    static private(set) var lastResult: Result?
+    static private(set) var lastChecked: Date?
+    // 確認中にもう一度呼ばれたら、新しく問い合わせずに同じ結果を渡す
+    static private var waiting: [(Result) -> Void]?
+
+    /// 前回の確認から minInterval 秒以内なら問い合わせず、前回の結果を渡す（⌘R の連打で GitHub の制限を使い切らないように）。
+    /// 失敗しても available は前回の結果のまま残す
+    static func check(timeout: TimeInterval = 30, minInterval: TimeInterval = 0, _ done: @escaping (Result) -> Void) {
+        if let at = lastChecked, let r = lastResult, Date().timeIntervalSince(at) < minInterval { done(r); return }
+        if waiting != nil { waiting?.append(done); return }
+        waiting = [done]
+        var req = URLRequest(url: url, timeoutInterval: timeout)
         req.setValue("HachibuLite/\(current)", forHTTPHeaderField: "User-Agent")
         // shared はこの Mac で毎回 10 秒以上かかり、30 秒で時間切れになることもあった。キャッシュも cookie も要らないので ephemeral にする
-        URLSession(configuration: .ephemeral).dataTask(with: req) { data, _, _ in
-            guard let list = data.flatMap({ try? JSONSerialization.jsonObject(with: $0) as? [[String: Any]] }) else {
-                DispatchQueue.main.async { done(false) }
-                return
+        URLSession(configuration: .ephemeral).dataTask(with: req) { data, response, error in
+            let (result, found) = parse(data: data, status: (response as? HTTPURLResponse)?.statusCode, failed: error != nil)
+            DispatchQueue.main.async {
+                if result == .ok { available = found }
+                lastResult = result
+                lastChecked = Date()
+                let callbacks = waiting ?? []
+                waiting = nil
+                callbacks.forEach { $0(result) }
             }
-            // 一覧は新しい順。下書きと試験版は除く
-            let release = list.first {
-                ($0["tag_name"] as? String)?.hasPrefix(tagPrefix) == true && $0["draft"] as? Bool != true && $0["prerelease"] as? Bool != true
-            }
-            guard let release, let tag = release["tag_name"] as? String,
-                  let page = (release["html_url"] as? String).flatMap(URL.init(string:)) else {
-                // Lite のリリースがまだ無いのは失敗ではない
-                DispatchQueue.main.async { available = nil; done(true) }
-                return
-            }
-            let latest = String(tag.dropFirst(tagPrefix.count))
-            // "0.10.0" > "0.9.0" になるよう数値として比べる
-            let newer = latest.compare(current, options: .numeric) == .orderedDescending
-            DispatchQueue.main.async { available = newer ? (latest, page) : nil; done(true) }
         }.resume()
+    }
+
+    /// 結果と、見つけた新しい版（無ければ nil）を返す
+    private static func parse(data: Data?, status: Int?, failed: Bool) -> (Result, (version: String, page: URL)?) {
+        guard !failed, let status else { return (.offline, nil) }
+        // GitHub は回数制限を 403 か 429 で返す
+        if status == 403 || status == 429 { return (.rateLimited, nil) }
+        guard status == 200 else { return (.http(status), nil) }
+        guard let list = data.flatMap({ try? JSONSerialization.jsonObject(with: $0) as? [[String: Any]] }) else { return (.badResponse, nil) }
+        // 一覧は新しい順。下書きと試験版は除く
+        let release = list.first {
+            ($0["tag_name"] as? String)?.hasPrefix(tagPrefix) == true && $0["draft"] as? Bool != true && $0["prerelease"] as? Bool != true
+        }
+        // Lite のリリースがまだ無いのは失敗ではない
+        guard let release, let tag = release["tag_name"] as? String,
+              let page = (release["html_url"] as? String).flatMap(URL.init(string:)) else { return (.ok, nil) }
+        let latest = String(tag.dropFirst(tagPrefix.count))
+        // "0.10.0" > "0.9.0" になるよう数値として比べる
+        let newer = latest.compare(current, options: .numeric) == .orderedDescending
+        return (.ok, newer ? (latest, page) : nil)
     }
 }
 
@@ -294,8 +344,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     var snapshot: Snapshot?
     var timer: Timer?
     var updateTimer: Timer?
-    // 「今すぐ更新」の結果をメニューバーに少しの間だけ出す
+    // 「今すぐ更新」の結果をメニューバーと帯に少しの間だけ出す。flashID は、後から押した分の表示を先の分のタイマーが消さないための番号
     var flashText: String?
+    var flashID = 0
 
     func applicationDidFinishLaunching(_ n: Notification) {
         strip.view.menuProvider = { [unowned self] in makeMenu() }
@@ -310,9 +361,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         }
         refresh()
         timer = Timer.scheduledTimer(withTimeInterval: 15, repeats: true) { [weak self] _ in self?.refresh() }
-        Updates.check { [weak self] _ in self?.refresh() }
+        // 確認の結果はメニューにしか出ないので、メニューだけ作り直す
+        Updates.check { [weak self] _ in self?.rebuildMenu() }
         updateTimer = Timer.scheduledTimer(withTimeInterval: 24 * 60 * 60, repeats: true) { [weak self] _ in
-            Updates.check { _ in self?.refresh() }
+            Updates.check { _ in self?.rebuildMenu() }
         }
     }
 
@@ -322,10 +374,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         // Hachibu の statusline.sh は rate_limits の無い JSON でも書く。そのときは使用率の入った新しい方か、直前の値を使う
         if s?.limits.isEmpty == true { s?.limits = (loaded.first { !$0.limits.isEmpty }?.limits ?? snapshot?.limits ?? []).map(\.current) }
         snapshot = s
-        item.menu = makeMenu()
+        rebuildMenu()
         updateBar()
         strip.update(snapshot)
     }
+
+    func rebuildMenu() { item.menu = makeMenu() }
 
     func updateBar() {
         let font = NSFont.monospacedDigitSystemFont(ofSize: 12, weight: .medium)
@@ -396,6 +450,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         addChoice(menu, "黄にする使用率", Prefs.warningChoices.map { ("\($0)% 以上（残り \(100 - $0)%）", $0 == Prefs.warning, String($0)) }, #selector(pickWarning), enabled: { Int($0)! < Prefs.critical })
         addChoice(menu, "赤にする使用率", Prefs.criticalChoices.map { ("\($0)% 以上（残り \(100 - $0)%）", $0 == Prefs.critical, String($0)) }, #selector(pickCritical), enabled: { Int($0)! > Prefs.warning })
         menu.addItem(.separator())
+        if let r = Updates.lastResult, let at = Updates.lastChecked {
+            menu.addItem(withTitle: "新しい版の確認（\(DateFormatter.localizedString(from: at, dateStyle: .none, timeStyle: .short))）: \(r.detail)", action: nil, keyEquivalent: "")
+        }
         let login = menu.addItem(withTitle: "ログイン時に起動", action: #selector(toggleLogin), keyEquivalent: "")
         login.target = self; login.state = LoginItem.isEnabled ? .on : .off
         menu.addItem(withTitle: "帯を初期位置に戻す", action: #selector(resetPosition), keyEquivalent: "").target = self
@@ -428,27 +485,33 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     @objc func pickCritical(_ s: NSMenuItem) { Prefs.critical = Int(s.representedObject as! String)!; refresh() }
     @objc func toggleLogin() { LoginItem.set(!LoginItem.isEnabled); refresh() }
     @objc func resetPosition() { Prefs.stripOrigin = nil; refresh() }
-    // 使用率を読み直し、新しい版も確認する。メニューは押すと閉じるので、結果はメニューバーに出す
+    // 使用率を読み直し、新しい版も確認する。メニューは押すと閉じるので、結果はメニューバーと帯に短く出す。
+    // 使用率はその場で読み直すので、確認を待つ間も表示は消さない。手で押したときは 10 秒で打ち切り、1 分以内なら前回の結果を使う
     @objc func refreshNow() {
         refresh()
-        flash("更新中…", for: nil)
-        Updates.check { [weak self] ok in
-            self?.refresh()
-            let text = !ok ? "✓ 使用率を更新（新しい版は確認できず）"
-                : Updates.available.map { "✓ 使用率を更新・\($0.version) が出ています" } ?? "✓ 使用率を更新・最新版です"
-            self?.flash(text, for: 2.5)
+        let gotUsage = snapshot != nil
+        Updates.check(timeout: 10, minInterval: 60) { [weak self] result in
+            self?.rebuildMenu()
+            // 使用率を読めなかったときは ✓ を付けない（詳しくはメニューの「データ待ち」）
+            self?.flash(gotUsage ? "✓ \(result.short)" : "データ待ち")
         }
     }
 
-    func flash(_ text: String, for seconds: Double?) {
-        flashText = text
-        updateBar()
-        guard let seconds else { return }
-        DispatchQueue.main.asyncAfter(deadline: .now() + seconds) { [weak self] in
-            guard self?.flashText == text else { return }
-            self?.flashText = nil
-            self?.updateBar()
+    func flash(_ text: String) {
+        flashID += 1
+        let id = flashID
+        setFlash(text)
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2.5) { [weak self] in
+            guard self?.flashID == id else { return }
+            self?.setFlash(nil)
         }
+    }
+
+    func setFlash(_ text: String?) {
+        flashText = text
+        strip.flash = text
+        updateBar()
+        strip.update(snapshot)
     }
     @objc func openUpdate() { if let u = Updates.available { NSWorkspace.shared.open(u.page) } }
 }
