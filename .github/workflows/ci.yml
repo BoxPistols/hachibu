@@ -21,3 +21,5 @@ jobs:
         run: scripts/build-app.sh
       - name: Build the App Store variant
         run: scripts/build-app.sh --app-store
+      - name: Build Hachibu Lite
+        run: lite/build.sh
