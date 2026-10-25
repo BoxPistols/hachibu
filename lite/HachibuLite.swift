@@ -7,7 +7,11 @@ import Carbon.HIToolbox
 
 enum Level: Int { case normal, warning, critical }
 
-struct Limit { let label: String; let name: String; let pct: Int; let resets: Date? }
+struct Limit {
+    let label: String; let name: String; let pct: Int; let resets: Date?
+    // リセット時刻を過ぎていれば古い値なので 0% 扱い（読み込み時と、直前の値を使い回すときの両方で使う）
+    var current: Limit { resets.map { $0 < Date() } ?? false ? Limit(label: label, name: name, pct: 0, resets: nil) : self }
+}
 
 struct Snapshot {
     var model: String?
@@ -28,9 +32,7 @@ struct Snapshot {
             guard let r = rates[key] as? [String: Any],
                   let pct = (r["used_percentage"] as? NSNumber)?.doubleValue else { continue }
             let resets = (r["resets_at"] as? NSNumber).map { Date(timeIntervalSince1970: $0.doubleValue) }
-            // リセット時刻を過ぎていれば古い値なので 0% 扱い
-            let expired = resets.map { $0 < Date() } ?? false
-            s.limits.append(Limit(label: label, name: name, pct: expired ? 0 : Int(pct.rounded()), resets: expired ? nil : resets))
+            s.limits.append(Limit(label: label, name: name, pct: Int(pct.rounded()), resets: resets).current)
         }
         s.updated = (try? FileManager.default.attributesOfItem(atPath: file.path))?[.modificationDate] as? Date
         return s
@@ -59,9 +61,8 @@ struct Prefs {
 
     /// TokenBar（local.tokenbar）の設定を一度だけ写す。こちらで設定を変えた後に戻されないよう、写したら印を付ける
     static func migrateFromTokenBar() {
-        guard !d.bool(forKey: "migratedFromTokenBar") else { return }
+        guard !d.bool(forKey: "migratedFromTokenBar"), let old = UserDefaults(suiteName: "local.tokenbar") else { return }
         d.set(true, forKey: "migratedFromTokenBar")
-        guard let old = UserDefaults(suiteName: "local.tokenbar") else { return }
         // メニューバーの中の位置も写す（macOS が NSStatusItem の名前で覚えている）
         for key in ["warning", "critical", "mode", "lastVisible", "barStyle", "opacity", "stripOrigin", "NSStatusItem Preferred Position Item-0"] {
             if let v = old.object(forKey: key), d.object(forKey: key) == nil { d.set(v, forKey: key) }
@@ -164,7 +165,8 @@ final class Strip {
 
     func update(_ s: Snapshot?) {
         let mode = Prefs.mode
-        guard mode != .hidden else { panel.orderOut(nil); return }
+        // 隠すと mouseExited が届かないことがあるので、ここでホバーを解く
+        guard mode != .hidden else { hovering = false; panel.orderOut(nil); return }
         // しまった状態・使用率のみでも、ホバー中は一時的に標準表示に広げる
         let shown: Mode = hovering && mode != .standard ? .standard : mode
         view.tucked = shown == .tucked
@@ -234,6 +236,8 @@ enum LoginItem {
     static func set(_ on: Bool) {
         if on {
             let dict: [String: Any] = ["Label": label, "ProgramArguments": ["/usr/bin/open", "-a", Bundle.main.bundlePath], "RunAtLoad": true]
+            // 新しいアカウントでは LaunchAgents のフォルダがまだ無いことがある
+            try? FileManager.default.createDirectory(at: agents, withIntermediateDirectories: true)
             (dict as NSDictionary).write(to: plist, atomically: true)
         } else {
             try? FileManager.default.removeItem(at: plist)
@@ -316,7 +320,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         let loaded = files.compactMap { Snapshot.load($0) }.sorted { ($0.updated ?? .distantPast) > ($1.updated ?? .distantPast) }
         var s = loaded.first
         // Hachibu の statusline.sh は rate_limits の無い JSON でも書く。そのときは使用率の入った新しい方か、直前の値を使う
-        if s?.limits.isEmpty == true { s?.limits = loaded.first { !$0.limits.isEmpty }?.limits ?? snapshot?.limits ?? [] }
+        if s?.limits.isEmpty == true { s?.limits = (loaded.first { !$0.limits.isEmpty }?.limits ?? snapshot?.limits ?? []).map(\.current) }
         snapshot = s
         item.menu = makeMenu()
         updateBar()
