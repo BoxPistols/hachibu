@@ -9,6 +9,8 @@ import {
   FIRST_LAUNCH_URL,
   HARA_HACHI_BU,
   LATEST_VERSION,
+  LITE_README_URL,
+  LITE_RELEASES_URL,
   NEWS,
   RELEASES_URL,
   REPO_URL,
@@ -175,6 +177,44 @@ export function Landing() {
           <a href={ALL_RELEASES_URL} className="mt-6 inline-block text-base text-yolk underline underline-offset-4">
             {t.news.allReleases}
           </a>
+        </section>
+
+        <section id="lite" className="mx-auto max-w-6xl scroll-mt-8 px-5 py-16 sm:px-8">
+          <h2 className="font-display text-3xl font-semibold text-paper">{t.lite.heading}</h2>
+          <p className="mt-3 max-w-3xl text-base leading-relaxed text-fog">{t.lite.lead}</p>
+          <div className="mt-8 overflow-x-auto rounded-xl border border-white/10 bg-white/[0.03]">
+            <table className="w-full min-w-[36rem] text-left text-base">
+              <thead>
+                <tr className="border-b border-white/10">
+                  {t.lite.columns.map((column, index) => (
+                    <th key={index} scope="col" className="px-5 py-3 font-semibold text-paper">
+                      {column}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {t.lite.rows.map(([label, full, lite]) => (
+                  <tr key={label} className="border-b border-white/10 last:border-0">
+                    <th scope="row" className="px-5 py-3 font-normal text-fog/80">
+                      {label}
+                    </th>
+                    <td className="px-5 py-3 leading-relaxed text-fog">{full}</td>
+                    <td className="px-5 py-3 leading-relaxed text-fog">{lite}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          <p className="mt-4 max-w-3xl text-base leading-relaxed text-fog">{t.lite.note}</p>
+          <div className="mt-6 flex flex-wrap items-center gap-x-6 gap-y-3 text-base">
+            <a href={LITE_RELEASES_URL} className="rounded-lg border border-white/20 px-6 py-3 text-paper hover:border-white/50">
+              {t.lite.releaseLink}
+            </a>
+            <a href={LITE_README_URL} className="text-yolk underline underline-offset-4">
+              {t.lite.readmeLink}
+            </a>
+          </div>
         </section>
 
         <section className="mx-auto max-w-6xl px-5 py-16 sm:px-8">
