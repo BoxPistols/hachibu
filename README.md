@@ -62,6 +62,20 @@ If the menu bar item does not appear, macOS is hiding it: turn Hachibu on in Sys
 
 The interface follows your macOS language: Japanese if it comes first in your preferred languages, English otherwise. You can also pick English or Japanese from Language in the menu. The action log is written in the language shown at the time.
 
+## Hachibu or Hachibu Lite
+
+[Hachibu Lite](lite/README.md) is a lightweight edition in the same repository: one Swift file and AppKit only, built for Intel Macs on macOS 13. Both read the same `statusline.sh`, so you can switch between them without changing the statusLine setup. Use one at a time: both use ⌥⌘/, and only the one that started first gets it.
+
+| | Hachibu | Hachibu Lite |
+|---|---|---|
+| For | Most people, and anyone who wants the settings and the polish | People who want the lightest app, or an older Intel Mac |
+| Macs | macOS 13 or later, Apple Silicon and Intel | macOS 13 or later, Intel only |
+| Usage shown | 5-hour and weekly. With the usage API turned on, also the per-model weekly limit (F), with the risks described in [Where the numbers come from](#where-the-numbers-come-from) | 5-hour and weekly only |
+| Network | The update check, and the usage API only if you turn it on | The update check only |
+| Memory (measured on a 2017 MacBook) | About 20 MB | About 5.5 MB |
+| Settings | Shortcut recorder, strip layouts, English and Japanese, and more | Menus only, fixed shortcuts, Japanese only |
+| Releases | Tags `v*` | Tags `lite-v*` |
+
 ## Install
 
 1. Download [Hachibu-macos.zip](https://github.com/BoxPistols/hachibu/releases/latest/download/Hachibu-macos.zip). It always points to the latest release. Hachibu needs macOS 14 or later and runs on both Apple Silicon and Intel Macs
@@ -266,6 +280,20 @@ Hachibuだけで動きます。ほかの道具は要りません。
 メニューバーに項目が出ないときは、macOSが隠しています。「システム設定」＞「メニューバー」でHachibuをオンにしてください。このときバーの右クリックメニューに、その設定を開く項目が出ます。メニューバーの項目でできることは、すべてバーの右クリックメニューからもできます。
 
 画面の文言は、macOSの言語設定に合わせて日本語か英語になります。メニューの「言語」から英語か日本語を選ぶこともできます。操作ログは、書いた時点の画面の言語で残ります。
+
+### Hachibu と Hachibu Lite
+
+[Hachibu Lite](lite/README.md)は、同じリポジトリにある軽量版です。Swiftのファイル1つとAppKitだけで書いていて、macOS 13のIntel Mac向けに作りました。どちらも同じ`statusline.sh`を読むので、statusLineの設定を変えずに行き来できます。同時に使うのは一方だけにしてください。どちらも⌥⌘/を使い、先に起動した方にしか効きません。
+
+| | Hachibu | Hachibu Lite |
+|---|---|---|
+| 向いている人 | たいていの人。設定や見た目を整えたい人 | いちばん軽いアプリがよい人。古いIntel Mac |
+| 対応 | macOS 13以降、Apple SiliconとIntel | macOS 13以降、Intelのみ |
+| 出せる値 | 5時間枠と週枠。使用率APIを有効にすると、モデル別の週枠（F）も出る（リスクは[値の出どころ](#値の出どころ)） | 5時間枠と週枠だけ |
+| 通信 | 新しい版の確認。使用率APIは有効にしたときだけ | 新しい版の確認だけ |
+| メモリ（2017年のMacBookで実測） | 約20 MB | 約5.5 MB |
+| 設定 | ショートカットの記録、帯の表示の切り替え、日英など | メニューだけ。ショートカットは固定、日本語のみ |
+| リリース | タグ`v*` | タグ`lite-v*` |
 
 ### インストール
 

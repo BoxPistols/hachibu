@@ -1,0 +1,48 @@
+# Hachibu Liteのリリース。mainで手動で起動する（Actions > Release Lite > Run workflow）。
+#
+# lite/build.shのversionを版とし、docs/releases/lite-v<版>.mdをリリースの本文にする。
+# Intel向けのアプリを組み立ててzipにし、タグlite-v<版>とリリースを作る。zipとscripts/statusline.shを添付し、本文の末尾にSHA-256を足す。
+# Hachibuの新しい版の確認とREADMEのダウンロードの案内は/releases/latestを見るので、Liteのリリースは「最新」にしない
+name: Release Lite
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v5
+      - name: Read the version
+        id: version
+        run: |
+          VERSION="$(sed -n 's/^version=\(.*\)$/\1/p' lite/build.sh)"
+          NOTES="docs/releases/lite-v${VERSION}.md"
+          test -n "$VERSION"
+          test -f "$NOTES" || { echo "missing $NOTES" >&2; exit 1; }
+          if gh release view "lite-v${VERSION}" >/dev/null 2>&1; then
+            echo "lite-v${VERSION} is already released" >&2
+            exit 1
+          fi
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "notes=$NOTES" >> "$GITHUB_OUTPUT"
+        env:
+          GH_TOKEN: ${{ github.token }}
+      - name: Build
+        run: |
+          lite/build.sh
+          test "$(/usr/libexec/PlistBuddy -c 'Print CFBundleShortVersionString' lite/HachibuLite.app/Contents/Info.plist)" = "${{ steps.version.outputs.version }}"
+          lipo -archs lite/HachibuLite.app/Contents/MacOS/HachibuLite | grep -qx x86_64
+          ditto -c -k --sequesterRsrc --keepParent lite/HachibuLite.app "$RUNNER_TEMP/HachibuLite-macos-x86_64.zip"
+      - name: Create the release
+        run: |
+          VERSION="${{ steps.version.outputs.version }}"
+          ZIP="$RUNNER_TEMP/HachibuLite-macos-x86_64.zip"
+          { cat "${{ steps.version.outputs.notes }}"; echo; echo "SHA-256"; echo '```'; (cd "$RUNNER_TEMP" && shasum -a 256 HachibuLite-macos-x86_64.zip); shasum -a 256 scripts/statusline.sh | sed 's#scripts/##'; echo '```'; } > "$RUNNER_TEMP/notes.md"
+          gh release create "lite-v${VERSION}" "$ZIP" scripts/statusline.sh \
+            --target "$GITHUB_SHA" --title "Hachibu Lite ${VERSION}" --notes-file "$RUNNER_TEMP/notes.md" --latest=false
+        env:
+          GH_TOKEN: ${{ github.token }}
