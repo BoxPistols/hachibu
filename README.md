@@ -177,7 +177,7 @@ Usage limits (`rate_limits`) appear in the statusLine data on Pro and Max plans,
 
 ## Build from source
 
-You need macOS 13 or later and the Xcode Command Line Tools (the full Xcode app is not needed).
+You need macOS 13 or later and the Xcode Command Line Tools (the full Xcode app is not needed). Building needs Swift 5.9 or later. Running the tests (`scripts/test.sh`) needs Swift 6 or later, because they use Swift Testing; on macOS 13 the Command Line Tools ship Swift 5.9, so the tests run only in CI there.
 
 The landing page at <https://cc-hachibu.vercel.app/> lives in `site/`; see [site/README.md](site/README.md).
 
@@ -368,7 +368,7 @@ chmod +x ~/.claude/hachibu-statusline.sh
 
 ### ソースからビルド
 
-macOS 13以降と、Xcode Command Line Tools（Xcode本体は不要です）が必要です。
+macOS 13以降と、Xcode Command Line Tools（Xcode本体は不要です）が必要です。ビルドにはSwift 5.9以降が要ります。テスト（`scripts/test.sh`）はSwift Testingを使うのでSwift 6以降が要ります。macOS 13のCommand Line ToolsはSwift 5.9なので、そこではテストはCIでだけ動きます。
 
 <https://cc-hachibu.vercel.app/>の紹介ページは`site/`にあります。[site/README.md](site/README.md)を参照してください。
 
