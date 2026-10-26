@@ -24,7 +24,14 @@ jobs:
       - name: Test
         run: scripts/test.sh
       - name: Build the app
-        run: scripts/build-app.sh
+        run: scripts/build-app.sh --zip
+      # リリースと同じ macOS 15 の SDK で作った zip を残す。タグを打つ前に、これを古い macOS の実機で開いて確かめる
+      - name: Keep the zip
+        uses: actions/upload-artifact@v4
+        with:
+          name: Hachibu-macos
+          path: build/Hachibu-macos.zip
+          retention-days: 14
       - name: Build the App Store variant
         run: scripts/build-app.sh --app-store
       - name: Build Hachibu Lite

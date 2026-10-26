@@ -10,7 +10,7 @@ The name comes from hara hachi bu (腹八分), the Japanese habit of eating unti
 
 Hachibu is an unofficial tool made by an individual. It is not affiliated with, endorsed by, or sponsored by Anthropic, PBC.
 
-[Download Hachibu for macOS](https://github.com/BoxPistols/hachibu/releases/latest/download/Hachibu-macos.zip) (macOS 14 or later, Apple Silicon or Intel). macOS blocks the first launch because the app is not notarized yet. You need to allow it once in System Settings > Privacy & Security; [First launch](#first-launch-allow-it-once-in-system-settings) shows each step.
+[Download Hachibu for macOS](https://github.com/BoxPistols/hachibu/releases/latest/download/Hachibu-macos.zip) (macOS 13 or later, Apple Silicon or Intel). macOS blocks the first launch because the app is not notarized yet. You need to allow it once in System Settings > Privacy & Security; [First launch](#first-launch-allow-it-once-in-system-settings) shows each step.
 
 > **Using 0.3.2 or earlier?** Those versions cannot tell you about updates. Download 0.4.0 once and replace `Hachibu.app` in your Applications folder; your settings stay. From 0.4.0 on, Hachibu lets you know when a new version is out. See [Updates](#updates).
 
@@ -78,7 +78,7 @@ The interface follows your macOS language: Japanese if it comes first in your pr
 
 ## Install
 
-1. Download [Hachibu-macos.zip](https://github.com/BoxPistols/hachibu/releases/latest/download/Hachibu-macos.zip). It always points to the latest release. Hachibu needs macOS 14 or later and runs on both Apple Silicon and Intel Macs
+1. Download [Hachibu-macos.zip](https://github.com/BoxPistols/hachibu/releases/latest/download/Hachibu-macos.zip). It always points to the latest release. Hachibu needs macOS 13 or later and runs on both Apple Silicon and Intel Macs
 2. Unzip it (Safari may already have done this) and move `Hachibu.app` to your Applications folder
 3. Open Hachibu. The first time, macOS stops it. Follow the next section once
 
@@ -235,7 +235,7 @@ Hachibuは個人が作った非公式のツールで、Anthropic, PBCとは関�
 
 ![Hachibuのバー](docs/images/ja-strip-basic.png)
 
-[サイト](https://cc-hachibu.vercel.app/)。[作った過程の記事](https://zenn.dev/ait/articles/hachibu-claude-code-usage-bar)。[macOS版をダウンロード](https://github.com/BoxPistols/hachibu/releases/latest/download/Hachibu-macos.zip)（macOS 14以降、Apple SiliconとIntelの両方）。まだAppleの公証を受けていないため、初回の起動はmacOSに止められます。「システム設定」＞「プライバシーとセキュリティ」で一度だけ許可してください。手順は[インストール](#インストール)にあります。
+[サイト](https://cc-hachibu.vercel.app/)。[作った過程の記事](https://zenn.dev/ait/articles/hachibu-claude-code-usage-bar)。[macOS版をダウンロード](https://github.com/BoxPistols/hachibu/releases/latest/download/Hachibu-macos.zip)（macOS 13以降、Apple SiliconとIntelの両方）。まだAppleの公証を受けていないため、初回の起動はmacOSに止められます。「システム設定」＞「プライバシーとセキュリティ」で一度だけ許可してください。手順は[インストール](#インストール)にあります。
 
 ### 表示の読み方
 
@@ -297,7 +297,7 @@ Hachibuだけで動きます。ほかの道具は要りません。
 
 ### インストール
 
-1. [Hachibu-macos.zip](https://github.com/BoxPistols/hachibu/releases/latest/download/Hachibu-macos.zip)をダウンロードします。このリンクは常に最新のリリースを指します。macOS 14以降が必要です。Apple SiliconとIntelのどちらのMacでも動きます
+1. [Hachibu-macos.zip](https://github.com/BoxPistols/hachibu/releases/latest/download/Hachibu-macos.zip)をダウンロードします。このリンクは常に最新のリリースを指します。macOS 13以降が必要です。Apple SiliconとIntelのどちらのMacでも動きます
 2. 展開して（Safariでは自動で展開されることがあります）、`Hachibu.app`をアプリケーションフォルダへ移します
 3. Hachibuを開きます。初回はmacOSに止められるので、次の手順を一度だけ行ってください
 
