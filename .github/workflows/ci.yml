@@ -8,11 +8,17 @@ on:
   pull_request:
     paths-ignore: ["site/**", "docs/**", "README.md"]
 
+# どのジョブもリポジトリに書き込まない。チェックアウト後にリポジトリのスクリプトを動かすので、トークンは読み取りだけにし、ワークツリーにも残さない
+permissions:
+  contents: read
+
 jobs:
   test:
     runs-on: macos-15
     steps:
       - uses: actions/checkout@v5
+        with:
+          persist-credentials: false
       - name: Swift version
         run: swift --version
       - name: Test
@@ -31,6 +37,8 @@ jobs:
     runs-on: macos-14
     steps:
       - uses: actions/checkout@v5
+        with:
+          persist-credentials: false
       - name: Select Xcode 15.2
         run: sudo xcode-select -s /Applications/Xcode_15.2.app
       - name: Swift version
