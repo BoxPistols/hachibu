@@ -23,3 +23,21 @@ jobs:
         run: scripts/build-app.sh --app-store
       - name: Build Hachibu Lite
         run: lite/build.sh
+
+  # macOS 13で使えるSwift 5.9でもビルドが通ることを確かめる（README のビルド要件）。
+  # GitHubのmacOS 13のランナーは提供が終わったので、macOS 14のランナーでXcode 15.2（Swift 5.9.2）を選ぶ。
+  # テストはSwift 6が要るので、ここではビルドだけ
+  build-swift59:
+    runs-on: macos-14
+    steps:
+      - uses: actions/checkout@v5
+      - name: Select Xcode 15.2
+        run: sudo xcode-select -s /Applications/Xcode_15.2.app
+      - name: Swift version
+        run: swift --version
+      - name: Build the app
+        run: scripts/build-app.sh
+      - name: Build the App Store variant
+        run: scripts/build-app.sh --app-store
+      - name: Build Hachibu Lite
+        run: lite/build.sh
