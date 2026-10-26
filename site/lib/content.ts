@@ -44,6 +44,20 @@ export interface NewsItem {
 
 export const NEWS: NewsItem[] = [
   {
+    version: "0.5.0",
+    date: "2026-10-27",
+    items: {
+      en: [
+        "Runs on macOS 13 Ventura, the same as Claude Code. Macs that stop at macOS 13, such as the 2017 MacBook, can use Hachibu now",
+        "Hachibu Lite, a lightweight edition for Intel Macs, now lives in the same repository",
+      ],
+      ja: [
+        "Claude Codeと同じく、macOS 13 Venturaで動くようにしました。2017年のMacBookなど、macOS 13までのMacでも使えます",
+        "Intel Mac向けの軽量版、Hachibu Liteを同じリポジトリに置きました",
+      ],
+    },
+  },
+  {
     version: "0.4.0",
     date: "2026-09-23",
     items: {
@@ -133,7 +147,7 @@ export const CONTENT: Record<Lang, Content> = {
       lead: "So I made it stay on screen. Hachibu is a small strip on top of your Mac's screen that shows the model, effort, and usage limits. One glance is enough, and you can get back to your work.",
       nameNote: "The name comes from hara hachi bu (腹八分), the Japanese habit of eating until you are 80% full.",
       download: "Download for macOS",
-      requirements: "macOS 14 or later · Apple Silicon and Intel · Free and open source (MIT)",
+      requirements: "macOS 13 or later · Apple Silicon and Intel · Free and open source (MIT)",
       source: "View the source",
       gaugeCaption: "80%",
     },
@@ -186,7 +200,7 @@ export const CONTENT: Record<Lang, Content> = {
       termsLink: "Read the terms",
     },
     news: {
-      badge: "New: effort follows /effort, and update notices",
+      badge: "New: runs on macOS 13",
       heading: "What's new",
       lead: "From 0.4.0 on, Hachibu checks for a new version once a day and lets you know. Download the new version and replace the app in your Applications folder; your settings stay.",
       legacy: "Using 0.3.2 or earlier? Those versions cannot tell you about updates, so please update to 0.4.0 once by hand. You will be told about every version after that.",
@@ -211,7 +225,7 @@ export const CONTENT: Record<Lang, Content> = {
       lead: "A lightweight edition in the same repository: one Swift file and AppKit only, made for Intel Macs on macOS 13. It reads the same statusline.sh, so you can switch between the two without changing your setup. Its menus are in Japanese. It was called TokenBar up to 0.2.0.",
       columns: ["", "Hachibu", "Hachibu Lite"],
       rows: [
-        ["Macs", "macOS 14 or later, Apple Silicon and Intel", "macOS 13 or later, Intel only"],
+        ["Macs", "macOS 13 or later, Apple Silicon and Intel", "macOS 13 or later, Intel only"],
         ["Usage shown", "5-hour and weekly. The per-model weekly limit too, with the usage API turned on", "5-hour and weekly"],
         ["Network", "The update check, and the usage API only if you turn it on", "The update check only"],
         ["Memory (2017 MacBook)", "About 20 MB", "About 5.5 MB"],
@@ -240,7 +254,7 @@ export const CONTENT: Record<Lang, Content> = {
       lead: "なので画面に出しっぱなしにしました。Hachibuは、Macの画面の最前面に小さなバーを常駐させ、モデル、effort、使用率を出すアプリです。ひと目で済むので、すぐ手元の作業に戻れます。",
       nameNote: "名前は「腹八分」から取りました。",
       download: "macOS版をダウンロード",
-      requirements: "macOS 14以降 · Apple SiliconとIntel · 無料、オープンソース（MIT）",
+      requirements: "macOS 13以降 · Apple SiliconとIntel · 無料、オープンソース（MIT）",
       source: "ソースを見る",
       gaugeCaption: "80%",
     },
@@ -293,7 +307,7 @@ export const CONTENT: Record<Lang, Content> = {
       termsLink: "規約を読む",
     },
     news: {
-      badge: "新機能：effortが/effortに追従、更新のお知らせ",
+      badge: "新機能：macOS 13で動くように",
       heading: "更新のお知らせ",
       lead: "0.4.0からは、Hachibuが1日に1回新しい版を確認して知らせます。新しい版をダウンロードし、アプリケーションフォルダのアプリと入れ替えてください。設定はそのまま残ります。",
       legacy: "0.3.2以前をお使いの方へ：これらの版には新しい版を知らせる仕組みがないため、一度だけ手で0.4.0に更新してください。その後の版は、アプリが知らせます。",
@@ -318,7 +332,7 @@ export const CONTENT: Record<Lang, Content> = {
       lead: "同じリポジトリにある軽量版です。SwiftのファイルひとつとAppKitだけで書いていて、macOS 13のIntel Mac向けに作りました。同じstatusline.shを読むので、設定を変えずに行き来できます。メニューは日本語だけです。0.2.0まではTokenBarという名前でした。",
       columns: ["", "Hachibu", "Hachibu Lite"],
       rows: [
-        ["対応", "macOS 14以降、Apple SiliconとIntel", "macOS 13以降、Intelのみ"],
+        ["対応", "macOS 13以降、Apple SiliconとIntel", "macOS 13以降、Intelのみ"],
         ["出せる値", "5時間枠と週枠。使用率APIを有効にすると、モデル別の週枠も", "5時間枠と週枠"],
         ["通信", "新しい版の確認。使用率APIは有効にしたときだけ", "新しい版の確認だけ"],
         ["メモリ（2017年のMacBook）", "約20 MB", "約5.5 MB"],

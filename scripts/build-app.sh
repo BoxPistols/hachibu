@@ -22,7 +22,7 @@ done
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 APP="$ROOT/build/Hachibu.app"
 ZIPFILE="$ROOT/build/Hachibu-macos.zip"
-VERSION="0.4.0"
+VERSION="0.5.0"
 
 cd "$ROOT"
 # アプリのリリースビルドはテスト（swift test）と別の作業ディレクトリで行い、構成の違うビルドが.buildを取り合わないようにする
