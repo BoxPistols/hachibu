@@ -15,6 +15,8 @@ import {
   RELEASES_URL,
   REPO_URL,
   TERMS_URL,
+  WINDOWS_README_URL,
+  WINDOWS_RELEASES_URL,
   type Lang,
 } from "@/lib/content";
 import { GaugeGlyph } from "./GaugeGlyph";
@@ -91,6 +93,11 @@ export function Landing() {
               </a>
             </div>
             <p className="mt-4 text-sm text-fog/80">{t.hero.requirements}</p>
+            <p className="mt-2 text-sm">
+              <a href="#windows" className="text-yolk underline underline-offset-4">
+                {t.hero.windows}
+              </a>
+            </p>
           </div>
         </section>
 
@@ -177,6 +184,44 @@ export function Landing() {
           <a href={ALL_RELEASES_URL} className="mt-6 inline-block text-base text-yolk underline underline-offset-4">
             {t.news.allReleases}
           </a>
+        </section>
+
+        <section id="windows" className="mx-auto max-w-6xl scroll-mt-8 px-5 py-16 sm:px-8">
+          <h2 className="font-display text-3xl font-semibold text-paper">{t.windows.heading}</h2>
+          <p className="mt-3 max-w-3xl text-base leading-relaxed text-fog">{t.windows.lead}</p>
+          <div className="mt-8 overflow-x-auto rounded-xl border border-white/10 bg-white/[0.03]">
+            <table className="w-full min-w-[36rem] text-left text-base">
+              <thead>
+                <tr className="border-b border-white/10">
+                  {t.windows.columns.map((column, index) => (
+                    <th key={index} scope="col" className="px-5 py-3 font-semibold text-paper">
+                      {column}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {t.windows.rows.map(([label, mac, windows]) => (
+                  <tr key={label} className="border-b border-white/10 last:border-0">
+                    <th scope="row" className="px-5 py-3 font-normal text-fog/80">
+                      {label}
+                    </th>
+                    <td className="px-5 py-3 leading-relaxed text-fog">{mac}</td>
+                    <td className="px-5 py-3 leading-relaxed text-fog">{windows}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          <p className="mt-4 max-w-3xl text-base leading-relaxed text-fog">{t.windows.note}</p>
+          <div className="mt-6 flex flex-wrap items-center gap-x-6 gap-y-3 text-base">
+            <a href={WINDOWS_RELEASES_URL} className="rounded-lg border border-white/20 px-6 py-3 text-paper hover:border-white/50">
+              {t.windows.releaseLink}
+            </a>
+            <a href={WINDOWS_README_URL} className="text-yolk underline underline-offset-4">
+              {t.windows.readmeLink}
+            </a>
+          </div>
         </section>
 
         <section id="lite" className="mx-auto max-w-6xl scroll-mt-8 px-5 py-16 sm:px-8">

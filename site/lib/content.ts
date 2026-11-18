@@ -13,6 +13,9 @@ export const FIRST_LAUNCH_URL: Record<Lang, string> = {
 // Liteのリリースは「最新」にしないので、一覧をlite-vのタグで絞って見せる
 export const LITE_RELEASES_URL = `${ALL_RELEASES_URL}?q=lite-v&expanded=true`;
 export const LITE_README_URL = `${REPO_URL}/tree/main/lite`;
+// Windows版のリリースも「最新」にしないので、一覧をwindows-vのタグで絞って見せる
+export const WINDOWS_RELEASES_URL = `${ALL_RELEASES_URL}?q=windows-v&expanded=true`;
+export const WINDOWS_README_URL = `${REPO_URL}/tree/main/windows`;
 export const TERMS_URL = "https://code.claude.com/docs/en/legal-and-compliance";
 export const ARTICLE_URL = "https://zenn.dev/ait/articles/hachibu-claude-code-usage-bar";
 
@@ -99,6 +102,8 @@ export interface Content {
     nameNote: string;
     download: string;
     requirements: string;
+    /** Windows版の節への案内 */
+    windows: string;
     source: string;
     gaugeCaption: string;
   };
@@ -123,6 +128,16 @@ export interface Content {
   };
   news: { badge: string; heading: string; lead: string; legacy: string; allReleases: string };
   install: { heading: string; lead: string; steps: Step[]; guideLink: string; checksum: string };
+  /** Windows版の紹介。rowsは[項目, macOS版, Windows版] */
+  windows: {
+    heading: string;
+    lead: string;
+    columns: [string, string, string];
+    rows: [string, string, string][];
+    note: string;
+    releaseLink: string;
+    readmeLink: string;
+  };
   /** 軽量版の紹介。rowsは[項目, Hachibu, Hachibu Lite] */
   lite: {
     heading: string;
@@ -148,6 +163,7 @@ export const CONTENT: Record<Lang, Content> = {
       nameNote: "The name comes from hara hachi bu (腹八分), the Japanese habit of eating until you are 80% full.",
       download: "Download for macOS",
       requirements: "macOS 13 or later · Apple Silicon and Intel · Free and open source (MIT)",
+      windows: "On Windows? Hachibu for Windows",
       source: "View the source",
       gaugeCaption: "80%",
     },
@@ -220,6 +236,20 @@ export const CONTENT: Record<Lang, Content> = {
       guideLink: "Steps with screenshots",
       checksum: "The SHA-256 of each download is on the release page.",
     },
+    windows: {
+      heading: "Hachibu for Windows",
+      lead: "The same strip for Windows 10 and 11: the same modes, colors, and menus, in a single Hachibu.exe with nothing else to install. It works with Claude Code on Windows and with Claude Code in WSL, and the same statusline.sh writes where it reads.",
+      columns: ["", "macOS", "Windows"],
+      rows: [
+        ["Runs on", "macOS 13 or later, Apple Silicon and Intel", "Windows 10 or 11, 64-bit"],
+        ["Next to the strip", "A menu bar item", "A tray icon: the icon, a weekly gauge, or the weekly usage as a number"],
+        ["Claude Code", "On the Mac", "On Windows, and in WSL distributions that are running (it does not start WSL)"],
+        ["Default shortcut", "⌥⌘/", "Ctrl+Alt+/"],
+      ],
+      note: "It is not code-signed yet, so Windows SmartScreen stops the first launch. Click More info, then Run anyway.",
+      releaseLink: "Download for Windows",
+      readmeLink: "How to install it and set up the statusLine",
+    },
     lite: {
       heading: "Hachibu Lite",
       lead: "A lightweight edition in the same repository: one Swift file and AppKit only, made for Intel Macs on macOS 13. It reads the same statusline.sh, so you can switch between the two without changing your setup. Its menus are in Japanese. It was called TokenBar up to 0.2.0.",
@@ -255,6 +285,7 @@ export const CONTENT: Record<Lang, Content> = {
       nameNote: "名前は「腹八分」から取りました。",
       download: "macOS版をダウンロード",
       requirements: "macOS 13以降 · Apple SiliconとIntel · 無料、オープンソース（MIT）",
+      windows: "Windowsでは、Hachibu for Windows",
       source: "ソースを見る",
       gaugeCaption: "80%",
     },
@@ -326,6 +357,20 @@ export const CONTENT: Record<Lang, Content> = {
       ],
       guideLink: "画像付きの手順",
       checksum: "各ダウンロードのSHA-256は、リリースのページにあります。",
+    },
+    windows: {
+      heading: "Hachibu for Windows",
+      lead: "Windows 10と11で使える同じバーです。表示モード、色、メニューはmacOS版と同じで、Hachibu.exeひとつで動きます。ほかに入れるものはありません。WindowsのClaude Codeと、WSLの中のClaude Codeのどちらでも使え、同じstatusline.shが、Windows版の読む場所へ書きます。",
+      columns: ["", "macOS", "Windows"],
+      rows: [
+        ["対応", "macOS 13以降、Apple SiliconとIntel", "Windows 10または11、64ビット"],
+        ["バーの相方", "メニューバーの項目", "トレイのアイコン。アイコン、週枠のメーター、週枠の数字から選べる"],
+        ["Claude Code", "Macで動かしているもの", "Windowsで動かしているものと、動いているWSLの中のもの（WSLを起動はしない）"],
+        ["既定のショートカット", "⌥⌘/", "Ctrl+Alt+/"],
+      ],
+      note: "まだコード署名をしていないため、初回の起動はWindows SmartScreenに止められます。「詳細情報」を押してから「実行」を押してください。",
+      releaseLink: "Windows版をダウンロード",
+      readmeLink: "インストールとstatusLineの設定の手順",
     },
     lite: {
       heading: "Hachibu Lite",
