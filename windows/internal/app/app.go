@@ -14,6 +14,7 @@ import (
 
 	"github.com/BoxPistols/hachibu/windows/internal/core"
 	"github.com/BoxPistols/hachibu/windows/internal/w32"
+	"golang.org/x/sys/windows"
 )
 
 // L は今使う文言の表。UIのスレッドだけで使う
@@ -61,6 +62,8 @@ func Run() int {
 		return runSnapshot(dir)
 	}
 	w32.SetPerMonitorDPIAware()
+	// ShellExecute（URLやログを開く）とタスクダイアログは、COMを初期化したスレッドから呼ぶ
+	windows.CoInitializeEx(0, windows.COINIT_APARTMENTTHREADED|windows.COINIT_DISABLE_OLE1DDE)
 	w32.InitCommonControls()
 	w32.AllowDarkMenus()
 	if err := w32.StartGDIPlus(); err != nil {
@@ -130,7 +133,7 @@ func Run() int {
 	}
 	messageLoop()
 	a.tray.Remove()
-	flushLog()
+	flushLog(2 * time.Second)
 	return 0
 }
 
@@ -138,6 +141,10 @@ func Run() int {
 func (a *App) applyState(st core.SourceState, dirs []claudeDir) {
 	a.state = st
 	a.dirs = dirs
+	// トレイへの登録に失敗したまま（エクスプローラーの起動前など）なら、表示が変わらなくても2秒ごとに試し直す
+	if a.tray != nil && !a.tray.added {
+		a.refreshTray()
+	}
 	if st.UseAPI && st.APIFailure != "" && st.APIFailure != a.apiFailure {
 		logAction(L.UsageAPIFailed(st.APIFailure))
 	}
@@ -236,7 +243,7 @@ func (a *App) handleMain(hwnd w32.HWND, msg uint32, wParam, lParam uintptr) (uin
 	case w32.WM_ENDSESSION:
 		if wParam != 0 {
 			a.tray.Remove()
-			flushLog()
+			flushLog(time.Second)
 		}
 		return 0, true
 	case w32.WM_DESTROY:
@@ -423,9 +430,15 @@ func (a *App) usageAPIItems(m *menu) {
 	enabled := a.prefs.UsageAPIEnabled()
 	m.item(L.MenuUsageAPI, enabled, func() {
 		if enabled {
-			a.prefs.Set("usageAPIConsent", false)
-			logAction(L.LogUsageAPIDisabled)
+			// 先に止めてから保存する。保存できなくても、動いている間は問い合わせない
 			a.source.SetUsageAPI(false)
+			if err := a.prefs.SetChecked("usageAPIConsent", false); err != nil {
+				// 保存できないと、次に起動したときに有効に戻ってしまう。黙って成功にしない
+				logAction(L.SettingsSaveFailed(err.Error()))
+				w32.MessageBox(0, L.SettingsSaveFailed(err.Error()), core.AppName, messageBoxFlags)
+				return
+			}
+			logAction(L.LogUsageAPIDisabled)
 		} else {
 			a.askConsent()
 		}
@@ -598,9 +611,11 @@ func (a *App) updatesMenu(m *menu) {
 func (a *App) openLogItem(m *menu) {
 	m.item(L.MenuOpenLog, false, func() {
 		logAction(L.LogOpened)
-		// 書き込みは別のゴルーチンなので、ファイルができるのを待ってから開く
-		flushLog()
-		openURL(actionLogPath())
+		// 書き込みは別のゴルーチンなので、ファイルができるのを待ってから開く。待つ間もメニューや帯は止めない
+		go func() {
+			flushLog(2 * time.Second)
+			Post(func() { openURL(actionLogPath()) })
+		}()
 	})
 }
 

@@ -50,7 +50,18 @@ func writeLog(line string) {
 	f.WriteString(line)
 }
 
-// flushLog は先に頼んだ書き込みが済むまで待つ（ログを開く前に呼ぶ）
-func flushLog() {
-	logPending.Wait()
+// flushLog は先に頼んだ書き込みが済むまで、最長でtimeoutだけ待つ。済んだらtrue。
+// ディスクが応答しなくても、呼んだ側（終了の処理など）を止めないため
+func flushLog(timeout time.Duration) bool {
+	done := make(chan struct{})
+	go func() {
+		logPending.Wait()
+		close(done)
+	}()
+	select {
+	case <-done:
+		return true
+	case <-time.After(timeout):
+		return false
+	}
 }

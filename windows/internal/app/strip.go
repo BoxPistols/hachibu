@@ -370,6 +370,19 @@ func (s *Strip) scheduleHoverCheck() {
 	})
 }
 
+// mkLButton はマウスのメッセージのwParamで、左ボタンが押されていることを示す値
+const mkLButton = 0x0001
+
+func (s *Strip) endDrag() {
+	if !s.dragging {
+		return
+	}
+	s.dragging = false
+	w32.ReleaseCapture()
+	s.userMoved()
+	s.render()
+}
+
 func (s *Strip) onHandle(client w32.POINT) bool {
 	return s.currentView().layout == core.LayoutTab || client.X < s.handleRight
 }
@@ -390,6 +403,11 @@ func (s *Strip) handle(hwnd w32.HWND, msg uint32, wParam, lParam uintptr) (uintp
 			return 1, true
 		}
 	case w32.WM_MOUSEMOVE:
+		// 離した知らせ（WM_LBUTTONUP）を受け取れなかった場合に備え、移動のたびに左ボタンの状態も見る
+		if s.dragging && wParam&mkLButton == 0 {
+			s.endDrag()
+			return 0, true
+		}
 		if s.dragging {
 			p := w32.GetCursorPos()
 			x := s.dragFrame.Left + p.X - s.dragStart.X
@@ -417,12 +435,7 @@ func (s *Strip) handle(hwnd w32.HWND, msg uint32, wParam, lParam uintptr) (uintp
 		}
 		return 0, true
 	case w32.WM_LBUTTONUP:
-		if s.dragging {
-			s.dragging = false
-			w32.ReleaseCapture()
-			s.userMoved()
-			s.render()
-		}
+		s.endDrag()
 		return 0, true
 	case w32.WM_CAPTURECHANGED:
 		if s.dragging {
