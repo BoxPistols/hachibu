@@ -88,7 +88,6 @@ type Strings struct {
 	SystemShortcutName func(string) string
 	RecorderDisable    string
 	RecorderCancel     string
-	RecorderHeld       string
 
 	LayoutName    func(StripLayout) string
 	TrayStyleName func(TrayStyle) string
@@ -105,7 +104,6 @@ type Strings struct {
 	ConsentTerms   string
 	ConsentEnable  string
 	ConsentDecline string
-	DragHandle     string
 
 	LimitFiveHour string
 	LimitWeekly   string
@@ -239,7 +237,6 @@ var En = &Strings{
 	},
 	RecorderDisable: "Turn Off",
 	RecorderCancel:  "Cancel",
-	RecorderHeld:    "Holding",
 	LayoutName: func(l StripLayout) string {
 		switch l {
 		case LayoutFull:
@@ -271,7 +268,6 @@ var En = &Strings{
 	ConsentTerms:   "Read the terms (Claude Code: Legal and compliance)",
 	ConsentEnable:  "Turn On",
 	ConsentDecline: "Not Now",
-	DragHandle:     "Drag to move",
 	LimitFiveHour:  "5-hour",
 	LimitWeekly:    "Weekly",
 	LimitLine: func(name string, percent int, resets string) string {
@@ -395,7 +391,6 @@ var Ja = &Strings{
 	},
 	RecorderDisable: "無効にする",
 	RecorderCancel:  "キャンセル",
-	RecorderHeld:    "押しているキー",
 	LayoutName: func(l StripLayout) string {
 		switch l {
 		case LayoutFull:
@@ -427,7 +422,6 @@ var Ja = &Strings{
 	ConsentTerms:   "規約を読む（Claude Code: Legal and compliance）",
 	ConsentEnable:  "有効にする",
 	ConsentDecline: "今はしない",
-	DragHandle:     "ドラッグで移動",
 	LimitFiveHour:  "5時間枠",
 	LimitWeekly:    "週枠",
 	LimitLine: func(name string, percent int, resets string) string {

@@ -74,8 +74,6 @@ func setLoginItem(on bool) error {
 
 // MARK: - 1つだけ動かす
 
-var instanceMutex windows.Handle
-
 // handOff は先に起動した同じアプリがあれば、そちらに帯を出すよう知らせてtrueを返す。
 // 撮影用や試験用の別の保存先で動かすときは、重ねて起動してよい
 func handOff() bool {
@@ -93,7 +91,7 @@ func handOff() bool {
 		}
 		return true
 	}
-	instanceMutex = h
+	// 先に動いている印として、ミューテックスは終了するまで開いたままにする（閉じるのはWindowsに任せる）
 	return false
 }
 

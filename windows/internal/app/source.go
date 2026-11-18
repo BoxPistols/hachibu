@@ -34,16 +34,15 @@ type Source struct {
 	cancelFetch context.CancelFunc
 
 	// ここから下は読み取りのゴルーチンだけが触る
-	st              core.SourceState
-	statusLineMod   time.Time
-	transcriptPath  string
-	lastScan        time.Time
-	dirs            []claudeDir
-	settingsPath    string
-	settingsMod     time.Time
-	lastFetch       time.Time
-	fetching        bool
-	consentObserved bool
+	st             core.SourceState
+	statusLineMod  time.Time
+	transcriptPath string
+	lastScan       time.Time
+	dirs           []claudeDir
+	settingsPath   string
+	settingsMod    time.Time
+	lastFetch      time.Time
+	fetching       bool
 }
 
 const (

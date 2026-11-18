@@ -204,20 +204,14 @@ const (
 	WS_CAPTION      = 0x00C00000
 	WS_SYSMENU      = 0x00080000
 	WS_CLIPCHILDREN = 0x02000000
-	WS_TABSTOP      = 0x00010000
-	WS_DISABLED     = 0x08000000
 
-	WS_EX_TOPMOST     = 0x00000008
-	WS_EX_TOOLWINDOW  = 0x00000080
-	WS_EX_LAYERED     = 0x00080000
-	WS_EX_NOACTIVATE  = 0x08000000
-	WS_EX_TRANSPARENT = 0x00000020
+	WS_EX_TOPMOST    = 0x00000008
+	WS_EX_TOOLWINDOW = 0x00000080
+	WS_EX_LAYERED    = 0x00080000
+	WS_EX_NOACTIVATE = 0x08000000
 
 	WM_NULL            = 0x0000
 	WM_DESTROY         = 0x0002
-	WM_ACTIVATE        = 0x0006
-	WM_SETFOCUS        = 0x0007
-	WM_KILLFOCUS       = 0x0008
 	WM_PAINT           = 0x000F
 	WM_CLOSE           = 0x0010
 	WM_QUERYENDSESSION = 0x0011
@@ -227,10 +221,8 @@ const (
 	WM_SETCURSOR       = 0x0020
 	WM_MOUSEACTIVATE   = 0x0021
 	WM_SETFONT         = 0x0030
-	WM_NOTIFY          = 0x004E
 	WM_CONTEXTMENU     = 0x007B
 	WM_DISPLAYCHANGE   = 0x007E
-	WM_NCHITTEST       = 0x0084
 	WM_KEYDOWN         = 0x0100
 	WM_KEYUP           = 0x0101
 	WM_CHAR            = 0x0102
@@ -238,18 +230,13 @@ const (
 	WM_SYSKEYUP        = 0x0105
 	WM_SYSCHAR         = 0x0106
 	WM_COMMAND         = 0x0111
-	WM_SYSCOMMAND      = 0x0112
-	WM_TIMER           = 0x0113
 	WM_MENUSELECT      = 0x011F
 	WM_CTLCOLORBTN     = 0x0135
-	WM_CTLCOLORSTATIC  = 0x0138
 	WM_MOUSEMOVE       = 0x0200
 	WM_LBUTTONDOWN     = 0x0201
 	WM_LBUTTONUP       = 0x0202
-	WM_RBUTTONDOWN     = 0x0204
 	WM_RBUTTONUP       = 0x0205
 	WM_CAPTURECHANGED  = 0x0215
-	WM_EXITMENULOOP    = 0x0212
 	WM_DPICHANGED      = 0x02E0
 	WM_MOUSELEAVE      = 0x02A3
 	WM_HOTKEY          = 0x0312
@@ -257,7 +244,6 @@ const (
 	WM_APP             = 0x8000
 
 	SW_HIDE           = 0
-	SW_SHOWNORMAL     = 1
 	SW_SHOWNOACTIVATE = 4
 	SW_SHOW           = 5
 
@@ -265,7 +251,6 @@ const (
 	SWP_NOMOVE     = 0x0002
 	SWP_NOZORDER   = 0x0004
 	SWP_NOACTIVATE = 0x0010
-	SWP_SHOWWINDOW = 0x0040
 
 	ULW_ALPHA    = 0x02
 	AC_SRC_OVER  = 0x00
@@ -280,11 +265,9 @@ const (
 
 	MOD_NOREPEAT = 0x4000
 
-	MONITOR_DEFAULTTOPRIMARY = 1
 	MONITOR_DEFAULTTONEAREST = 2
 
-	SM_CXSMICON    = 49
-	SM_CXMENUCHECK = 71
+	SM_CXSMICON = 49
 
 	GA_ROOT = 2
 
@@ -300,19 +283,13 @@ const (
 	MAPVK_VK_TO_CHAR = 2
 
 	BS_PUSHBUTTON           = 0x00000000
-	BS_DEFPUSHBUTTON        = 0x00000001
 	BN_CLICKED              = 0
 	SPI_GETNONCLIENTMETRICS = 0x0029
 	TRANSPARENT             = 1
-
-	COLOR_WINDOW = 5
 )
 
 // メニュー
 const (
-	MF_STRING    = 0x0000
-	MF_GRAYED    = 0x0001
-	MF_CHECKED   = 0x0008
 	MF_POPUP     = 0x0010
 	MF_SEPARATOR = 0x0800
 
@@ -323,7 +300,6 @@ const (
 	MIIM_BITMAP  = 0x0080
 	MIIM_FTYPE   = 0x0100
 
-	MFT_STRING     = 0x0000
 	MFT_RADIOCHECK = 0x0200
 	MFT_SEPARATOR  = 0x0800
 
@@ -332,8 +308,6 @@ const (
 
 	TPM_RIGHTBUTTON = 0x0002
 	TPM_RETURNCMD   = 0x0100
-	TPM_NONOTIFY    = 0x0080
-	TPM_BOTTOMALIGN = 0x0020
 )
 
 // トレイ
@@ -366,7 +340,6 @@ const (
 	TTF_SUBCLASS       = 0x0010
 	TTM_SETDELAYTIME   = WM_USER + 3
 	TTM_SETMAXTIPWIDTH = WM_USER + 24
-	TTM_POP            = WM_USER + 28
 	TTM_ADDTOOLW       = WM_USER + 50
 	TTM_UPDATETIPTEXTW = WM_USER + 57
 	TTDT_AUTOPOP       = 2
@@ -434,7 +407,6 @@ var (
 	pBeginPaint                    = user32.NewProc("BeginPaint")
 	pEndPaint                      = user32.NewProc("EndPaint")
 	pFillRect                      = user32.NewProc("FillRect")
-	pSetWindowTextW                = user32.NewProc("SetWindowTextW")
 	pEnableWindow                  = user32.NewProc("EnableWindow")
 	pMessageBoxW                   = user32.NewProc("MessageBoxW")
 	pGetAncestor                   = user32.NewProc("GetAncestor")
@@ -443,7 +415,6 @@ var (
 	pMoveWindow                    = user32.NewProc("MoveWindow")
 	pDestroyIcon                   = user32.NewProc("DestroyIcon")
 	pAdjustWindowRectExForDpi      = user32.NewProc("AdjustWindowRectExForDpi")
-	pGetWindowThreadProcessId      = user32.NewProc("GetWindowThreadProcessId")
 	pIsWindow                      = user32.NewProc("IsWindow")
 	pDrawTextW                     = user32.NewProc("DrawTextW")
 
@@ -540,18 +511,15 @@ func SetForegroundWindow(hwnd HWND) bool {
 func GetForegroundWindow() HWND           { r, _, _ := pGetForegroundWindow.Call(); return HWND(r) }
 func SetFocus(hwnd HWND)                  { pSetFocus.Call(uintptr(hwnd)) }
 func EnableWindow(hwnd HWND, enable bool) { pEnableWindow.Call(uintptr(hwnd), boolArg(enable)) }
-func SetWindowText(hwnd HWND, text string) {
-	pSetWindowTextW.Call(uintptr(hwnd), uintptr(unsafe.Pointer(UTF16(text))))
-}
-func PostQuitMessage(code int32) { pPostQuitMessage.Call(uintptr(code)) }
-func InvalidateRect(hwnd HWND)   { pInvalidateRect.Call(uintptr(hwnd), 0, 1) }
-func SetCapture(hwnd HWND)       { pSetCapture.Call(uintptr(hwnd)) }
-func ReleaseCapture()            { pReleaseCapture.Call() }
-func GetCapture() HWND           { r, _, _ := pGetCapture.Call(); return HWND(r) }
-func DestroyMenu(m HMENU)        { pDestroyMenu.Call(uintptr(m)) }
-func DestroyIcon(h HICON)        { pDestroyIcon.Call(uintptr(h)) }
-func DeleteObject(h HGDIOBJ)     { pDeleteObject.Call(uintptr(h)) }
-func SetCursor(c HCURSOR)        { pSetCursor.Call(uintptr(c)) }
+func PostQuitMessage(code int32)          { pPostQuitMessage.Call(uintptr(code)) }
+func InvalidateRect(hwnd HWND)            { pInvalidateRect.Call(uintptr(hwnd), 0, 1) }
+func SetCapture(hwnd HWND)                { pSetCapture.Call(uintptr(hwnd)) }
+func ReleaseCapture()                     { pReleaseCapture.Call() }
+func GetCapture() HWND                    { r, _, _ := pGetCapture.Call(); return HWND(r) }
+func DestroyMenu(m HMENU)                 { pDestroyMenu.Call(uintptr(m)) }
+func DestroyIcon(h HICON)                 { pDestroyIcon.Call(uintptr(h)) }
+func DeleteObject(h HGDIOBJ)              { pDeleteObject.Call(uintptr(h)) }
+func SetCursor(c HCURSOR)                 { pSetCursor.Call(uintptr(c)) }
 func GetAncestor(hwnd HWND, flags uint32) HWND {
 	r, _, _ := pGetAncestor.Call(uintptr(hwnd), uintptr(flags))
 	return HWND(r)
@@ -870,12 +838,6 @@ func InitCommonControls() {
 	if pInitCommonControlsEx.Find() == nil {
 		pInitCommonControlsEx.Call(uintptr(unsafe.Pointer(&icc)))
 	}
-}
-
-func ProcessIDOfWindow(hwnd HWND) uint32 {
-	var pid uint32
-	pGetWindowThreadProcessId.Call(uintptr(hwnd), uintptr(unsafe.Pointer(&pid)))
-	return pid
 }
 
 func LoWord(v uintptr) uint16 { return uint16(v & 0xFFFF) }
