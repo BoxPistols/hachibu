@@ -44,7 +44,6 @@ var (
 	pGdipDeleteFontFamily                  = gdiplus.NewProc("GdipDeleteFontFamily")
 	pGdipGetFontStyle                      = gdiplus.NewProc("GdipGetFontStyle")
 	pGdipGetCellAscent                     = gdiplus.NewProc("GdipGetCellAscent")
-	pGdipGetCellDescent                    = gdiplus.NewProc("GdipGetCellDescent")
 	pGdipGetEmHeight                       = gdiplus.NewProc("GdipGetEmHeight")
 	pGdipGetFontSize                       = gdiplus.NewProc("GdipGetFontSize")
 	pGdipStringFormatGetGenericTypographic = gdiplus.NewProc("GdipStringFormatGetGenericTypographic")

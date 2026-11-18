@@ -100,7 +100,7 @@ The tray icon (the notification area at the right end of the taskbar) has the sa
 
 Windows 11 puts new tray icons under Show hidden icons (^). To keep Hachibu on the taskbar, turn it on in Settings > Personalization > Taskbar > Other system tray icons. While the icon is hidden, the strip's right-click menu shows a shortcut to that setting, and everything in the tray icon's menu is also in the strip's menu.
 
-Ctrl+Alt+/ shows the strip in any mode (press it again to go back). A second shortcut, which you set from Shortcut for Switching Display, steps through Standard, Usage only, and Tucked. When you record a shortcut, Hachibu rejects combinations that Windows uses (such as Alt+Tab or Ctrl+Shift+Esc) and combinations another app has registered. Press the new combination once more to confirm that it arrives, then click Save. Combinations with the Windows key are not recorded, because Windows uses most of them.
+Ctrl+Alt+/ shows the strip in any mode (press it again to go back). A second shortcut, which you set from Shortcut for Switching Display, steps through Standard, Usage only, and Tucked. When you record a shortcut, Hachibu rejects combinations that Windows uses (such as Alt+Tab or Ctrl+Shift+Esc) and combinations another app has registered. Press the new combination once more to confirm that it arrives, then click Save. Combinations with the Windows key are not recorded, because Windows uses most of them. To use the buttons from the keyboard, press Tab to move to them and Space to press one.
 
 The interface follows your Windows display language: Japanese if it comes first, English otherwise. You can also pick English or Japanese from Language in the menu.
 
@@ -233,7 +233,7 @@ WindowsのClaude Codeは、Git for Windowsが入っていればGit Bashで、無
 
 Windows 11は、新しいトレイのアイコンを「隠れているインジケーターを表示します」（^）の中にしまいます。タスクバーに出しておくには、「設定」＞「個人用設定」＞「タスク バー」＞「その他のシステム トレイ アイコン」でHachibuをオンにしてください。隠れている間は、バーの右クリックメニューにその設定を開く項目が出ます。トレイのアイコンのメニューでできることは、すべてバーの右クリックメニューからもできます。
 
-Ctrl+Alt+/で、どのモードでもバーを呼び出せます（もう一度押すと戻ります）。メニューの「表示切り替えのショートカット…」で2つ目のショートカットを設定すると、標準、使用率だけ、端に収納を順に切り替えられます。ショートカットを登録するときは、Windowsが使っている組み合わせ（Alt+TabやCtrl+Shift+Escなど）と、ほかのアプリが登録している組み合わせを弾きます。新しい組み合わせをもう一度押して届くことを確かめてから、「保存」を押します。Windowsキーを使う組み合わせは、ほとんどをWindowsが使っているので記録しません。
+Ctrl+Alt+/で、どのモードでもバーを呼び出せます（もう一度押すと戻ります）。メニューの「表示切り替えのショートカット…」で2つ目のショートカットを設定すると、標準、使用率だけ、端に収納を順に切り替えられます。ショートカットを登録するときは、Windowsが使っている組み合わせ（Alt+TabやCtrl+Shift+Escなど）と、ほかのアプリが登録している組み合わせを弾きます。新しい組み合わせをもう一度押して届くことを確かめてから、「保存」を押します。Windowsキーを使う組み合わせは、ほとんどをWindowsが使っているので記録しません。キーボードでボタンを使うときは、Tabでボタンに移り、Spaceで押します。
 
 画面の文言は、Windowsの表示言語に合わせて日本語か英語になります。メニューの「言語」から英語か日本語を選ぶこともできます。
 

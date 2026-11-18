@@ -15,8 +15,6 @@ type RGBA struct{ R, G, B, A float64 }
 var (
 	IdleBackground = RGBA{58, 58, 60, 255}
 	IdleForeground = RGBA{190, 190, 195, 255}
-	White          = RGBA{255, 255, 255, 255}
-	Clear          = RGBA{}
 )
 
 // StatusID は、基本表示でただ1つ出す状態の枠の番号。

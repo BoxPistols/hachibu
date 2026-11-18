@@ -373,12 +373,16 @@ func (s *Strip) scheduleHoverCheck() {
 // mkLButton はマウスのメッセージのwParamで、左ボタンが押されていることを示す値
 const mkLButton = 0x0001
 
-func (s *Strip) endDrag() {
+// endDrag はドラッグを終え、置いた位置を覚える。releaseはマウスの捕捉を自分で外すか
+// （捕捉がすでにほかへ移ったとき（WM_CAPTURECHANGED）に外すと、同じスレッドのメニューなどの捕捉まで外してしまう）
+func (s *Strip) endDrag(release bool) {
 	if !s.dragging {
 		return
 	}
 	s.dragging = false
-	w32.ReleaseCapture()
+	if release {
+		w32.ReleaseCapture()
+	}
 	s.userMoved()
 	s.render()
 }
@@ -405,7 +409,7 @@ func (s *Strip) handle(hwnd w32.HWND, msg uint32, wParam, lParam uintptr) (uintp
 	case w32.WM_MOUSEMOVE:
 		// 離した知らせ（WM_LBUTTONUP）を受け取れなかった場合に備え、移動のたびに左ボタンの状態も見る
 		if s.dragging && wParam&mkLButton == 0 {
-			s.endDrag()
+			s.endDrag(true)
 			return 0, true
 		}
 		if s.dragging {
@@ -435,14 +439,10 @@ func (s *Strip) handle(hwnd w32.HWND, msg uint32, wParam, lParam uintptr) (uintp
 		}
 		return 0, true
 	case w32.WM_LBUTTONUP:
-		s.endDrag()
+		s.endDrag(true)
 		return 0, true
 	case w32.WM_CAPTURECHANGED:
-		if s.dragging {
-			s.dragging = false
-			s.userMoved()
-			s.render()
-		}
+		s.endDrag(false)
 		return 0, true
 	case w32.WM_RBUTTONUP:
 		if s.ContextMenu != nil {
