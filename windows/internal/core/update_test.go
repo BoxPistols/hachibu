@@ -17,22 +17,32 @@ func releases(t *testing.T, text string) []any {
 func TestFindsTheNewestWindowsRelease(t *testing.T) {
 	// 一覧は新しい順。macOS版（v）とLite（lite-v）のリリースも混ざる
 	list := releases(t, `[
-	  {"tag_name": "v0.6.0", "html_url": "https://example.com/v0.6.0", "draft": false, "prerelease": false},
-	  {"tag_name": "windows-v0.3.0", "html_url": "https://example.com/w030", "draft": true, "prerelease": false},
-	  {"tag_name": "windows-v0.2.1", "html_url": "https://example.com/w021", "draft": false, "prerelease": true},
-	  {"tag_name": "lite-v0.4.0", "html_url": "https://example.com/lite", "draft": false, "prerelease": false},
-	  {"tag_name": "windows-vnext", "html_url": "https://example.com/next", "draft": false, "prerelease": false},
-	  {"tag_name": "windows-v0.2.0", "html_url": "https://example.com/w020", "draft": false, "prerelease": false},
-	  {"tag_name": "windows-v0.1.0", "html_url": "https://example.com/w010", "draft": false, "prerelease": false}
+	  {"tag_name": "v0.6.0", "html_url": "https://github.com/BoxPistols/hachibu/releases/tag/v0.6.0", "draft": false, "prerelease": false},
+	  {"tag_name": "windows-v0.3.0", "html_url": "https://github.com/BoxPistols/hachibu/releases/tag/w030", "draft": true, "prerelease": false},
+	  {"tag_name": "windows-v0.2.1", "html_url": "https://github.com/BoxPistols/hachibu/releases/tag/w021", "draft": false, "prerelease": true},
+	  {"tag_name": "lite-v0.4.0", "html_url": "https://github.com/BoxPistols/hachibu/releases/tag/lite", "draft": false, "prerelease": false},
+	  {"tag_name": "windows-vnext", "html_url": "https://github.com/BoxPistols/hachibu/releases/tag/next", "draft": false, "prerelease": false},
+	  {"tag_name": "windows-v0.2.0", "html_url": "https://github.com/BoxPistols/hachibu/releases/tag/w020", "draft": false, "prerelease": false},
+	  {"tag_name": "windows-v0.1.0", "html_url": "https://github.com/BoxPistols/hachibu/releases/tag/w010", "draft": false, "prerelease": false}
 	]`)
 	r, ok := LatestRelease(list, "windows-v")
-	if !ok || r.Version != "0.2.0" || r.URL != "https://example.com/w020" {
+	if !ok || r.Version != "0.2.0" || r.URL != "https://github.com/BoxPistols/hachibu/releases/tag/w020" {
 		t.Fatalf("%+v %v", r, ok)
 	}
 }
 
+func TestOpensOnlyGitHubPages(t *testing.T) {
+	// ページはShellExecuteで開くので、GitHubのhttpsのページでなければ使わない
+	for _, page := range []string{"file:///C:/Windows/System32/calc.exe", `C:\evil.exe`, "http://github.com/x", "https://github.com.example.com/x", ""} {
+		list := []any{map[string]any{"tag_name": "windows-v9.0.0", "html_url": page, "draft": false, "prerelease": false}}
+		if r, ok := LatestRelease(list, "windows-v"); ok {
+			t.Errorf("%q accepted: %+v", page, r)
+		}
+	}
+}
+
 func TestNoWindowsReleaseYetIsNotAnError(t *testing.T) {
-	list := releases(t, `[{"tag_name": "v0.6.0", "html_url": "https://example.com", "draft": false, "prerelease": false}]`)
+	list := releases(t, `[{"tag_name": "v0.6.0", "html_url": "https://github.com/BoxPistols/hachibu/releases/tag/v0.6.0", "draft": false, "prerelease": false}]`)
 	if _, ok := LatestRelease(list, "windows-v"); ok {
 		t.Fatal("should not find one")
 	}
