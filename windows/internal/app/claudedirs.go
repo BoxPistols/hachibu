@@ -4,6 +4,7 @@ package app
 
 import (
 	"bytes"
+	"context"
 	"io"
 	"os"
 	"os/exec"
@@ -78,21 +79,16 @@ func runningWSLDistros() []string {
 	if err != nil {
 		return nil
 	}
-	cmd := exec.Command(filepath.Join(system, "wsl.exe"), "--list", "--running", "--quiet")
+	// 応答しないときは5秒で止める。止めた後も出力の口が開いたままなら、待つのは2秒まで
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+	cmd := exec.CommandContext(ctx, filepath.Join(system, "wsl.exe"), "--list", "--running", "--quiet")
+	cmd.WaitDelay = 2 * time.Second
 	// 黒い窓を出さない
 	cmd.SysProcAttr = &syscall.SysProcAttr{HideWindow: true, CreationFlags: windows.CREATE_NO_WINDOW}
-	done := make(chan struct{})
-	var out []byte
-	go func() {
-		out, _ = cmd.Output()
-		close(done)
-	}()
-	select {
-	case <-done:
-	case <-time.After(5 * time.Second):
-		if cmd.Process != nil {
-			cmd.Process.Kill()
-		}
+	// どれも動いていなければ終了コードは0でない。そのときも出力（空）を読むだけなので、エラーは見ない
+	out, _ := cmd.Output()
+	if ctx.Err() != nil {
 		return nil
 	}
 	var names []string

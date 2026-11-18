@@ -14,7 +14,9 @@ type Release struct {
 
 // LatestRelease はGitHubのリリースの一覧（新しい順）から、tagPrefixで始まる最新の版を探す。
 // Windows版はmacOS版と同じリポジトリに置き、タグをwindows-vで分ける（/releases/latestはmacOS版を指す）。
-// 下書きとプレリリース、版の番号として読めないタグは飛ばす。見つからなければfalse（まだ出ていないのは失敗ではない）
+// 下書きとプレリリース、版の番号として読めないタグ、GitHubのhttpsのページでないものは飛ばす。
+// ページはそのままShellExecuteで開くので、応答が偽物でもプログラムやファイルを開かないようにする。
+// 見つからなければfalse（まだ出ていないのは失敗ではない）
 func LatestRelease(list []any, tagPrefix string) (Release, bool) {
 	for _, raw := range list {
 		r := dict(raw)
@@ -23,7 +25,7 @@ func LatestRelease(list []any, tagPrefix string) (Release, bool) {
 		}
 		tag, _ := str(r["tag_name"])
 		page, _ := str(r["html_url"])
-		if !strings.HasPrefix(tag, tagPrefix) || page == "" {
+		if !strings.HasPrefix(tag, tagPrefix) || !strings.HasPrefix(page, "https://github.com/") {
 			continue
 		}
 		version, ok := normalizedVersion(strings.TrimPrefix(tag, tagPrefix))

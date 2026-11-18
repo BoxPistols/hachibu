@@ -18,7 +18,11 @@ jobs:
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     steps:
+      # 組み立ての途中で外部のツール（go-winres）を動かすので、書き込みのできるトークンをgitの設定に残さない。
+      # リリースを作るghには、その手順でだけGH_TOKENを渡す
       - uses: actions/checkout@v5
+        with:
+          persist-credentials: false
       - uses: actions/setup-go@v7
         with:
           go-version-file: windows/go.mod
