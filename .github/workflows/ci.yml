@@ -56,3 +56,75 @@ jobs:
         run: scripts/build-app.sh --app-store
       - name: Build Hachibu Lite
         run: lite/build.sh
+
+  # Windows版（windows/）。GoがWindows向けに作るので、テストと組み立てはLinuxのランナーで行う。
+  # Arm版はビルドが通ることだけを確かめる（リリースはx64だけ。ArmのWindowsではx64版がエミュレーションで動く）
+  windows:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+      - uses: actions/setup-go@v7
+        with:
+          go-version-file: windows/go.mod
+          cache-dependency-path: windows/go.sum
+      - name: Check formatting
+        working-directory: windows
+        run: test -z "$(gofmt -l .)" || { gofmt -l .; exit 1; }
+      - name: Vet
+        working-directory: windows
+        run: |
+          go vet ./...
+          GOOS=windows GOARCH=amd64 go vet ./...
+          GOOS=windows GOARCH=arm64 go vet ./...
+      - name: Test
+        working-directory: windows
+        run: go test ./...
+      - name: Check statusline.sh
+        run: bash -n scripts/statusline.sh
+      - name: Build the app
+        run: windows/build.sh --zip
+      - name: Keep the zip
+        uses: actions/upload-artifact@v4
+        with:
+          name: Hachibu-windows
+          path: windows/build/Hachibu-windows-x64.zip
+          retention-days: 14
+      - name: Build for Arm
+        run: GOARCH=arm64 windows/build.sh
+
+  # Windowsの上でしか動かないテスト（internal/app）を動かし、組み立てたHachibu.exeに画面へ出さずに帯とトレイのアイコンを描かせる（--snapshot）。
+  # 描いた絵は成果物に残すので、見た目の変化をPRで確かめられる
+  windows-native:
+    needs: windows
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+      - uses: actions/setup-go@v7
+        with:
+          go-version-file: windows/go.mod
+          cache-dependency-path: windows/go.sum
+      - name: Test on Windows
+        working-directory: windows
+        run: go test ./...
+      - uses: actions/download-artifact@v4
+        with:
+          name: Hachibu-windows
+      - name: Draw the strip and the tray icons
+        shell: pwsh
+        run: |
+          Expand-Archive Hachibu-windows-x64.zip -DestinationPath app
+          $out = Join-Path $PWD 'snapshot'
+          $p = Start-Process -FilePath app/Hachibu.exe -ArgumentList '--snapshot', "`"$out`"" -Wait -PassThru
+          if ($p.ExitCode -ne 0) { throw "exit code $($p.ExitCode)" }
+          $png = @(Get-ChildItem $out -Filter *.png)
+          if ($png.Count -lt 10) { throw "only $($png.Count) images" }
+          foreach ($f in @('menus-en.txt', 'menus-ja.txt')) { if (-not (Test-Path (Join-Path $out $f))) { throw "missing $f" } }
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Hachibu-windows-snapshot
+          path: snapshot
+          retention-days: 14
