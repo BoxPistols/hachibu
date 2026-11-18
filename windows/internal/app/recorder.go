@@ -170,6 +170,9 @@ func (r *Recorder) hook(msg *w32.MSG) bool {
 	}
 	switch msg.Message {
 	case w32.WM_KEYDOWN, w32.WM_SYSKEYDOWN:
+		if r.buttonKey(uint32(msg.WParam)) {
+			return true
+		}
 		r.keyDown(uint32(msg.WParam))
 		return true
 	case w32.WM_KEYUP, w32.WM_SYSKEYUP:
@@ -180,6 +183,56 @@ func (r *Recorder) hook(msg *w32.MSG) bool {
 	}
 	return false
 }
+
+// buttonKey はキーボードだけでボタンを使うためのキー。修飾キーなしのTabとShift+Tabでボタンを移り、
+// ボタンにいる間はSpaceかEnterでそのボタンを押す。どれも修飾キーが要るショートカットにはならないので、記録の邪魔をしない
+func (r *Recorder) buttonKey(vk uint32) bool {
+	mods := currentModifiers()
+	focused := w32.GetFocus()
+	switch {
+	case vk == core.VKTab && (mods == 0 || mods == core.ModShift):
+		order := []w32.HWND{r.buttons[btnDisable], r.buttons[btnCancel]}
+		if r.recording.CanSave() {
+			order = append(order, r.buttons[btnSave])
+		}
+		idx := -1
+		for i, b := range order {
+			if b == focused {
+				idx = i
+			}
+		}
+		var next int
+		switch {
+		case idx < 0 && mods == core.ModShift:
+			next = len(order) - 1
+		case idx < 0:
+			next = 0
+		case mods == core.ModShift:
+			next = (idx - 1 + len(order)) % len(order)
+		default:
+			next = (idx + 1) % len(order)
+		}
+		// フォーカスの枠を見えるようにする（マウスで開いた窓では、Windowsが既定で隠している）
+		w32.SendMessage(r.hwnd, wmChangeUIState, uisClearHideFocus, 0)
+		w32.SetFocus(order[next])
+		return true
+	case (vk == core.VKSpace || vk == core.VKReturn) && mods == 0:
+		for _, b := range r.buttons[1:] {
+			if b == focused {
+				w32.SendMessage(b, bmClick, 0, 0)
+				return true
+			}
+		}
+	}
+	return false
+}
+
+const (
+	bmClick         = 0x00F5
+	wmChangeUIState = 0x0127
+	// MAKEWPARAM(UIS_CLEAR, UISF_HIDEFOCUS)
+	uisClearHideFocus = 2 | 1<<16
+)
 
 func isModifierKey(vk uint32) bool {
 	return (vk >= 0x10 && vk <= 0x12) || (vk >= 0xA0 && vk <= 0xA5)

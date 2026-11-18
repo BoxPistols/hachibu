@@ -3,11 +3,13 @@
 package app
 
 import (
+	"context"
 	"encoding/json"
 	"io"
 	"os"
 	"path/filepath"
 	"strings"
+	"sync"
 	"sync/atomic"
 	"time"
 
@@ -27,6 +29,9 @@ type Source struct {
 	consent atomic.Bool
 	kick    chan struct{}
 	fetched chan fetchResult
+	// cancelFetch は送り終えていない使用率APIの問い合わせを取り消す。同意を取り下げたときに呼ぶ
+	fetchMu     sync.Mutex
+	cancelFetch context.CancelFunc
 
 	// ここから下は読み取りのゴルーチンだけが触る
 	st              core.SourceState
@@ -62,9 +67,12 @@ func (s *Source) Start() {
 	go s.run()
 }
 
-// SetUsageAPI は「使用率をAPIから取得」を切り替えたとき。有効にしたらすぐ取りに行く
+// SetUsageAPI は「使用率をAPIから取得」を切り替えたとき。有効にしたらすぐ取りに行き、無効にしたら問い合わせの途中でも取り消す
 func (s *Source) SetUsageAPI(on bool) {
 	s.consent.Store(on)
+	if !on {
+		s.setFetchCancel(nil)
+	}
 	select {
 	case s.kick <- struct{}{}:
 	default:
@@ -94,8 +102,10 @@ func (s *Source) tick(first bool) {
 	if first || now.Sub(s.lastScan) >= transcriptScanInterval {
 		s.lastScan = now
 		s.scan()
+		// 設定はWSLのものもあるので、動いていることを確かめた直後（scanの中のfindClaudeDirs）にだけ読む。
+		// 2秒ごとに読むと、利用者が止めたWSLに\\wsl.localhost越しに触れて、起動させてしまう
+		s.readSettings()
 	}
-	s.readSettings()
 	s.maybeFetch(now)
 	s.publish()
 }
@@ -267,12 +277,24 @@ func (s *Source) maybeFetch(now time.Time) {
 	// 取得前に時刻を進めておく（失敗時に毎回叩き直さない）
 	s.lastFetch = now
 	s.fetching = true
-	dirs := append([]claudeDir(nil), s.dirs...)
-	go func() { s.fetched <- fetchUsage(dirs) }()
+	ctx, cancel := context.WithCancel(context.Background())
+	s.setFetchCancel(cancel)
+	go func() { s.fetched <- fetchUsage(ctx) }()
+}
+
+// setFetchCancel は前の問い合わせを取り消してから、次の取り消し口を持つ（nilなら取り消すだけ）
+func (s *Source) setFetchCancel(cancel context.CancelFunc) {
+	s.fetchMu.Lock()
+	defer s.fetchMu.Unlock()
+	if s.cancelFetch != nil {
+		s.cancelFetch()
+	}
+	s.cancelFetch = cancel
 }
 
 func (s *Source) applyFetch(r fetchResult) {
 	s.fetching = false
+	s.setFetchCancel(nil)
 	// 取得中に無効にされていたら、届いた値は使わずに捨てる
 	if !s.consent.Load() {
 		return

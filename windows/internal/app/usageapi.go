@@ -3,6 +3,7 @@
 package app
 
 import (
+	"context"
 	"encoding/json"
 	"io"
 	"net/http"
@@ -26,12 +27,17 @@ type fetchResult struct {
 	failure string
 }
 
-func fetchUsage(dirs []claudeDir) fetchResult {
-	token := accessToken(dirs)
+// fetchUsage は問い合わせる。ctxが取り消されたら（利用者が無効にしたら）送らない。送っている途中なら打ち切る
+func fetchUsage(ctx context.Context) fetchResult {
+	// ログイン情報の場所は、問い合わせるたびに探し直す。少し前に止まったWSLのファイルに触れて、起動させないため
+	token := accessToken(findClaudeDirs())
+	if ctx.Err() != nil {
+		return fetchResult{failure: "canceled"}
+	}
 	if token == "" {
 		return fetchResult{failure: "no Claude Code login found"}
 	}
-	req, err := http.NewRequest(http.MethodGet, usageURL, nil)
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, usageURL, nil)
 	if err != nil {
 		return fetchResult{failure: "network"}
 	}

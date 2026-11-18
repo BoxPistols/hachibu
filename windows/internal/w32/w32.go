@@ -604,6 +604,17 @@ func SendMessage(hwnd HWND, msg uint32, wParam, lParam uintptr) uintptr {
 	return r
 }
 
+// SendMessagePtr はlParamに構造体のポインタを渡すとき。ポインタを整数にするのはCallの引数の中でだけ行う。
+// 呼ぶ前に整数にすると、Goは指す先を生かしておかず、スタックが動けば古い番地を渡してしまう
+func SendMessagePtr(hwnd HWND, msg uint32, wParam uintptr, lParam unsafe.Pointer) uintptr {
+	r, _, _ := pSendMessageW.Call(uintptr(hwnd), uintptr(msg), wParam, uintptr(lParam))
+	return r
+}
+
+var pGetFocus = user32.NewProc("GetFocus")
+
+func GetFocus() HWND { r, _, _ := pGetFocus.Call(); return HWND(r) }
+
 func LoadCursor(id uintptr) HCURSOR {
 	r, _, _ := pLoadCursorW.Call(0, id)
 	return HCURSOR(r)
@@ -912,7 +923,7 @@ func AddTooltip(owner HWND, maxWidth int32) HWND {
 	}
 	ti := TOOLINFOW{Flags: TTF_IDISHWND | TTF_SUBCLASS, Hwnd: owner, ID: uintptr(owner), Text: UTF16("")}
 	ti.Size = uint32(unsafe.Sizeof(ti))
-	SendMessage(tip, TTM_ADDTOOLW, 0, uintptr(unsafe.Pointer(&ti)))
+	SendMessagePtr(tip, TTM_ADDTOOLW, 0, unsafe.Pointer(&ti))
 	SendMessage(tip, TTM_SETMAXTIPWIDTH, 0, uintptr(maxWidth))
 	SendMessage(tip, TTM_SETDELAYTIME, TTDT_AUTOPOP, 30000)
 	return tip
@@ -922,7 +933,7 @@ func AddTooltip(owner HWND, maxWidth int32) HWND {
 func SetTooltipText(tip, owner HWND, text string) {
 	ti := TOOLINFOW{Hwnd: owner, ID: uintptr(owner), Text: UTF16(text)}
 	ti.Size = uint32(unsafe.Sizeof(ti))
-	SendMessage(tip, TTM_UPDATETIPTEXTW, 0, uintptr(unsafe.Pointer(&ti)))
+	SendMessagePtr(tip, TTM_UPDATETIPTEXTW, 0, unsafe.Pointer(&ti))
 }
 
 var pBitBlt = gdi32.NewProc("BitBlt")

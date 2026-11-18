@@ -147,6 +147,8 @@ type Strings struct {
 	LogLanguageChanged   func(string) string
 	// LogClaudeDirs は会話記録を読む場所が変わったときに残す（引数は場所の一覧）
 	LogClaudeDirs func(string) string
+	// SettingsSaveFailed は設定をファイルに書けなかったとき（引数は理由）
+	SettingsSaveFailed func(string) string
 
 	// 新しい版の確認
 	MenuUpdates             string
@@ -308,6 +310,9 @@ var En = &Strings{
 	LogOpened:            "Opened the action log",
 	LogLanguageChanged:   func(s string) string { return "Changed the language to " + s },
 	LogClaudeDirs:        func(s string) string { return "Reading Claude Code data from: " + s },
+	SettingsSaveFailed: func(s string) string {
+		return "Could not save the setting (" + s + "). The change applies only until Hachibu quits."
+	},
 
 	MenuUpdates:             "Updates",
 	UpdateCurrentVersion:    func(s string) string { return "This version: " + s },
@@ -468,6 +473,9 @@ var Ja = &Strings{
 	LogOpened:           "操作ログを開きました",
 	LogLanguageChanged:  func(s string) string { return "言語を" + s + "にしました" },
 	LogClaudeDirs:       func(s string) string { return "Claude Codeのデータを読む場所：" + s },
+	SettingsSaveFailed: func(s string) string {
+		return "設定を保存できませんでした（" + s + "）。変えた内容は、Hachibuを終了するまでしか効きません"
+	},
 
 	MenuUpdates:          "アップデート",
 	UpdateCurrentVersion: func(s string) string { return "この版：" + s },

@@ -53,15 +53,16 @@ func loadPrefs() *Prefs {
 }
 
 // save は書きかけのファイルを読ませないよう、別名で書いてから置き換える
-func (p *Prefs) save() {
+func (p *Prefs) save() error {
 	data, err := json.MarshalIndent(p.values, "", "  ")
 	if err != nil {
-		return
+		return err
 	}
 	tmp := p.path + ".tmp"
-	if os.WriteFile(tmp, data, 0o644) == nil {
-		os.Rename(tmp, p.path)
+	if err := os.WriteFile(tmp, data, 0o644); err != nil {
+		return err
 	}
+	return os.Rename(tmp, p.path)
 }
 
 func (p *Prefs) get(key string) (any, bool) {
@@ -75,6 +76,11 @@ func (p *Prefs) get(key string) (any, bool) {
 // 値はJSONを通してから持つ。ファイルから読んだときと同じ型（数はfloat64、辞書はmap[string]any）にしないと、
 // 書いた直後と再起動の後で読み方が変わる（int32で入れた帯の位置を、float64として読めなかった）
 func (p *Prefs) Set(key string, value any) {
+	p.SetChecked(key, value)
+}
+
+// SetChecked はSetと同じで、ファイルに書けなかったらエラーを返す。値は書けなくても、動いている間は変えたものを使う
+func (p *Prefs) SetChecked(key string, value any) error {
 	p.mu.Lock()
 	defer p.mu.Unlock()
 	if value == nil {
@@ -85,7 +91,7 @@ func (p *Prefs) Set(key string, value any) {
 			p.values[key] = normalized
 		}
 	}
-	p.save()
+	return p.save()
 }
 
 func (p *Prefs) Bool(key string) bool {
