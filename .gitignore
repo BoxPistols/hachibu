@@ -6,3 +6,5 @@ build/
 .vercel
 .env*
 lite/HachibuLite.app/
+windows/build/
+windows/rsrc_windows_*.syso
