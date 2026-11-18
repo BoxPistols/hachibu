@@ -14,6 +14,8 @@ Hachibu is an unofficial tool made by an individual. It is not affiliated with, 
 
 > **Using 0.3.2 or earlier?** Those versions cannot tell you about updates. Download 0.4.0 once and replace `Hachibu.app` in your Applications folder; your settings stay. From 0.4.0 on, Hachibu lets you know when a new version is out. See [Updates](#updates).
 
+On Windows, use [Hachibu for Windows](windows/README.md) (Windows 10 or 11). It works with Claude Code on Windows and with Claude Code in WSL.
+
 [Site](https://cc-hachibu.vercel.app/) · [How it was built (Japanese)](https://zenn.dev/ait/articles/hachibu-claude-code-usage-bar) · [日本語の説明はこちら](#日本語)
 
 ## What it shows
@@ -177,6 +179,8 @@ If you already use a statusLine command, pass it as an argument. It receives the
 
 Usage limits (`rate_limits`) appear in the statusLine data on Pro and Max plans, after the first response in a session.
 
+The same `statusline.sh` works for Hachibu for Windows. In WSL and in Git Bash on Windows, it writes to `%LOCALAPPDATA%\Hachibu` instead; see [windows/README.md](windows/README.md#statusline-setup).
+
 ## Using only the Claude Code desktop app
 
 - With the usage API turned on, usage keeps updating whether you use the terminal or the desktop app
@@ -234,6 +238,8 @@ MIT
 Hachibuは個人が作った非公式のツールで、Anthropic, PBCとは関係がなく、同社の承認や支援も受けていません。
 
 ![Hachibuのバー](docs/images/ja-strip-basic.png)
+
+Windowsでは[Hachibu for Windows](windows/README.md#日本語)を使ってください（Windows 10または11）。WindowsのClaude Codeと、WSLの中のClaude Codeのどちらでも使えます。
 
 [サイト](https://cc-hachibu.vercel.app/)。[作った過程の記事](https://zenn.dev/ait/articles/hachibu-claude-code-usage-bar)。[macOS版をダウンロード](https://github.com/BoxPistols/hachibu/releases/latest/download/Hachibu-macos.zip)（macOS 13以降、Apple SiliconとIntelの両方）。まだAppleの公証を受けていないため、初回の起動はmacOSに止められます。「システム設定」＞「プライバシーとセキュリティ」で一度だけ許可してください。手順は[インストール](#インストール)にあります。
 
@@ -381,6 +387,8 @@ chmod +x ~/.claude/hachibu-statusline.sh
 そのうえで、`~/.claude/settings.json`のstatusLineから呼びます。すでに別のstatusLineを使っている場合は、そのコマンドを引数に渡してください。同じJSONがそのコマンドにも渡り、ステータス行の表示はそのコマンドの出力になります。設定の例は英語の節にあります。
 
 使用率（rate_limits）がstatusLineに入るのはPro/Maxのプランで、そのセッションの最初の応答の後からです。
+
+同じ`statusline.sh`はHachibu for Windowsでも使えます。WSLとWindowsのGit Bashでは、`%LOCALAPPDATA%\Hachibu`に書きます。手順は[windows/README.md](windows/README.md#statuslineの設定)にあります。
 
 ### デスクトップアプリだけで使う場合
 
