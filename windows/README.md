@@ -156,7 +156,7 @@ For development, `Hachibu.exe --snapshot <folder>` draws the strip and the tray 
 
 ### Releasing
 
-Set `VERSION` in `windows/build.sh`, write the notes in `docs/releases/windows-v<version>.md`, merge to `main`, and run the Release Windows workflow from the Actions tab. It tests, builds `Hachibu-windows-x64.zip`, and creates the tag `windows-v<version>` and the release with `statusline.sh`, `statusline.ps1`, and their SHA-256. The release is not marked as latest, so that Hachibu for macOS keeps pointing at its own releases. Then update the version in the download links in this README.
+Set `VERSION` in `windows/build.sh`, write the notes in `docs/releases/windows-v<version>.md`, merge to `main`, and run the Release Windows workflow from the Actions tab. It tests, builds `Hachibu-windows-x64.zip`, and creates the tag `windows-v<version>` and the release with `statusline.sh`, `statusline.ps1`, and their SHA-256. The release is not marked as latest, so that Hachibu for macOS keeps pointing at its own releases. Then update the version in the download links in this README; the workflow run ends with a reminder.
 
 ## License
 
@@ -283,7 +283,7 @@ Go 1.26以降が要ります。`build.sh`はWindows向けに作るので、Linux
 
 #### リリースの手順
 
-`windows/build.sh`の`VERSION`を上げ、`docs/releases/windows-v<版>.md`に変更点を書いて`main`に入れ、ActionsタブからRelease Windowsのワークフローを実行します。テスト、`Hachibu-windows-x64.zip`の組み立て、タグ`windows-v<版>`とリリースの作成（`statusline.sh`、`statusline.ps1`とSHA-256を添える）までを行います。macOS版の新しい版の確認が自分のリリースを指し続けるよう、Windows版のリリースは「最新」にしません。そのあと、このREADMEのダウンロードのリンクの版を上げてください。
+`windows/build.sh`の`VERSION`を上げ、`docs/releases/windows-v<版>.md`に変更点を書いて`main`に入れ、ActionsタブからRelease Windowsのワークフローを実行します。テスト、`Hachibu-windows-x64.zip`の組み立て、タグ`windows-v<版>`とリリースの作成（`statusline.sh`、`statusline.ps1`とSHA-256を添える）までを行います。macOS版の新しい版の確認が自分のリリースを指し続けるよう、Windows版のリリースは「最新」にしません。そのあと、このREADMEのダウンロードのリンクの版を上げてください（ワークフローの最後にも、その知らせが出ます）。
 
 ### ライセンス
 

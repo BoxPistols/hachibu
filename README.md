@@ -195,7 +195,7 @@ The same `statusline.sh` works for Hachibu for Windows. In WSL and in Git Bash o
 
 ## Build from source
 
-You need macOS 13 or later and the Xcode Command Line Tools (the full Xcode app is not needed). Building needs Swift 5.9 or later (Command Line Tools 15.0 or later). Running the tests (`scripts/test.sh`) needs Swift 6 or later, because they use Swift Testing. Swift 6 cannot be installed on macOS 13, so there the tests run only in CI.
+You need macOS 13 or later and the Xcode Command Line Tools (the full Xcode app is not needed). Building needs Swift 5.9 or later (Command Line Tools 15.0 or later). Running the tests (`scripts/test.sh`) needs Swift 6 or later, because they use Swift Testing. Swift 6 cannot be installed on macOS 13, so there the tests run only in CI. CI can no longer check the build with Swift 5.9, because GitHub's runners no longer have Xcode 15; the last check passed on 2026-10-26 ([#23](https://github.com/BoxPistols/hachibu/issues/23)).
 
 The landing page at <https://cc-hachibu.vercel.app/> lives in `site/`; see [site/README.md](site/README.md).
 
@@ -404,7 +404,7 @@ chmod +x ~/.claude/hachibu-statusline.sh
 
 ### ソースからビルド
 
-macOS 13以降と、Xcode Command Line Tools（Xcode本体は不要です）が必要です。ビルドにはSwift 5.9以降（Command Line Tools 15.0以降）が要ります。テスト（`scripts/test.sh`）はSwift Testingを使うのでSwift 6以降が要ります。macOS 13にはSwift 6を入れられないので、そこではテストはCIでだけ動きます。
+macOS 13以降と、Xcode Command Line Tools（Xcode本体は不要です）が必要です。ビルドにはSwift 5.9以降（Command Line Tools 15.0以降）が要ります。テスト（`scripts/test.sh`）はSwift Testingを使うのでSwift 6以降が要ります。macOS 13にはSwift 6を入れられないので、そこではテストはCIでだけ動きます。GitHubのランナーにXcode 15が無くなったため、Swift 5.9でのビルドはCIで確かめられなくなりました。最後に確かめて通ったのは2026-10-26です（[#23](https://github.com/BoxPistols/hachibu/issues/23)）。
 
 <https://cc-hachibu.vercel.app/>の紹介ページは`site/`にあります。[site/README.md](site/README.md)を参照してください。
 

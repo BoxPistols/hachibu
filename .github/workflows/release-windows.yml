@@ -64,3 +64,12 @@ jobs:
             --target "$GITHUB_SHA" --title "Hachibu for Windows ${VERSION}" --notes-file "$RUNNER_TEMP/notes.md" --latest=false
         env:
           GH_TOKEN: ${{ github.token }}
+      # windows/README.mdのダウンロードのリンクは版を含み、リリースができてから上げる。まだ前の版を指していれば、上げ忘れないよう知らせる
+      - name: Remind to update the download links
+        run: |
+          VERSION="${{ steps.version.outputs.version }}"
+          if ! grep -q "releases/download/windows-v${VERSION}/" windows/README.md; then
+            MSG="Released windows-v${VERSION}. Now update the download links in windows/README.md (en and ja) to windows-v${VERSION}."
+            echo "::warning::${MSG}"
+            echo "${MSG}" >> "$GITHUB_STEP_SUMMARY"
+          fi
