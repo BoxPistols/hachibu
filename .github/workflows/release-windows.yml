@@ -68,8 +68,10 @@ jobs:
       - name: Remind to update the download links
         run: |
           VERSION="${{ steps.version.outputs.version }}"
-          if ! grep -q "releases/download/windows-v${VERSION}/" windows/README.md; then
-            MSG="Released windows-v${VERSION}. Now update the download links in windows/README.md (en and ja) to windows-v${VERSION}."
+          # 英日のどのリンク（zip、statusline.sh、statusline.ps1）でも、別の版を指すものが1つでも残っていれば知らせる
+          STALE="$(grep -o 'releases/download/windows-v[^/]*/[^)" ]*' windows/README.md | grep -v -F "releases/download/windows-v${VERSION}/" || true)"
+          if [ -n "$STALE" ]; then
+            MSG="Released windows-v${VERSION}. $(echo "$STALE" | wc -l | tr -d ' ') download links in windows/README.md still point to another version; update them to windows-v${VERSION}."
             echo "::warning::${MSG}"
-            echo "${MSG}" >> "$GITHUB_STEP_SUMMARY"
+            { echo "${MSG}"; echo; echo '```'; echo "$STALE" | sort | uniq -c; echo '```'; } >> "$GITHUB_STEP_SUMMARY"
           fi
