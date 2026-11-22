@@ -166,13 +166,13 @@ MIT (the repository's [LICENSE](../LICENSE))
 
 ## 日本語
 
-Hachibu for Windowsは、Claude Codeのモデル、effort、使用率を、Windowsの画面の最前面の小さなバーに出し続けるアプリです。[Hachibu](../README.md#日本語)のWindows版で、バー、表示モード、色、メニューはmacOS版と同じです。GoとWin32 APIで書いていて、`Hachibu.exe`ひとつで動きます。ほかに入れるものはありません。
+Hachibu for Windowsは、Claude Codeのモデル、effort、使用率を、Windowsの画面の最前面の小さなバーに出し続けるアプリです。[Hachibu](../README.md#日本語)をWindowsで使うためのもので、バー、表示モード、色、メニューはmacOS向けのHachibuと同じです。GoとWin32 APIで書いていて、`Hachibu.exe`ひとつで動きます。ほかに入れるものはありません。
 
 WindowsのClaude Codeと、WSLの中のClaude Codeのどちらでも使えます。
 
 Hachibuは個人が作った非公式のツールで、Anthropic, PBCとは関係がなく、同社の承認や支援も受けていません。
 
-[Windows版をダウンロード](https://github.com/BoxPistols/hachibu/releases/download/windows-v0.1.0/Hachibu-windows-x64.zip)（Windows 10または11、64ビット）。ArmのPCでは、Windowsのx64エミュレーションで動きます。コード署名をしていないため、初回の起動はWindows SmartScreenに止められます。手順は[インストール](#インストール)にあります。
+[Hachibu for Windowsをダウンロード](https://github.com/BoxPistols/hachibu/releases/download/windows-v0.1.0/Hachibu-windows-x64.zip)（Windows 10または11、64ビット）。ArmのPCでは、Windowsのx64エミュレーションで動きます。コード署名をしていないため、初回の起動はWindows SmartScreenに止められます。手順は[インストール](#インストール)にあります。
 
 ### 表示の読み方
 
@@ -250,7 +250,7 @@ Ctrl+Alt+/で、どのモードでもバーを呼び出せます（もう一度�
 
 #### アップデート
 
-Hachibuは1日に1回、GitHubでWindows版の新しい版を確認します。見つけたら、その版につき1回だけWindowsの通知を出し、どちらのメニューの先頭にも「Hachibu x.y.zが出ています」と出します。更新するには、Hachibuを終了し、`Hachibu.exe`を新しいものと入れ替えて開きます。設定はそのまま残ります。メニューの「アップデート」には、動いている版、「新しい版を自動で確認」の切り替え、「今すぐ確認」があります。
+Hachibuは1日に1回、GitHubでHachibu for Windowsの新しいバージョンを確認します。見つけたら、そのバージョンにつき1回だけWindowsの通知を出し、どちらのメニューの先頭にも「Hachibu x.y.zが出ています」と出します。更新するには、Hachibuを終了し、`Hachibu.exe`を新しいものと入れ替えて開きます。設定はそのまま残ります。メニューの「アップデート」には、動いているバージョン、新しいバージョンを自動で確認するかの切り替え、「今すぐ確認」があります。
 
 #### アンインストール
 
@@ -262,11 +262,11 @@ Hachibuは1日に1回、GitHubでWindows版の新しい版を確認します。�
 ### データの扱い
 
 - 読むのはローカルのファイルです。Claude Codeが保存した会話（最後に使われたモデルとeffortを知るためだけ）、`settings.json`、上の`statusline.json`。WSLのものは`\\wsl.localhost`越しに読みます
-- ネットワークに接続するのは2つだけです。使用率APIを有効にした場合の`api.anthropic.com`と、1日に1回の新しい版の確認の`api.github.com`です（確認は止められます）。新しい版の確認で送るのは、User-Agentのアプリ名と版だけです
+- ネットワークに接続するのは2つだけです。使用率APIを有効にした場合の`api.anthropic.com`と、1日に1回の新しいバージョンの確認の`api.github.com`です（確認は止められます）。新しいバージョンの確認で送るのは、User-Agentのアプリ名とバージョンだけです
 - `.credentials.json`のログイン情報は、使用率APIへの問い合わせのときだけ読み、保存も記録もしません
 - 設定と操作ログは`%LOCALAPPDATA%\Hachibu`に書きます。「サインイン時に起動」を有効にすると、`HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Run`に`Hachibu`という値を足します
 
-### macOS版との違い
+### macOS向けのHachibuとの違い
 
 - メニューバーの項目の代わりに、トレイのアイコンを使います。アイコン、週枠のメーター、数字のどれかを描き、状態の全文はツールチップとメニューに出します
 - 既定のショートカットは⌥⌘/ではなくCtrl+Alt+/です（同じ「/」のキー）
@@ -277,13 +277,13 @@ Hachibuは1日に1回、GitHubでWindows版の新しい版を確認します。�
 
 Go 1.26以降が要ります。`build.sh`はWindows向けに作るので、Linux、macOS、WindowsのGit Bashのどれでも動きます。アイコンとアプリケーションマニフェスト（画面ごとの拡大率への対応と、使用率APIの確認の窓に要るCommon Controls 6.0）は[go-winres](https://github.com/tc-hib/go-winres)で埋め込みます。コマンドは英語の節にあります。
 
-バーに何を出すかの判断は`internal/core`にあり、`Sources/HachibuCore`から移したものです。どのOSでもテストできます。`internal/app`のテストはWindowsでしか動かないので、CIはWindowsのランナーで動かします。判断を変えるときは、Swift版も合わせて直してください。画面の文言は`internal/core/strings.go`にあります。英語と日本語の両方を直してください。
+バーに何を出すかの判断は`internal/core`にあり、`Sources/HachibuCore`から移したものです。どのOSでもテストできます。`internal/app`のテストはWindowsでしか動かないので、CIはWindowsのランナーで動かします。判断を変えるときは、Swiftで書いたmacOS向けのコードも合わせて直してください。画面の文言は`internal/core/strings.go`にあります。英語と日本語の両方を直してください。
 
 開発用に、`Hachibu.exe --snapshot <フォルダ>`で、窓を出さずにバーとトレイのアイコンをPNGに、メニューを文字に書き出せます。`HACHIBU_SOURCE=demo`は架空の値を出し、`HACHIBU_LANG=en|ja`は言語を選び、`HACHIBU_SUITE=<名前>`は別の設定ファイルを使います。`HACHIBU_SUITE`を付けたときだけ、`HACHIBU_OPEN=strip-menu|tray-menu|recorder|consent`で起動の直後にそのメニューや窓を開けます（画面写真を撮るため）。
 
 #### リリースの手順
 
-`windows/build.sh`の`VERSION`を上げ、`docs/releases/windows-v<版>.md`に変更点を書いて`main`に入れ、ActionsタブからRelease Windowsのワークフローを実行します。テスト、`Hachibu-windows-x64.zip`の組み立て、タグ`windows-v<版>`とリリースの作成（`statusline.sh`、`statusline.ps1`とSHA-256を添える）までを行います。macOS版の新しい版の確認が自分のリリースを指し続けるよう、Windows版のリリースは「最新」にしません。そのあと、このREADMEのダウンロードのリンクの版を上げてください（ワークフローの最後にも、その知らせが出ます）。
+`windows/build.sh`の`VERSION`を上げ、`docs/releases/windows-v<バージョン>.md`に変更点を書いて`main`に入れ、ActionsタブからRelease Windowsのワークフローを実行します。テスト、`Hachibu-windows-x64.zip`の組み立て、タグ`windows-v<バージョン>`とリリースの作成（`statusline.sh`、`statusline.ps1`とSHA-256を添える）までを行います。macOS向けのHachibuの新しいバージョンの確認が自分のリリースを指し続けるよう、Hachibu for Windowsのリリースは「最新」にしません。そのあと、このREADMEのダウンロードのリンクのバージョンを上げてください（ワークフローの最後にも、その知らせが出ます）。
 
 ### ライセンス
 
