@@ -47,6 +47,20 @@ export interface NewsItem {
 
 export const NEWS: NewsItem[] = [
   {
+    version: "0.6.0",
+    date: "2026-11-23",
+    items: {
+      en: [
+        "Hachibu updates itself. It downloads and checks a new version in the background, and replaces itself and restarts when you click Update in the menu",
+        "Before replacing, it checks the download's SHA-256 and the app's version and signature",
+      ],
+      ja: [
+        "Hachibuが自分で更新するようになりました。新しいバージョンを裏で取得して確かめ、メニューの「更新して再起動」を押すと置き換えて開き直します",
+        "置き換える前に、ダウンロードしたもののSHA-256と、アプリのバージョンと署名を確かめます",
+      ],
+    },
+  },
+  {
     version: "0.5.0",
     date: "2026-10-27",
     items: {
@@ -216,10 +230,10 @@ export const CONTENT: Record<Lang, Content> = {
       termsLink: "Read the terms",
     },
     news: {
-      badge: "New: runs on macOS 13",
+      badge: "New: Hachibu updates itself",
       heading: "What's new",
-      lead: "From 0.4.0 on, Hachibu checks for a new version once a day and lets you know. Download the new version and replace the app in your Applications folder; your settings stay.",
-      legacy: "Using 0.3.2 or earlier? Those versions cannot tell you about updates, so please update to 0.4.0 once by hand. You will be told about every version after that.",
+      lead: "From 0.6.0 on, Hachibu checks for a new version once a day and downloads and checks it in the background. Click Update and Restart in the menu to replace the app; your settings stay.",
+      legacy: "Using 0.5.0 or earlier? Please replace the app with 0.6.0 once by hand. Hachibu updates itself after that.",
       allReleases: "All releases",
     },
     install: {
@@ -338,10 +352,10 @@ export const CONTENT: Record<Lang, Content> = {
       termsLink: "規約を読む",
     },
     news: {
-      badge: "新機能：macOS 13で動くように",
+      badge: "新機能：Hachibuが自分で更新するように",
       heading: "更新のお知らせ",
-      lead: "0.4.0からは、Hachibuが1日に1回新しい版を確認して知らせます。新しい版をダウンロードし、アプリケーションフォルダのアプリと入れ替えてください。設定はそのまま残ります。",
-      legacy: "0.3.2以前をお使いの方へ：これらの版には新しい版を知らせる仕組みがないため、一度だけ手で0.4.0に更新してください。その後の版は、アプリが知らせます。",
+      lead: "0.6.0からは、Hachibuが1日に1回新しいバージョンを確認し、裏で取得して確かめます。メニューの「更新して再起動」を押すと、アプリを置き換えて開き直します。設定はそのまま残ります。",
+      legacy: "0.5.0以前をお使いの方へ：一度だけ手で0.6.0に入れ替えてください。その後は、アプリが自分で更新します。",
       allReleases: "すべてのリリース",
     },
     install: {
