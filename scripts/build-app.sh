@@ -4,7 +4,7 @@
 #   scripts/build-app.sh：ビルドのみ
 #   scripts/build-app.sh --install：~/Applicationsに置き換えて起動し直す
 #   scripts/build-app.sh --zip：配布用のbuild/Hachibu-macos.zipとSHA-256も作る（組み合わせてよい）
-#   scripts/build-app.sh --app-store：使用率APIと更新確認を外したApp Store版を作る（通信せず、statusLineだけを使う）
+#   scripts/build-app.sh --app-store：使用率APIと更新確認を外したApp Store向けのビルドを作る（通信せず、statusLineだけを使う）
 set -euo pipefail
 
 INSTALL=0
@@ -27,7 +27,7 @@ VERSION="0.6.0"
 cd "$ROOT"
 # アプリのリリースビルドはテスト（swift test）と別の作業ディレクトリで行い、構成の違うビルドが.buildを取り合わないようにする
 SCRATCH="$ROOT/.build-release"
-# App Store版は作業ディレクトリも出力も別にし、GitHub版のビルド結果やリリース用のzipを上書きしないようにする
+# App Store向けのビルドは作業ディレクトリも出力も別にし、GitHubで配るビルドのビルド結果やリリース用のzipを上書きしないようにする
 if [ "$APP_STORE" = 1 ]; then
   export HACHIBU_APP_STORE=1
   SCRATCH="$ROOT/.build-release-app-store"
@@ -70,7 +70,7 @@ codesign --force --sign - "$APP" >/dev/null
 echo "built: $APP"
 
 if [ "$ZIP" = 1 ]; then
-  # リリースに添付する名前は版の番号を含めない（releases/latest/download/…が常に最新を指すように）
+  # リリースに添付する名前はバージョン番号を含めない（releases/latest/download/…が常に最新を指すように）
   rm -f "$ZIPFILE"
   ditto -c -k --sequesterRsrc --keepParent "$APP" "$ZIPFILE"
   echo "zipped: $ZIPFILE"

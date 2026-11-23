@@ -1,6 +1,6 @@
 # Hachibu Lite
 
-Claude Code の 5 時間枠と週枠の使用率を、macOS のメニューバーと画面上の小さな帯に出しておくアプリです。[Hachibu](../README.md) の軽量版で、Swift のファイル 1 つと AppKit だけで書いています。macOS 13 で止まっている Intel の MacBook で動かすために作りました。旧名は TokenBar です。
+Claude Code の 5 時間枠と週枠の使用率を、macOS のメニューバーと画面上の小さな帯に出しておくアプリです。[Hachibu](../README.md) の軽量なアプリで、Swift のファイル 1 つと AppKit だけで書いています。macOS 13 で止まっている Intel の MacBook で動かすために作りました。旧名は TokenBar です。
 
 A lightweight edition of Hachibu: one Swift file, AppKit only, for Intel Macs on macOS 13 or later. It shows Claude Code's 5-hour and weekly usage in the menu bar and in a small strip on screen. Its menus are in Japanese. See [Hachibu or Hachibu Lite](../README.md#hachibu-or-hachibu-lite) for how the two differ.
 
@@ -15,7 +15,7 @@ Hachibu とどちらを使うかは、[Hachibu と Hachibu Lite](../README.md#ha
 - 使用率が 80% 以上なら黄、90% 以上なら赤の札で数字を囲みます。閾値はメニューから変えられます（黄は 50〜80%、赤は 80〜95%）
 - メニューバーの項目を開くと、各枠がいつリセットされるか、モデル、effort、最終更新の時刻が分かります
 - 帯は押しても前面に出ません。フルスクリーンのアプリを含め、ほかの窓の上に出ます。ドラッグで動かせ、位置は覚えます。「帯を初期位置に戻す」でメニューバーのすぐ下の中央に戻ります
-- 15 秒ごとにファイルを読み直します。「今すぐ更新」（⌘R）は、読み直しと新しい版の確認をその場で行い、結果をメニューバーに少しの間出します
+- 15 秒ごとにファイルを読み直します。「今すぐ更新」（⌘R）は、読み直しと新しいバージョンの確認をその場で行い、結果をメニューバーに少しの間出します
 
 ### 帯の表示モード
 
@@ -40,7 +40,7 @@ Claude Code の statusLine（公式の拡張点）が渡す JSON だけを読み
 
 statusLine には Hachibu と同じ `statusline.sh` を使います。JSON は `~/Library/Application Support/Hachibu/statusline.json` に保存され、Hachibu と Hachibu Lite のどちらもそこを読みます。TokenBar の `statusline.sh` を使い続けている場合のために、`~/Library/Application Support/TokenBar/statusline.json` も読み、新しい方を使います。使用率（`rate_limits`）はセッションの最初の応答の後にしか入らないので、無いときは前回の値を残します。リセット時刻を過ぎた値は 0% として扱います。
 
-ネットワークに接続するのは、新しい版の確認だけです。起動時と、その後 1 日に 1 回、このリポジトリのリリースの一覧（`api.github.com`）から `lite-v` で始まるタグを探します。送るのは User-Agent（`HachibuLite/版`）だけです。新しい版があれば、メニューの先頭に「Hachibu Lite x.y.z が出ています」と出し、押すとリリースのページを開きます。
+ネットワークに接続するのは、新しいバージョンの確認だけです。起動時と、その後 1 日に 1 回、このリポジトリのリリースの一覧（`api.github.com`）から `lite-v` で始まるタグを探します。送るのは User-Agent（`HachibuLite/バージョン`）だけです。新しいバージョンがあれば、メニューの先頭に「Hachibu Lite x.y.z が出ています」と出し、押すとリリースのページを開きます。
 
 ## インストール
 
@@ -89,7 +89,7 @@ open ~/Applications/HachibuLite.app
 
 ## リリース
 
-`build.sh` の `version` を上げ、`docs/releases/lite-v<版>.md` に本文を書いて main に入れ、Actions の Release Lite を手で起動します。タグ `lite-v<版>` とリリースを作り、`HachibuLite-macos-x86_64.zip` と `scripts/statusline.sh` を添付します。Hachibu の新しい版の確認と README のダウンロードの案内（`releases/latest`）が Hachibu を指し続けるよう、Lite のリリースは「最新」にしません。
+`build.sh` の `version` を上げ、`docs/releases/lite-v<バージョン>.md` に本文を書いて main に入れ、Actions の Release Lite を手で起動します。タグ `lite-v<バージョン>` とリリースを作り、`HachibuLite-macos-x86_64.zip` と `scripts/statusline.sh` を添付します。Hachibu の新しいバージョンの確認と README のダウンロードの案内（`releases/latest`）が Hachibu を指し続けるよう、Lite のリリースは「最新」にしません。
 
 ## ライセンス
 

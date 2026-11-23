@@ -60,7 +60,7 @@ enum Prefs {
         }
     }
 
-    /// 新しい版を1日に1回確認するか。既定は確認する
+    /// 新しいバージョンを1日に1回確認するか。既定は確認する
     static var updateAutoCheck: Bool {
         get { defaults.object(forKey: updateAutoCheckKey) as? Bool ?? true }
         set { defaults.set(newValue, forKey: updateAutoCheckKey) }
@@ -71,7 +71,7 @@ enum Prefs {
         set { defaults.set(newValue, forKey: lastUpdateCheckKey) }
     }
 
-    /// 通知を出した最後の版。同じ版を何度も知らせない
+    /// 通知を出した最後のバージョン。同じバージョンを何度も知らせない
     static var notifiedUpdateVersion: String? {
         get { defaults.string(forKey: notifiedUpdateVersionKey) }
         set { defaults.set(newValue, forKey: notifiedUpdateVersionKey) }

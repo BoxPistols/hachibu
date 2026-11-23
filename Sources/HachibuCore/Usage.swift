@@ -30,7 +30,7 @@ public enum Usage {
             suffix = " " + size.uppercased()
             s.removeSubrange(r)
         }
-        // 名前と版番号の間の空白を詰める（"Opus 5" → "Opus5"）
+        // 名前とバージョン番号の間の空白を詰める（"Opus 5" → "Opus5"）
         s = s.replacingOccurrences(of: #"([A-Za-z]) (\d)"#, with: "$1$2", options: .regularExpression)
         return s + suffix
     }

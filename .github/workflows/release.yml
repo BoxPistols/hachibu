@@ -1,8 +1,8 @@
 # リリース。mainで手動で起動する（Actions > Release > Run workflow）。
 #
-# scripts/build-app.shのVERSIONを版とし、docs/releases/v<版>.mdをリリースの本文にする。
-# テストが通ったら、両方のCPU向けのアプリを組み立ててzipにし、タグv<版>とリリースを作る。
-# zipとscripts/statusline.shを添付し（READMEがreleases/latest/download/…で指す）、本文の末尾にzipのSHA-256を足す。同じ版のリリースがすでにあれば何もせず失敗する
+# scripts/build-app.shのVERSIONをバージョンとし、docs/releases/v<バージョン>.mdをリリースの本文にする。
+# テストが通ったら、両方のCPU向けのアプリを組み立ててzipにし、タグv<バージョン>とリリースを作る。
+# zipとscripts/statusline.shを添付し（READMEがreleases/latest/download/…で指す）、本文の末尾にzipのSHA-256を足す。同じバージョンのリリースがすでにあれば何もせず失敗する
 name: Release
 
 on:

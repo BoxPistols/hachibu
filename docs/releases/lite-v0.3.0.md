@@ -14,14 +14,14 @@ Download `HachibuLite-macos-x86_64.zip`, put `HachibuLite.app` in your Applicati
 
 ---
 
-Hachibuの軽量版、Hachibu Liteの最初のリリースです。0.2.0まではTokenBar（github.com/BoxPistols/tokenbar）という名前で、このリポジトリに移しました。
+Hachibuの軽量なアプリ、Hachibu Liteの最初のリリースです。0.2.0まではTokenBar（github.com/BoxPistols/tokenbar）という名前で、このリポジトリに移しました。
 
 TokenBar 0.2.0からの変更点
 
 - 名前をHachibu Lite（`HachibuLite.app`）に変えました
 - Hachibuと同じ`statusline.sh`が書くファイル（`~/Library/Application Support/Hachibu/statusline.json`）を読みます。TokenBarのファイルも読み、新しい方を使います
-- 新しい版の確認は、このリポジトリのリリースから`lite-v`のタグを探します
-- 「今すぐ更新」（⌘R）で新しい版も確認し、結果をメニューバーに少しの間出します
+- 新しいバージョンの確認は、このリポジトリのリリースから`lite-v`のタグを探します
+- 「今すぐ更新」（⌘R）で新しいバージョンも確認し、結果をメニューバーに少しの間出します
 - 初めて起動したときに、TokenBarの設定と「ログイン時に起動」の登録を引き継ぎます
 
 TokenBarから移る手順

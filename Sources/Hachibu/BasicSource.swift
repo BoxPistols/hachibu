@@ -5,7 +5,7 @@ import HachibuCore
 ///
 /// - モデル名とeffort: statusLineのJSON（scripts/statusline.shが書く）があればそれ、無ければ最後の会話記録、それも無ければ~/.claude/settings.json
 /// - 使用率: 利用者が有効にしていれば使用率API（5分ごと）、そうでなければstatusLineのrate_limits
-///   App Store版（APP_STORE）は使用率APIを持たず、statusLineのrate_limitsだけを使う
+///   App Store向けのビルド（APP_STORE）は使用率APIを持たず、statusLineのrate_limitsだけを使う
 final class BasicSource: DataSource {
     var onSlots: (([Slot]) -> Void)?
     private(set) var limits: [UsageLimit] = []

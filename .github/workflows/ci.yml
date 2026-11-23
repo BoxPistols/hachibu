@@ -40,8 +40,8 @@ jobs:
   # READMEのビルド要件のSwift 5.9でビルドが通るかは、ここでは確かめられない。GitHubのランナーにXcode 15が無くなり、
   # swift.orgのSwift 5.9.2も今のmacOS 15のSDKを読めないため（#23）。最後に通ったのは8e6c07b（2026-10-26）
 
-  # Windows版（windows/）。GoがWindows向けに作るので、テストと組み立てはLinuxのランナーで行う。
-  # Arm版はビルドが通ることだけを確かめる（リリースはx64だけ。ArmのWindowsではx64版がエミュレーションで動く）
+  # Windows向け（windows/）。GoがWindows向けに作るので、テストと組み立てはLinuxのランナーで行う。
+  # Arm向けはビルドが通ることだけを確かめる（リリースはx64だけ。ArmのWindowsではx64向けがエミュレーションで動く）
   windows:
     runs-on: ubuntu-latest
     steps:

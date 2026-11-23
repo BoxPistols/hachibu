@@ -1,9 +1,9 @@
-# Windows版のリリース。mainで手動で起動する（Actions > Release Windows > Run workflow）。
+# Windows向けのリリース。mainで手動で起動する（Actions > Release Windows > Run workflow）。
 #
-# windows/build.shのVERSIONを版とし、docs/releases/windows-v<版>.mdをリリースの本文にする。
-# テストが通ったら、x64向けのHachibu.exeを組み立ててzipにし、タグwindows-v<版>とリリースを作る。
+# windows/build.shのVERSIONをバージョンとし、docs/releases/windows-v<バージョン>.mdをリリースの本文にする。
+# テストが通ったら、x64向けのHachibu.exeを組み立ててzipにし、タグwindows-v<バージョン>とリリースを作る。
 # zipとscripts/statusline.sh、scripts/statusline.ps1を添付し、本文の末尾にSHA-256を足す。
-# macOS版の新しい版の確認とREADMEのダウンロードの案内は/releases/latestを見るので、Windows版のリリースは「最新」にしない
+# macOS向けの新しいバージョンの確認とREADMEのダウンロードの案内は/releases/latestを見るので、Windows向けのリリースは「最新」にしない
 name: Release Windows
 
 on:
@@ -64,11 +64,11 @@ jobs:
             --target "$GITHUB_SHA" --title "Hachibu for Windows ${VERSION}" --notes-file "$RUNNER_TEMP/notes.md" --latest=false
         env:
           GH_TOKEN: ${{ github.token }}
-      # windows/README.mdのダウンロードのリンクは版を含み、リリースができてから上げる。まだ前の版を指していれば、上げ忘れないよう知らせる
+      # windows/README.mdのダウンロードのリンクはバージョンを含み、リリースができてから上げる。まだ前のバージョンを指していれば、上げ忘れないよう知らせる
       - name: Remind to update the download links
         run: |
           VERSION="${{ steps.version.outputs.version }}"
-          # 英日のどのリンク（zip、statusline.sh、statusline.ps1）でも、別の版を指すものが1つでも残っていれば知らせる
+          # 英日のどのリンク（zip、statusline.sh、statusline.ps1）でも、別のバージョンを指すものが1つでも残っていれば知らせる
           STALE="$(grep -o 'releases/download/windows-v[^/]*/[^)" ]*' windows/README.md | grep -v -F "releases/download/windows-v${VERSION}/" || true)"
           if [ -n "$STALE" ]; then
             MSG="Released windows-v${VERSION}. $(echo "$STALE" | wc -l | tr -d ' ') download links in windows/README.md still point to another version; update them to windows-v${VERSION}."

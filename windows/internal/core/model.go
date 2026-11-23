@@ -1,5 +1,5 @@
 // Package core は、帯に何をどう出すかの判断を持つ。画面もOSも持たないので、Linuxでもテストできる。
-// macOS版のSources/HachibuCoreを移したもので、判断が変わったときは両方を直す。
+// macOS向けのSources/HachibuCoreを移したもので、判断が変わったときは両方を直す。
 package core
 
 import (

@@ -74,7 +74,7 @@ final class MenuBuilder {
         #endif
     }
 
-    /// 「アップデート」。動いている版、自動確認の切り替え、今すぐ確認
+    /// 「アップデート」。動いているバージョン、自動確認の切り替え、今すぐ確認
     func updatesMenuItem() -> NSMenuItem? {
         #if APP_STORE
         return nil

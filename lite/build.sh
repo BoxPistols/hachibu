@@ -1,9 +1,9 @@
 #!/bin/sh
-# macOS 13 (Intel) 向けに HachibuLite.app をビルドする（Hachibu の軽量版。lite/ の中で完結する）
+# macOS 13 (Intel) 向けに HachibuLite.app をビルドする（Hachibu の軽量なアプリ。lite/ の中で完結する）
 set -e
 cd "$(dirname "$0")"
 app=HachibuLite.app
-# リリースのタグ（lite-v0.3.0 など）と揃える。新しい版の確認はこの値と比べる。TokenBar の 0.2.0 から続ける
+# リリースのタグ（lite-v0.3.0 など）と揃える。新しいバージョンの確認はこの値と比べる。TokenBar の 0.2.0 から続ける
 version=0.3.0
 rm -rf "$app" && mkdir -p "$app/Contents/MacOS"
 swiftc -O -target x86_64-apple-macos13 HachibuLite.swift -o "$app/Contents/MacOS/HachibuLite"

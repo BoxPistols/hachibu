@@ -37,7 +37,7 @@ import Testing
     }
 
     @Test func savedCompactModeFromOlderVersionsIsNotAMode() {
-        // 以前の版で保存された"compact"は読めない。呼び出し側は既定（標準）に戻す
+        // 以前のバージョンで保存された"compact"は読めない。呼び出し側は既定（標準）に戻す
         #expect(StripLayout(rawValue: "compact") == nil)
     }
 }

@@ -11,13 +11,13 @@ Download `Hachibu-windows-x64.zip`, extract it, and open `Hachibu.exe` (Windows 
 
 ---
 
-Hachibu for Windowsの最初のリリースです。macOS版のHachibuと同じように、Claude Codeのモデル、effort、使用率を画面の最前面の小さなバーに出し続けます。
+Hachibu for Windowsの最初のリリースです。macOS向けのHachibuと同じように、Claude Codeのモデル、effort、使用率を画面の最前面の小さなバーに出し続けます。
 
-- バーの表示モード（標準、使用率だけ、端に収納、隠す）、色、不透明度、右クリックメニューはmacOS版と同じです。マウスを乗せると広がり、各枠がいつリセットされるかが分かります
+- バーの表示モード（標準、使用率だけ、端に収納、隠す）、色、不透明度、右クリックメニューはmacOS向けのHachibuと同じです。マウスを乗せると広がり、各枠がいつリセットされるかが分かります
 - メニューバーの項目の代わりに、トレイのアイコンを使います。アイコン、週枠のメーター、週枠の使用率の数字のどれかを描けます
 - Ctrl+Alt+/でバーを呼び出します。ショートカットは自分で登録でき、Windowsが使っている組み合わせは弾きます
 - WindowsのClaude Code（`%USERPROFILE%\.claude`）と、動いているWSLのディストリビューションのClaude Codeを読みます。WSLを起動はしません
 - 使用率はstatusLineか、有効にした場合は使用率APIから取ります。`statusline.sh`はWSLとWindowsのGit Bashでも使えるようにし、Git Bashの無いWindows向けに`statusline.ps1`を足しました
-- サインイン時の起動、英語と日本語、1日に1回の新しい版の確認（タグ`windows-v*`）
+- サインイン時の起動、英語と日本語、1日に1回の新しいバージョンの確認（タグ`windows-v*`）
 
 `Hachibu-windows-x64.zip`を落として展開し、`Hachibu.exe`を開きます（Windows 10または11、64ビット）。まだコード署名をしていないため、初回の起動はWindows SmartScreenに止められます。「詳細情報」を押してから「実行」を押してください。詳しくは[windows/README.md](https://github.com/BoxPistols/hachibu/blob/main/windows/README.md)にあります。

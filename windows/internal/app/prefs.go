@@ -170,7 +170,7 @@ func (p *Prefs) TrayStyle() core.TrayStyle {
 	return core.TrayIcon
 }
 
-// UpdateAutoCheck は新しい版を1日に1回確認するか。既定は確認する
+// UpdateAutoCheck は新しいバージョンを1日に1回確認するか。既定は確認する
 func (p *Prefs) UpdateAutoCheck() bool {
 	v, ok := p.get("updateAutoCheck")
 	if b, isBool := v.(bool); ok && isBool {

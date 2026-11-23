@@ -148,7 +148,7 @@ type Strings struct {
 	// SettingsSaveFailed は設定をファイルに書けなかったとき（引数は理由）
 	SettingsSaveFailed func(string) string
 
-	// 新しい版の確認
+	// 新しいバージョンの確認
 	MenuUpdates             string
 	UpdateCurrentVersion    func(string) string
 	MenuUpdateAutoCheck     string
@@ -472,19 +472,21 @@ var Ja = &Strings{
 	},
 
 	MenuUpdates:          "アップデート",
-	UpdateCurrentVersion: func(s string) string { return "この版：" + s },
-	MenuUpdateAutoCheck:  "新しい版を自動で確認",
+	UpdateCurrentVersion: func(s string) string { return "このバージョン：" + s },
+	MenuUpdateAutoCheck:  "新しいバージョンを自動で確認",
 	MenuUpdateCheckNow:   "今すぐ確認",
 	UpdateAvailable: func(s string) string {
 		return "Hachibu " + s + "が出ています。ダウンロードのページを開く…"
 	},
 	UpdateNotificationTitle: func(s string) string { return "Hachibu " + s + "が出ました" },
 	UpdateNotificationBody:  "クリックするとダウンロードのページを開きます",
-	UpdateUpToDate:          func(s string) string { return "Hachibu " + s + "は最新の版です" },
-	UpdateCheckFailed:       func(s string) string { return "新しい版を確認できませんでした（" + s + "）" },
-	LogUpdateAvailable:      func(s string) string { return "新しい版" + s + "が出ていました" },
-	LogUpdateAutoCheckOn:    "新しい版の自動確認を有効にしました",
-	LogUpdateAutoCheckOff:   "新しい版の自動確認をやめました",
+	UpdateUpToDate:          func(s string) string { return "Hachibu " + s + "は最新のバージョンです" },
+	UpdateCheckFailed: func(s string) string {
+		return "新しいバージョンを確認できませんでした（" + s + "）"
+	},
+	LogUpdateAvailable:    func(s string) string { return "新しいバージョン" + s + "が出ていました" },
+	LogUpdateAutoCheckOn:  "新しいバージョンの自動確認を有効にしました",
+	LogUpdateAutoCheckOff: "新しいバージョンの自動確認をやめました",
 }
 
 // StringsFor は言語の文言の表。

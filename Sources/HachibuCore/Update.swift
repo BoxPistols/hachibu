@@ -2,7 +2,7 @@ import Foundation
 
 /// 新しいバージョンの確認。GitHubのリリースの一覧と、動いているバージョンを比べる
 public enum Update {
-    /// 公開されている最新の版
+    /// 公開されている最新のバージョン
     public struct Release: Equatable {
         /// "0.4.0"（タグの先頭のvは落とす）
         public let version: String
@@ -67,7 +67,7 @@ public enum Update {
         return Release(version: version, url: page)
     }
 
-    /// latestがcurrentより新しいか。どちらかが版の番号として読めなければfalse（開発中のビルドに知らせない）
+    /// latestがcurrentより新しいか。どちらかがバージョン番号として読めなければfalse（開発中のビルドに知らせない）
     public static func isNewer(_ latest: String, than current: String) -> Bool {
         guard let a = components(latest), let b = components(current) else { return false }
         for i in 0..<max(a.count, b.count) {
@@ -78,12 +78,12 @@ public enum Update {
         return false
     }
 
-    /// 知らせるべき新しい版。すでに知らせた版（notified）は、メニューには出すが通知はしない
+    /// 知らせるべき新しいバージョン。すでに知らせたバージョン（notified）は、メニューには出すが通知はしない
     public static func shouldNotify(_ release: Release, current: String, notified: String?) -> Bool {
         isNewer(release.version, than: current) && (notified.map { isNewer(release.version, than: $0) } ?? true)
     }
 
-    /// "v0.4.0" → "0.4.0"。数字とドットだけのものを版の番号とみなす
+    /// "v0.4.0" → "0.4.0"。数字とドットだけのものをバージョン番号とみなす
     static func normalized(_ tag: String) -> String? {
         var s = tag.trimmingCharacters(in: .whitespaces)
         if s.first == "v" || s.first == "V" { s.removeFirst() }

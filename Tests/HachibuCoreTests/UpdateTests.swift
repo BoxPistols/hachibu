@@ -37,7 +37,7 @@ import Testing
         #expect(!Update.isNewer("0.3.2", than: "0.3.2"))
         #expect(!Update.isNewer("0.3.2", than: "0.3.2.0"))
         #expect(!Update.isNewer("0.3.1", than: "0.3.2"))
-        // 開発中のビルド（"dev"）や読めない版には知らせない
+        // 開発中のビルド（"dev"）や読めないバージョンには知らせない
         #expect(!Update.isNewer("0.4.0", than: "dev"))
         #expect(!Update.isNewer("0.4.0-beta", than: "0.3.2"))
         #expect(!Update.isNewer("+1.0", than: "0.3.2"))

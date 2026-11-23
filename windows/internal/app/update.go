@@ -13,12 +13,12 @@ import (
 	"github.com/BoxPistols/hachibu/windows/internal/w32"
 )
 
-// Version はビルドのときに-ldflagsで入れる（windows/build.sh）。入っていなければ開発中のビルドとして、新しい版を知らせない
+// Version はビルドのときに-ldflagsで入れる（windows/build.sh）。入っていなければ開発中のビルドとして、新しいバージョンを知らせない
 var Version = "dev"
 
-// 新しい版の確認。1日に1回、GitHubのリリースの一覧からwindows-vのタグを探す。
-// macOS版と同じリポジトリに置くので、/releases/latest（macOS版の版）ではなく一覧から探す。
-// 送るのはUser-Agent（"HachibuWindows/版"）だけで、ログイン情報や使用率は送らない
+// 新しいバージョンの確認。1日に1回、GitHubのリリースの一覧からwindows-vのタグを探す。
+// macOS向けと同じリポジトリに置くので、/releases/latest（macOS向けのリリース）ではなく一覧から探す。
+// 送るのはUser-Agent（"HachibuWindows/バージョン"）だけで、ログイン情報や使用率は送らない
 const (
 	releasesURL        = "https://api.github.com/repos/BoxPistols/hachibu/releases?per_page=30"
 	releaseTagPrefix   = "windows-v"
@@ -34,7 +34,7 @@ const messageBoxFlags = 0x40 | 0x10000 | 0x40000
 type Updater struct {
 	prefs *Prefs
 	tray  *Tray
-	// Available は見つけた新しい版。メニューの先頭に出す
+	// Available は見つけた新しいバージョン。メニューの先頭に出す
 	Available   *core.Release
 	LastFailure string
 	checking    bool
@@ -53,7 +53,7 @@ func (u *Updater) Start() {
 	Every(updateDuePollEvery, u.checkIfDue)
 }
 
-// AutoCheckChanged は「新しい版を自動で確認」を入れたとき。すぐに一度確認する
+// AutoCheckChanged は「新しいバージョンを自動で確認」を入れたとき。すぐに一度確認する
 func (u *Updater) AutoCheckChanged() {
 	if u.prefs.UpdateAutoCheck() {
 		u.prefs.SetLastUpdateCheck(time.Time{})

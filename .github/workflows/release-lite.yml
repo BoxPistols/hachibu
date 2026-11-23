@@ -1,8 +1,8 @@
 # Hachibu Liteのリリース。mainで手動で起動する（Actions > Release Lite > Run workflow）。
 #
-# lite/build.shのversionを版とし、docs/releases/lite-v<版>.mdをリリースの本文にする。
-# Intel向けのアプリを組み立ててzipにし、タグlite-v<版>とリリースを作る。zipとscripts/statusline.shを添付し、本文の末尾にSHA-256を足す。
-# Hachibuの新しい版の確認とREADMEのダウンロードの案内は/releases/latestを見るので、Liteのリリースは「最新」にしない
+# lite/build.shのversionをバージョンとし、docs/releases/lite-v<バージョン>.mdをリリースの本文にする。
+# Intel向けのアプリを組み立ててzipにし、タグlite-v<バージョン>とリリースを作る。zipとscripts/statusline.shを添付し、本文の末尾にSHA-256を足す。
+# Hachibuの新しいバージョンの確認とREADMEのダウンロードの案内は/releases/latestを見るので、Liteのリリースは「最新」にしない
 name: Release Lite
 
 on:

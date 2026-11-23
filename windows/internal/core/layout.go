@@ -96,7 +96,7 @@ func GaugeFrom(limits []UsageLimit) (GaugeReading, bool) {
 	return GaugeReading{Label: strconv.Itoa(limit.Percent), Percent: limit.Percent}, true
 }
 
-// TrayStyle はトレイのアイコンに何を描くか。トレイには文字を並べられないので、macOS版のメニューバーの「使用率」「状態の全文」の代わりに数字を描く。
+// TrayStyle はトレイのアイコンに何を描くか。トレイには文字を並べられないので、macOS向けのメニューバーの「使用率」「状態の全文」の代わりに数字を描く。
 type TrayStyle string
 
 const (

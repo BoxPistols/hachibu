@@ -15,7 +15,7 @@ func releases(t *testing.T, text string) []any {
 }
 
 func TestFindsTheNewestWindowsRelease(t *testing.T) {
-	// 一覧は新しい順。macOS版（v）とLite（lite-v）のリリースも混ざる
+	// 一覧は新しい順。macOS向け（v）とLite（lite-v）のリリースも混ざる
 	list := releases(t, `[
 	  {"tag_name": "v0.6.0", "html_url": "https://github.com/BoxPistols/hachibu/releases/tag/v0.6.0", "draft": false, "prerelease": false},
 	  {"tag_name": "windows-v0.3.0", "html_url": "https://github.com/BoxPistols/hachibu/releases/tag/w030", "draft": true, "prerelease": false},
@@ -58,7 +58,7 @@ func TestComparesVersionsNumerically(t *testing.T) {
 			t.Errorf("%v", c)
 		}
 	}
-	// 開発中のビルド（"dev"）や読めない版には知らせない
+	// 開発中のビルド（"dev"）や読めないバージョンには知らせない
 	notNewer := [][2]string{{"0.3.2", "0.3.2"}, {"0.3.2", "0.3.2.0"}, {"0.3.1", "0.3.2"}, {"0.4.0", "dev"}, {"0.4.0-beta", "0.3.2"}, {"+1.0", "0.3.2"}}
 	for _, c := range notNewer {
 		if IsNewer(c[0], c[1]) {
