@@ -23,7 +23,7 @@ final class MenuBuilder {
     #if !APP_STORE
     /// 使用率APIを使うかを尋ねる窓（AppDelegateが渡す）
     var consent: UsageAPIConsent?
-    /// 新しい版の確認（撮影用の起動では作らない）
+    /// 新しいバージョンの確認と更新（撮影用の起動では作らない）
     var updates: UpdateChecker?
     #endif
 
@@ -57,16 +57,20 @@ final class MenuBuilder {
         return menu
     }
 
-    /// 新しい版が出ていれば、メニューの先頭にダウンロードのページを開く項目を出す
+    /// 新しいバージョンが出ていれば、メニューの先頭に置き換えて開き直す項目を出す。
+    /// その場で置き換えられない場所から動いているときは、ダウンロードのページを開く項目にする
     func updateAvailableItems() -> [NSMenuItem] {
         #if APP_STORE
         return []
         #else
-        guard let release = updates?.available else { return [] }
-        let item = choice(L10n.current.updateAvailable(release.version), selected: false) {
-            NSWorkspace.shared.open(release.url)
+        guard let updates, let release = updates.available else { return [] }
+        let s = L10n.current
+        if updates.preparing {
+            return [info(s.updatePreparing(release.version)), .separator()]
         }
-        return [item, .separator()]
+        let inPlace = UpdateChecker.canInstallInPlace && release.assetURL != nil
+        let title = inPlace ? s.updateInstall(release.version) : s.updateAvailable(release.version)
+        return [choice(title, selected: false) { updates.install() }, .separator()]
         #endif
     }
 
