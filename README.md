@@ -131,9 +131,9 @@ After you update to a new version, macOS may ask again, because the app is not s
 
 ### Updates
 
-Hachibu checks GitHub for a new version once a day. When it finds one, it sends one notification for that version and shows Hachibu x.y.z is available at the top of the menu bar item and the strip's right-click menu. Click either to open the download page.
+Hachibu checks GitHub for a new version once a day. When it finds one, it downloads and checks the new version in the background, sends one notification for that version, and shows Update to Hachibu x.y.z and Restart at the top of the menu bar item and the strip's right-click menu. Click the notification or the menu item to replace `Hachibu.app` and restart. Your settings stay. When Check Now finds a new version, Hachibu asks whether to update and restart.
 
-To update, download the new `Hachibu-macos.zip`, quit Hachibu, and replace `Hachibu.app` in your Applications folder. Your settings stay. You need to allow the first launch in System Settings again, as described above.
+This works from 0.6.0 on. With 0.5.0 or earlier, or when Hachibu runs from a place it cannot replace (a disk image, or a folder you cannot write to), the menu item opens the download page instead. Download the new `Hachibu-macos.zip`, quit Hachibu, and replace `Hachibu.app` in your Applications folder. You need to allow the first launch in System Settings again, as described above.
 
 Updates in the menu shows the version you are running, lets you turn off Check for Updates Automatically, and has Check Now. Release notes for every version are on the [releases page](https://github.com/BoxPistols/hachibu/releases).
 
@@ -189,7 +189,7 @@ The same `statusline.sh` works for Hachibu for Windows. In WSL and in Git Bash o
 ## Data
 
 - Hachibu reads local files: Claude Code's saved conversations (only to find the most recently used model and effort), `~/.claude/settings.json`, and the statusLine file above
-- It connects to the network for two things: the usage API, only if you turn it on (`api.anthropic.com`), and the update check once a day (`api.github.com`, which you can turn off from Updates in the menu). The update check sends only the app's name and version as the User-Agent
+- It connects to the network for two things: the usage API, only if you turn it on (`api.anthropic.com`), and the update check once a day (`api.github.com`, which you can turn off from Updates in the menu). When the check finds a new version, Hachibu also downloads `Hachibu-macos.zip` from the release on GitHub (`github.com`, which redirects to GitHub's download server). These requests send only the app's name and version as the User-Agent
 - It reads the Claude Code login from the keychain only for that request, and does not save or log it
 - Settings changes and failed usage requests are logged to `~/Library/Logs/Hachibu/actions.log`
 
@@ -354,9 +354,9 @@ Appleが確認していないアプリを開くかどうかは、使う人の判
 
 #### アップデート
 
-Hachibuは1日に1回、GitHubで新しい版を確認します。見つけたら、その版につき1回だけ通知し、メニューバーの項目とバーの右クリックメニューの先頭に「Hachibu x.y.zが出ています」と出します。どちらを押してもダウンロードのページが開きます。
+Hachibuは1日に1回、GitHubで新しいバージョンを確認します。見つけたら、裏で新しいバージョンを取得して確かめ、そのバージョンにつき1回だけ通知し、メニューバーの項目とバーの右クリックメニューの先頭に「Hachibu x.y.zに更新して再起動」と出します。通知かこの項目を押すと、`Hachibu.app`を置き換えて開き直します。設定はそのまま残ります。「今すぐ確認」で見つけたときは、更新して再起動するかを尋ねます。
 
-更新するには、新しい`Hachibu-macos.zip`をダウンロードし、Hachibuを終了してから、アプリケーションフォルダの`Hachibu.app`と入れ替えます。設定はそのまま残ります。初回の起動の許可は、上の手順でもう一度必要です。
+この仕組みは0.6.0からです。0.5.0以前を使っているときや、置き換えられない場所（ディスクイメージの中や、書き込めないフォルダ）から動いているときは、項目を押すとダウンロードのページが開きます。新しい`Hachibu-macos.zip`をダウンロードし、Hachibuを終了してから、アプリケーションフォルダの`Hachibu.app`と入れ替えてください。初回の起動の許可は、上の手順でもう一度必要です。
 
 メニューの「アップデート」には、動いている版、「新しい版を自動で確認」の切り替え、「今すぐ確認」があります。各版の変更点は[リリースのページ](https://github.com/BoxPistols/hachibu/releases)にあります。
 
@@ -398,7 +398,7 @@ chmod +x ~/.claude/hachibu-statusline.sh
 ### データの扱い
 
 - 読むのはローカルのファイルです。Claude Codeが保存した会話（最後に使われたモデルとeffortを知るためだけ）、`~/.claude/settings.json`、上のstatusLineのファイル
-- ネットワークに接続するのは2つだけです。使用率APIを有効にした場合の`api.anthropic.com`と、1日に1回の新しい版の確認の`api.github.com`です（確認はメニューの「アップデート」で止められます）。新しい版の確認で送るのは、User-Agentのアプリ名と版だけです
+- ネットワークに接続するのは2つだけです。使用率APIを有効にした場合の`api.anthropic.com`と、1日に1回の新しいバージョンの確認の`api.github.com`です（確認はメニューの「アップデート」で止められます）。新しいバージョンが見つかったときは、GitHubのリリースから`Hachibu-macos.zip`も取得します（`github.com`から、GitHubのダウンロード用のサーバーに転送されます）。これらの通信で送るのは、User-Agentのアプリ名とバージョンだけです
 - キーチェーンのログイン情報は、その問い合わせのときだけ読み、保存も記録もしません
 - 設定の変更と、使用率の取得に失敗したことは`~/Library/Logs/Hachibu/actions.log`に残ります
 

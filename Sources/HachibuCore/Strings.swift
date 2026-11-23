@@ -134,6 +134,21 @@ public struct Strings {
     public let logUpdateAvailable: (String) -> String
     public let logUpdateAutoCheckOn: String
     public let logUpdateAutoCheckOff: String
+    // その場での更新（取得と検査を裏で済ませ、押したら置き換えて開き直す）
+    public let updateInstall: (String) -> String
+    public let updatePreparing: (String) -> String
+    public let updateReadyTitle: (String) -> String
+    public let updateReadyBody: String
+    public let updateAskBody: (String) -> String
+    public let updateRestartButton: String
+    public let updateLaterButton: String
+    public let updateInstallFailed: (String) -> String
+    public let updateInstallFailedBody: String
+    public let updateOpenPageButton: String
+    public let updateCloseButton: String
+    public let logUpdateReady: (String) -> String
+    public let logUpdateInstalling: (String) -> String
+    public let logUpdateQuarantined: String
 
     public static let en = Strings(
         language: .en,
@@ -258,7 +273,21 @@ public struct Strings {
         updateCheckFailed: { "Could not check for updates (\($0))" },
         logUpdateAvailable: { "Found a new version, \($0)" },
         logUpdateAutoCheckOn: "Turned on checking for updates automatically",
-        logUpdateAutoCheckOff: "Turned off checking for updates automatically"
+        logUpdateAutoCheckOff: "Turned off checking for updates automatically",
+        updateInstall: { "Update to Hachibu \($0) and Restart" },
+        updatePreparing: { "Downloading Hachibu \($0)…" },
+        updateReadyTitle: { "Hachibu \($0) is ready" },
+        updateReadyBody: "Click to restart Hachibu with the new version.",
+        updateAskBody: { "You are running \($0). Hachibu restarts with the new version, and your settings stay." },
+        updateRestartButton: "Update and Restart",
+        updateLaterButton: "Later",
+        updateInstallFailed: { "Could not update Hachibu (\($0))" },
+        updateInstallFailedBody: "You can download it from the releases page and replace Hachibu.app yourself.",
+        updateOpenPageButton: "Open the Download Page",
+        updateCloseButton: "Close",
+        logUpdateReady: { "Downloaded and checked \($0)" },
+        logUpdateInstalling: { "Updating to \($0) and restarting" },
+        logUpdateQuarantined: "The downloaded update has the quarantine attribute"
     )
 
     public static let ja = Strings(
@@ -386,7 +415,21 @@ public struct Strings {
         updateCheckFailed: { "新しい版を確認できませんでした（\($0)）" },
         logUpdateAvailable: { "新しい版\($0)が出ていました" },
         logUpdateAutoCheckOn: "新しい版の自動確認を有効にしました",
-        logUpdateAutoCheckOff: "新しい版の自動確認をやめました"
+        logUpdateAutoCheckOff: "新しい版の自動確認をやめました",
+        updateInstall: { "Hachibu \($0)に更新して再起動" },
+        updatePreparing: { "Hachibu \($0)を取得しています…" },
+        updateReadyTitle: { "Hachibu \($0)の準備ができました" },
+        updateReadyBody: "クリックすると、新しいバージョンで開き直します",
+        updateAskBody: { "いまは\($0)です。新しいバージョンで開き直します。設定はそのまま残ります。" },
+        updateRestartButton: "更新して再起動",
+        updateLaterButton: "あとで",
+        updateInstallFailed: { "Hachibuを更新できませんでした（\($0)）" },
+        updateInstallFailedBody: "リリースのページからダウンロードして、Hachibu.appを入れ替えることもできます。",
+        updateOpenPageButton: "ダウンロードのページを開く",
+        updateCloseButton: "閉じる",
+        logUpdateReady: { "\($0)を取得して確かめました" },
+        logUpdateInstalling: { "\($0)に更新して開き直します" },
+        logUpdateQuarantined: "取得したアプリに隔離属性が付いていました"
     )
 
     public static func `for`(_ language: Language) -> Strings {
