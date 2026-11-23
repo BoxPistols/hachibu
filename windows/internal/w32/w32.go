@@ -1,6 +1,6 @@
 //go:build windows
 
-// Package w32 は、HachibuのWindows版が使うWin32の関数と構造体だけを宣言する。
+// Package w32 は、Hachibu for Windowsが使うWin32の関数と構造体だけを宣言する。
 // cgoを使わず、DLLの関数を名前で引いて呼ぶ。
 package w32
 
@@ -354,7 +354,7 @@ var (
 	dwmapi   = windows.NewLazySystemDLL("dwmapi.dll")
 	uxtheme  = windows.NewLazySystemDLL("uxtheme.dll")
 	kernel32 = windows.NewLazySystemDLL("kernel32.dll")
-	// comctl32はマニフェストで6.0を指定しているので、名前で読ませてWinSxSの版を受け取る
+	// comctl32はマニフェストで6.0を指定しているので、名前で読ませてWinSxSのバージョンを受け取る
 	comctl32 = windows.NewLazyDLL("comctl32.dll")
 
 	pRegisterClassExW              = user32.NewProc("RegisterClassExW")

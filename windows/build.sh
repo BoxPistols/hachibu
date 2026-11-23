@@ -1,10 +1,10 @@
 #!/bin/bash
-# Windows版をビルドする。GoがWindows向けに作るので、Linux、macOS、WindowsのGit Bashのどれでも動く（Go 1.26以降が要る）。
+# Hachibu for Windowsをビルドする。GoがWindows向けに作るので、Linux、macOS、WindowsのGit Bashのどれでも動く（Go 1.26以降が要る）。
 #
 #   windows/build.sh        build/Hachibu.exe を作る
 #   windows/build.sh --zip  配布用の build/Hachibu-windows-x64.zip とSHA-256も作る
 #
-# GOARCH=arm64 を付けるとArm版（Hachibu-windows-arm64.zip）を作る。
+# GOARCH=arm64 を付けるとArm向け（Hachibu-windows-arm64.zip）を作る。
 # アイコンとマニフェスト（画面ごとの拡大率への対応、タスクダイアログに要るcomctl32 6.0）は、go-winresで.sysoにして埋め込む
 set -euo pipefail
 
@@ -17,7 +17,7 @@ for arg in "$@"; do
 done
 
 cd "$(dirname "$0")"
-# リリースのタグ（windows-v0.1.0）と揃える。新しい版の確認はこの値と比べる
+# リリースのタグ（windows-v0.1.0）と揃える。新しいバージョンの確認はこの値と比べる
 VERSION="0.1.0"
 ARCH="${GOARCH:-amd64}"
 case "$ARCH" in
@@ -47,7 +47,7 @@ GOOS=windows GOARCH="$ARCH" CGO_ENABLED=0 go build -trimpath \
 echo "built: windows/build/Hachibu.exe ($VERSION, $ARCH)"
 
 if [ "$ZIP" = 1 ]; then
-  # 添付する名前は版の番号を含めない（READMEのリンクが常に最新を指すように）
+  # 添付する名前はバージョン番号を含めない（READMEのリンクが常に最新を指すように）
   ZIPFILE="build/Hachibu-windows-${LABEL}.zip"
   rm -f "$ZIPFILE"
   (cd build && zip -q -X "Hachibu-windows-${LABEL}.zip" Hachibu.exe)

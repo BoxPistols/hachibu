@@ -1,6 +1,6 @@
 //go:build windows
 
-// Package app はHachibuのWindows版の本体。帯（画面の最前面の小さなバー）、トレイのアイコン、メニュー、
+// Package app はHachibu for Windowsの本体。帯（画面の最前面の小さなバー）、トレイのアイコン、メニュー、
 // ショートカット、データの読み取りをつなぐ。表示の判断はinternal/coreにあり、ここは窓とOSとのやりとりを受け持つ
 package app
 

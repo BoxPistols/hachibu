@@ -13,7 +13,7 @@ export const FIRST_LAUNCH_URL: Record<Lang, string> = {
 // Liteのリリースは「最新」にしないので、一覧をlite-vのタグで絞って見せる
 export const LITE_RELEASES_URL = `${ALL_RELEASES_URL}?q=lite-v&expanded=true`;
 export const LITE_README_URL = `${REPO_URL}/tree/main/lite`;
-// Windows版のリリースも「最新」にしないので、一覧をwindows-vのタグで絞って見せる
+// Windows向けのリリースも「最新」にしないので、一覧をwindows-vのタグで絞って見せる
 export const WINDOWS_RELEASES_URL = `${ALL_RELEASES_URL}?q=windows-v&expanded=true`;
 export const WINDOWS_README_URL = `${REPO_URL}/tree/main/windows`;
 export const TERMS_URL = "https://code.claude.com/docs/en/legal-and-compliance";
@@ -70,7 +70,7 @@ export const NEWS: NewsItem[] = [
       ],
       ja: [
         "Claude Codeと同じく、macOS 13 Venturaで動くようにしました。2017年のMacBookなど、macOS 13までのMacでも使えます",
-        "Intel Mac向けの軽量版、Hachibu Liteを同じリポジトリに置きました",
+        "Intel Mac向けの軽量なアプリ、Hachibu Liteを同じリポジトリに置きました",
       ],
     },
   },
@@ -84,7 +84,7 @@ export const NEWS: NewsItem[] = [
       ],
       ja: [
         "effortが/effortに追従します。セッション中に変えた値を会話記録から読むので、settings.jsonのeffortLevelが出たままになりません",
-        "更新のお知らせ。1日に1回新しい版を確認し、通知とメニューの項目で知らせます。メニューの「アップデート」で止められます",
+        "更新のお知らせ。1日に1回新しいバージョンを確認し、通知とメニューの項目で知らせます。メニューの「アップデート」で止められます",
       ],
     },
   },
@@ -116,7 +116,7 @@ export interface Content {
     nameNote: string;
     download: string;
     requirements: string;
-    /** Windows版の節への案内 */
+    /** Windows向けの節への案内 */
     windows: string;
     source: string;
     gaugeCaption: string;
@@ -142,7 +142,7 @@ export interface Content {
   };
   news: { badge: string; heading: string; lead: string; legacy: string; allReleases: string };
   install: { heading: string; lead: string; steps: Step[]; guideLink: string; checksum: string };
-  /** Windows版の紹介。rowsは[項目, macOS版, Windows版] */
+  /** Windows向けの紹介。rowsは[項目, macOS向け, Windows向け] */
   windows: {
     heading: string;
     lead: string;
@@ -152,7 +152,7 @@ export interface Content {
     releaseLink: string;
     readmeLink: string;
   };
-  /** 軽量版の紹介。rowsは[項目, Hachibu, Hachibu Lite] */
+  /** Hachibu Liteの紹介。rowsは[項目, Hachibu, Hachibu Lite] */
   lite: {
     heading: string;
     lead: string;
@@ -297,7 +297,7 @@ export const CONTENT: Record<Lang, Content> = {
       title: "人生の多くの時間を、トークンの残量確認に使っています。",
       lead: "なので画面に出しっぱなしにしました。Hachibuは、Macの画面の最前面に小さなバーを常駐させ、モデル、effort、使用率を出すアプリです。ひと目で済むので、すぐ手元の作業に戻れます。",
       nameNote: "名前は「腹八分」から取りました。",
-      download: "macOS版をダウンロード",
+      download: "macOS向けのHachibuをダウンロード",
       requirements: "macOS 13以降 · Apple SiliconとIntel · 無料、オープンソース（MIT）",
       windows: "Windowsでは、Hachibu for Windows",
       source: "ソースを見る",
@@ -374,7 +374,7 @@ export const CONTENT: Record<Lang, Content> = {
     },
     windows: {
       heading: "Hachibu for Windows",
-      lead: "Windows 10と11で使える同じバーです。表示モード、色、メニューはmacOS版と同じで、Hachibu.exeひとつで動きます。ほかに入れるものはありません。WindowsのClaude Codeと、WSLの中のClaude Codeのどちらでも使え、同じstatusline.shが、Windows版の読む場所へ書きます。",
+      lead: "Windows 10と11で使える同じバーです。表示モード、色、メニューはmacOS向けのHachibuと同じで、Hachibu.exeひとつで動きます。ほかに入れるものはありません。WindowsのClaude Codeと、WSLの中のClaude Codeのどちらでも使え、同じstatusline.shが、Hachibu for Windowsが読む場所へ書きます。",
       columns: ["", "macOS", "Windows"],
       rows: [
         ["対応", "macOS 13以降、Apple SiliconとIntel", "Windows 10または11、64ビット"],
@@ -383,17 +383,17 @@ export const CONTENT: Record<Lang, Content> = {
         ["既定のショートカット", "⌥⌘/", "Ctrl+Alt+/"],
       ],
       note: "まだコード署名をしていないため、初回の起動はWindows SmartScreenに止められます。「詳細情報」を押してから「実行」を押してください。",
-      releaseLink: "Windows版をダウンロード",
+      releaseLink: "Hachibu for Windowsをダウンロード",
       readmeLink: "インストールとstatusLineの設定の手順",
     },
     lite: {
       heading: "Hachibu Lite",
-      lead: "同じリポジトリにある軽量版です。SwiftのファイルひとつとAppKitだけで書いていて、macOS 13のIntel Mac向けに作りました。同じstatusline.shを読むので、設定を変えずに行き来できます。メニューは日本語だけです。0.2.0まではTokenBarという名前でした。",
+      lead: "同じリポジトリにある軽量なアプリです。SwiftのファイルひとつとAppKitだけで書いていて、macOS 13のIntel Mac向けに作りました。同じstatusline.shを読むので、設定を変えずに行き来できます。メニューは日本語だけです。0.2.0まではTokenBarという名前でした。",
       columns: ["", "Hachibu", "Hachibu Lite"],
       rows: [
         ["対応", "macOS 13以降、Apple SiliconとIntel", "macOS 13以降、Intelのみ"],
         ["出せる値", "5時間枠と週枠。使用率APIを有効にすると、モデル別の週枠も", "5時間枠と週枠"],
-        ["通信", "新しい版の確認。使用率APIは有効にしたときだけ", "新しい版の確認だけ"],
+        ["通信", "新しいバージョンの確認。使用率APIは有効にしたときだけ", "新しいバージョンの確認だけ"],
         ["メモリ（2017年のMacBook）", "約20 MB", "約5.5 MB"],
       ],
       note: "同時に使うのは一方だけにしてください。どちらも⌥⌘/を使い、先に起動した方にしか効きません。",

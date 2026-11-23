@@ -9,7 +9,7 @@ import (
 	"github.com/BoxPistols/hachibu/windows/internal/w32"
 )
 
-// トレイのアイコンと帯の右クリックで開くメニューの中身。並びはmacOS版のMenuBuilderとStatusItemControllerに合わせる
+// トレイのアイコンと帯の右クリックで開くメニューの中身。並びはmacOS向けのMenuBuilderとStatusItemControllerに合わせる
 
 // showMenu はメニューを開き、選ばれた項目を動かす。閉じるまで戻らない。
 // トレイのメニューは、アプリが前面に無いと外を押しても閉じないので、開く間だけ主な窓を前面にし、閉じたら元の窓へ戻す
@@ -121,7 +121,7 @@ func (a *App) buildTrayMenu(m *menu) {
 	m.item(L.MenuQuit, false, a.quit)
 }
 
-// updateAvailableItems は、新しい版が出ていれば、メニューの先頭にダウンロードのページを開く項目を出す
+// updateAvailableItems は、新しいバージョンが出ていれば、メニューの先頭にダウンロードのページを開く項目を出す
 func (a *App) updateAvailableItems(m *menu) {
 	if a.updates == nil || a.updates.Available == nil {
 		return
@@ -321,7 +321,7 @@ func (a *App) loginItems(m *menu) {
 	}
 }
 
-// updatesMenu は「アップデート」。動いている版、自動確認の切り替え、今すぐ確認
+// updatesMenu は「アップデート」。動いているバージョン、自動確認の切り替え、今すぐ確認
 func (a *App) updatesMenu(m *menu) {
 	if a.updates == nil {
 		return

@@ -5,16 +5,16 @@ import (
 	"strings"
 )
 
-// Release は公開されている最新の版。
+// Release は公開されている最新のバージョン。
 type Release struct {
 	// Version は "0.1.0"（タグの接頭辞は落とす）
 	Version string
 	URL     string
 }
 
-// LatestRelease はGitHubのリリースの一覧（新しい順）から、tagPrefixで始まる最新の版を探す。
-// Windows版はmacOS版と同じリポジトリに置き、タグをwindows-vで分ける（/releases/latestはmacOS版を指す）。
-// 下書きとプレリリース、版の番号として読めないタグ、GitHubのhttpsのページでないものは飛ばす。
+// LatestRelease はGitHubのリリースの一覧（新しい順）から、tagPrefixで始まる最新のバージョンを探す。
+// Windows向けはmacOS向けと同じリポジトリに置き、タグをwindows-vで分ける（/releases/latestはmacOS向けを指す）。
+// 下書きとプレリリース、バージョン番号として読めないタグ、GitHubのhttpsのページでないものは飛ばす。
 // ページはそのままShellExecuteで開くので、応答が偽物でもプログラムやファイルを開かないようにする。
 // 見つからなければfalse（まだ出ていないのは失敗ではない）
 func LatestRelease(list []any, tagPrefix string) (Release, bool) {
@@ -37,7 +37,7 @@ func LatestRelease(list []any, tagPrefix string) (Release, bool) {
 	return Release{}, false
 }
 
-// IsNewer はlatestがcurrentより新しいか。どちらかが版の番号として読めなければfalse（開発中のビルドに知らせない）。
+// IsNewer はlatestがcurrentより新しいか。どちらかがバージョン番号として読めなければfalse（開発中のビルドに知らせない）。
 func IsNewer(latest, current string) bool {
 	a, okA := versionComponents(latest)
 	b, okB := versionComponents(current)
@@ -59,12 +59,12 @@ func IsNewer(latest, current string) bool {
 	return false
 }
 
-// ShouldNotify は知らせるべき新しい版か。すでに知らせた版（notified）は、メニューには出すが通知はしない。
+// ShouldNotify は知らせるべき新しいバージョンか。すでに知らせたバージョン（notified）は、メニューには出すが通知はしない。
 func ShouldNotify(r Release, current, notified string) bool {
 	return IsNewer(r.Version, current) && (notified == "" || IsNewer(r.Version, notified))
 }
 
-// normalizedVersion: "v0.4.0" → "0.4.0"。数字とドットだけのものを版の番号とみなす
+// normalizedVersion: "v0.4.0" → "0.4.0"。数字とドットだけのものをバージョン番号とみなす
 func normalizedVersion(tag string) (string, bool) {
 	s := trimSpace(tag)
 	if strings.HasPrefix(s, "v") || strings.HasPrefix(s, "V") {

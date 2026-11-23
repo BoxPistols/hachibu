@@ -2,7 +2,7 @@ import AppKit
 import Carbon.HIToolbox
 
 // Hachibu Lite。statusline.sh が保存した JSON を読み、メニューバーと画面上の帯に 5時間枠/週枠 の使用率を表示する
-// Hachibu の軽量版（Swift 1 ファイル、AppKit のみ）。使用率は公式の statusLine からのみ受け取る（キーチェーン・非公開 API は使わない）
+// Hachibu の軽量なアプリ（Swift 1 ファイル、AppKit のみ）。使用率は公式の statusLine からのみ受け取る（キーチェーン・非公開 API は使わない）
 // 旧名は TokenBar（github.com/BoxPistols/tokenbar）。初回起動時に TokenBar の設定を引き継ぐ
 
 enum Level: Int { case normal, warning, critical }
@@ -252,11 +252,11 @@ enum LoginItem {
     }
 }
 
-// MARK: - 新しい版の確認（1 日 1 回 GitHub のリリースを見る。送るのは User-Agent だけ）
+// MARK: - 新しいバージョンの確認（1 日 1 回 GitHub のリリースを見る。送るのは User-Agent だけ）
 
 enum Updates {
     static let current = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "0"
-    // Hachibu と同じリポジトリに置くので、/releases/latest（Hachibu の版）ではなく一覧から lite-v のタグを探す
+    // Hachibu と同じリポジトリに置くので、/releases/latest（Hachibu のリリース）ではなく一覧から lite-v のタグを探す
     static let url = URL(string: "https://api.github.com/repos/BoxPistols/hachibu/releases?per_page=30")!
     static let tagPrefix = "lite-v"
     static var available: (version: String, page: URL)?
@@ -276,7 +276,7 @@ enum Updates {
         /// メニューに出す説明
         var detail: String {
             switch self {
-            case .ok: return Updates.available.map { "\($0.version) が出ています" } ?? "最新版です"
+            case .ok: return Updates.available.map { "\($0.version) が出ています" } ?? "最新です"
             case .offline: return "ネットワークにつながらず確認できませんでした"
             case .rateLimited: return "GitHub の回数制限で確認できませんでした（1 時間ほどで戻ります）"
             case .http(let code): return "GitHub が HTTP \(code) を返しました"
@@ -311,14 +311,14 @@ enum Updates {
         }.resume()
     }
 
-    /// 結果と、見つけた新しい版（無ければ nil）を返す
+    /// 結果と、見つけた新しいバージョン（無ければ nil）を返す
     private static func parse(data: Data?, status: Int?, failed: Bool) -> (Result, (version: String, page: URL)?) {
         guard !failed, let status else { return (.offline, nil) }
         // GitHub は回数制限を 403 か 429 で返す
         if status == 403 || status == 429 { return (.rateLimited, nil) }
         guard status == 200 else { return (.http(status), nil) }
         guard let list = data.flatMap({ try? JSONSerialization.jsonObject(with: $0) as? [[String: Any]] }) else { return (.badResponse, nil) }
-        // 一覧は新しい順。下書きと試験版は除く
+        // 一覧は新しい順。下書きとプレリリースは除く
         let release = list.first {
             ($0["tag_name"] as? String)?.hasPrefix(tagPrefix) == true && $0["draft"] as? Bool != true && $0["prerelease"] as? Bool != true
         }
@@ -451,7 +451,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         addChoice(menu, "赤にする使用率", Prefs.criticalChoices.map { ("\($0)% 以上（残り \(100 - $0)%）", $0 == Prefs.critical, String($0)) }, #selector(pickCritical), enabled: { Int($0)! > Prefs.warning })
         menu.addItem(.separator())
         if let r = Updates.lastResult, let at = Updates.lastChecked {
-            menu.addItem(withTitle: "新しい版の確認（\(DateFormatter.localizedString(from: at, dateStyle: .none, timeStyle: .short))）: \(r.detail)", action: nil, keyEquivalent: "")
+            menu.addItem(withTitle: "新しいバージョンの確認（\(DateFormatter.localizedString(from: at, dateStyle: .none, timeStyle: .short))）: \(r.detail)", action: nil, keyEquivalent: "")
         }
         let login = menu.addItem(withTitle: "ログイン時に起動", action: #selector(toggleLogin), keyEquivalent: "")
         login.target = self; login.state = LoginItem.isEnabled ? .on : .off
@@ -485,7 +485,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     @objc func pickCritical(_ s: NSMenuItem) { Prefs.critical = Int(s.representedObject as! String)!; refresh() }
     @objc func toggleLogin() { LoginItem.set(!LoginItem.isEnabled); refresh() }
     @objc func resetPosition() { Prefs.stripOrigin = nil; refresh() }
-    // 使用率を読み直し、新しい版も確認する。メニューは押すと閉じるので、結果はメニューバーと帯に短く出す。
+    // 使用率を読み直し、新しいバージョンも確認する。メニューは押すと閉じるので、結果はメニューバーと帯に短く出す。
     // 使用率はその場で読み直すので、確認を待つ間も表示は消さない。手で押したときは 10 秒で打ち切り、1 分以内なら前回の結果を使う
     @objc func refreshNow() {
         refresh()

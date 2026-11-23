@@ -71,7 +71,7 @@ func CompactDisplayName(name string) string {
 		suffix = " " + strings.ToUpper(size.String())
 		s = s[:loc[0]] + s[loc[1]:]
 	}
-	// 名前と版番号の間の空白を詰める（"Opus 5" → "Opus5"）
+	// 名前とバージョン番号の間の空白を詰める（"Opus 5" → "Opus5"）
 	s = nameVersion.ReplaceAllString(s, "$1$2")
 	return s + suffix
 }

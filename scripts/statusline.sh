@@ -8,7 +8,7 @@
 #
 # 書く場所:
 #   macOS                          ~/Library/Application Support/Hachibu（HachibuとHachibu Liteが読む）
-#   WSL、WindowsのGit Bash          Windowsの%LOCALAPPDATA%\Hachibu（Windows版のHachibuが読む）
+#   WSL、WindowsのGit Bash          Windowsの%LOCALAPPDATA%\Hachibu（Windows向けのHachibuが読む）
 #   HACHIBU_DIRを設定したとき       その場所
 set -u
 
@@ -47,7 +47,7 @@ wsl_windows_dir() {
     command -v "$cmd" >/dev/null 2>&1 || cmd=/mnt/c/Windows/System32/cmd.exe
     # Linuxのフォルダから起動すると警告が出るので、Windowsのドライブへ移ってから呼ぶ。
     # 標準入力は渡さない（渡すと、Claude Codeが送ったJSONをcmd.exeが先に読んでしまう）。
-    # /uでUTF-16にして受け取る。既定の出力は日本語版WindowsではShift_JISで、ユーザー名に日本語があると道筋が化ける
+    # /uでUTF-16にして受け取る。既定の出力は日本語のWindowsではShift_JISで、ユーザー名に日本語があると道筋が化ける
     local win
     win="$(cd /mnt/c 2>/dev/null; "$cmd" /d /u /c "echo %LOCALAPPDATA%" </dev/null 2>/dev/null | iconv -f UTF-16LE -t UTF-8 2>/dev/null | tr -d '\r\n')"
     if [ -n "$win" ] && [ "$win" != "%LOCALAPPDATA%" ]; then

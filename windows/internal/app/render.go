@@ -10,7 +10,7 @@ import (
 	"github.com/BoxPistols/hachibu/windows/internal/w32"
 )
 
-// 寸法はmacOS版のMetricsと同じ値（96dpiでの画素）。描くときに画面の拡大率を掛ける
+// 寸法はmacOS向けのMetricsと同じ値（96dpiでの画素）。描くときに画面の拡大率を掛ける
 const (
 	chipHeight  = 22.0
 	inset       = 3.0
@@ -86,7 +86,7 @@ func stripFont(scale float32) *w32.Font {
 		if fonts.strip != nil {
 			fonts.strip.Free()
 		}
-		// macOS版のSF 13ptの中太に近い太さ。数字はSegoe UIでも等幅
+		// macOS向けのSF 13ptの中太に近い太さ。数字はSegoe UIでも等幅
 		fonts.strip = w32.NewFont("Segoe UI Semibold", fontSize*scale, 400)
 		fonts.scale = scale
 	}
@@ -175,7 +175,7 @@ func paintStrip(v stripView, scale float32) (*w32.Canvas, stripGeometry) {
 	c := w32.NewCanvas(g.w, g.h)
 	W, H := float32(g.w), float32(g.h)
 
-	// ガラスの面の代わり。Windowsでは背景をぼかせないので、macOS版より不透明にして文字を読みやすくする
+	// ガラスの面の代わり。Windowsでは背景をぼかせないので、macOS向けより不透明にして文字を読みやすくする
 	face := w32.NewPath().RoundRect(0, 0, W, H, cornerRad*scale)
 	bg := w32.VerticalGradient(w32.RectF{X: 0, Y: 0, W: W, H: H}, w32.Color(43, 43, 45, 0.94), w32.Color(18, 18, 20, 0.96))
 	c.Fill(face, bg)

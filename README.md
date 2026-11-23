@@ -233,7 +233,7 @@ MIT
 
 名前は「腹八分」から取りました。
 
-> **0.3.2以前をお使いの方へ**: これらの版には新しい版を知らせる仕組みがありません。一度だけ0.4.0をダウンロードし、アプリケーションフォルダの`Hachibu.app`と入れ替えてください。設定はそのまま残ります。0.4.0からは、新しい版が出るとアプリが知らせます。手順は[アップデート](#アップデート)にあります。
+> **0.3.2以前をお使いの方へ**: これらのバージョンには新しいバージョンを知らせる仕組みがありません。一度だけ0.4.0をダウンロードし、アプリケーションフォルダの`Hachibu.app`と入れ替えてください。設定はそのまま残ります。0.4.0からは、新しいバージョンが出るとアプリが知らせます。手順は[アップデート](#アップデート)にあります。
 
 Hachibuは個人が作った非公式のツールで、Anthropic, PBCとは関係がなく、同社の承認や支援も受けていません。
 
@@ -241,7 +241,7 @@ Hachibuは個人が作った非公式のツールで、Anthropic, PBCとは関�
 
 Windowsでは[Hachibu for Windows](windows/README.md#日本語)を使ってください（Windows 10または11）。WindowsのClaude Codeと、WSLの中のClaude Codeのどちらでも使えます。
 
-[サイト](https://cc-hachibu.vercel.app/)。[作った過程の記事](https://zenn.dev/ait/articles/hachibu-claude-code-usage-bar)。[macOS版をダウンロード](https://github.com/BoxPistols/hachibu/releases/latest/download/Hachibu-macos.zip)（macOS 13以降、Apple SiliconとIntelの両方）。まだAppleの公証を受けていないため、初回の起動はmacOSに止められます。「システム設定」＞「プライバシーとセキュリティ」で一度だけ許可してください。手順は[インストール](#インストール)にあります。
+[サイト](https://cc-hachibu.vercel.app/)。[作った過程の記事](https://zenn.dev/ait/articles/hachibu-claude-code-usage-bar)。[macOS向けのHachibuをダウンロード](https://github.com/BoxPistols/hachibu/releases/latest/download/Hachibu-macos.zip)（macOS 13以降、Apple SiliconとIntelの両方）。まだAppleの公証を受けていないため、初回の起動はmacOSに止められます。「システム設定」＞「プライバシーとセキュリティ」で一度だけ許可してください。手順は[インストール](#インストール)にあります。
 
 ### 表示の読み方
 
@@ -289,14 +289,14 @@ Hachibuだけで動きます。ほかの道具は要りません。
 
 ### Hachibu と Hachibu Lite
 
-[Hachibu Lite](lite/README.md)は、同じリポジトリにある軽量版です。Swiftのファイル1つとAppKitだけで書いていて、macOS 13のIntel Mac向けに作りました。どちらも同じ`statusline.sh`を読むので、statusLineの設定を変えずに行き来できます。同時に使うのは一方だけにしてください。どちらも⌥⌘/を使い、先に起動した方にしか効きません。
+[Hachibu Lite](lite/README.md)は、同じリポジトリにある軽量なアプリです。Swiftのファイル1つとAppKitだけで書いていて、macOS 13のIntel Mac向けに作りました。どちらも同じ`statusline.sh`を読むので、statusLineの設定を変えずに行き来できます。同時に使うのは一方だけにしてください。どちらも⌥⌘/を使い、先に起動した方にしか効きません。
 
 | | Hachibu | Hachibu Lite |
 |---|---|---|
 | 向いている人 | たいていの人。設定や見た目を整えたい人 | いちばん軽いアプリがよい人。古いIntel Mac |
 | 対応 | macOS 13以降、Apple SiliconとIntel | macOS 13以降、Intelのみ |
 | 出せる値 | 5時間枠と週枠。使用率APIを有効にすると、モデル別の週枠（F）も出る（リスクは[値の出どころ](#値の出どころ)） | 5時間枠と週枠だけ |
-| 通信 | 新しい版の確認。使用率APIは有効にしたときだけ | 新しい版の確認だけ |
+| 通信 | 新しいバージョンの確認。使用率APIは有効にしたときだけ | 新しいバージョンの確認だけ |
 | メモリ（2017年のMacBookで実測） | 約20 MB | 約5.5 MB |
 | 設定 | ショートカットの記録、帯の表示の切り替え、日英など | メニューだけ。ショートカットは固定、日本語のみ |
 | リリース | タグ`v*` | タグ`lite-v*` |
@@ -325,7 +325,7 @@ v0.2.0まではSlashstripという名前でした。Slashstripを入れていた
 4. ログインパスワードを入力するか、Touch IDを使い、「OK」をクリックします
 5. 自動で開かなかった場合は、もう一度Hachibuを開きます。初回は、使用率APIを使うかを尋ねます（[値の出どころ](#値の出どころ)）
 
-これ以降は、ログイン時の起動も含めて普通に開きます。新しい版をダウンロードしたときは、もう一度この手順が要ります。
+これ以降は、ログイン時の起動も含めて普通に開きます。新しいバージョンをダウンロードしたときは、もう一度この手順が要ります。
 
 ターミナルを使う場合は、macOSがこのコピーに付けた「インターネットからダウンロードした」印を外してから開く方法もあります。
 
@@ -346,11 +346,11 @@ Appleが確認していないアプリを開くかどうかは、使う人の判
 
 #### 求められることがある権限
 
-- 通知。新しい版を初めて見つけたときに、通知を許可するかをmacOSが尋ねます。許可しなくても、新しい版はメニューの先頭に出ます
+- 通知。新しいバージョンを初めて見つけたときに、通知を許可するかをmacOSが尋ねます。許可しなくても、新しいバージョンはメニューの先頭に出ます
 - キーチェーン。使用率APIを有効にすると、「Claude Code-credentials」の項目へのアクセスを許可するかをmacOSが尋ねることがあります
 - ログイン項目。「ログイン時に起動」を有効にすると、ログイン時に開く旨をmacOSが知らせます。「システム設定」＞「一般」＞「ログイン項目」（新しいmacOSでは「ログイン項目と機能拡張」）で管理できます
 
-まだ決まったDeveloper IDで署名していないため、新しい版に更新すると、もう一度尋ねられることがあります。
+まだ決まったDeveloper IDで署名していないため、新しいバージョンに更新すると、もう一度尋ねられることがあります。
 
 #### アップデート
 
@@ -358,7 +358,7 @@ Hachibuは1日に1回、GitHubで新しいバージョンを確認します。�
 
 この仕組みは0.6.0からです。0.5.0以前を使っているときや、置き換えられない場所（ディスクイメージの中や、書き込めないフォルダ）から動いているときは、項目を押すとダウンロードのページが開きます。新しい`Hachibu-macos.zip`をダウンロードし、Hachibuを終了してから、アプリケーションフォルダの`Hachibu.app`と入れ替えてください。初回の起動の許可は、上の手順でもう一度必要です。
 
-メニューの「アップデート」には、動いている版、「新しい版を自動で確認」の切り替え、「今すぐ確認」があります。各版の変更点は[リリースのページ](https://github.com/BoxPistols/hachibu/releases)にあります。
+メニューの「アップデート」には、動いているバージョン、「新しいバージョンを自動で確認」の切り替え、「今すぐ確認」があります。各バージョンの変更点は[リリースのページ](https://github.com/BoxPistols/hachibu/releases)にあります。
 
 #### アンインストール
 
@@ -412,15 +412,15 @@ macOS 13以降と、Xcode Command Line Tools（Xcode本体は不要です）が�
 scripts/build-app.sh            # build/Hachibu.appを作る
 scripts/build-app.sh --install  # ~/Applicationsに置いて起動する
 scripts/build-app.sh --zip      # build/Hachibu-macos.zipとSHA-256も作る
-scripts/build-app.sh --app-store  # App Store版を作る（下記）
+scripts/build-app.sh --app-store  # App Store向けのビルドを作る（下記）
 scripts/test.sh                 # テスト
 ```
 
-App Store版は、使用率APIと新しい版の確認を外したビルドです。通信せず、使用率はstatusLineからだけ読むので、SとWは出ますがFは出ません。GitHubのリリースは通常のビルドです。
+App Store向けのビルドは、使用率APIと新しいバージョンの確認を外したものです。通信せず、使用率はstatusLineからだけ読むので、SとWは出ますがFは出ません。GitHubのリリースは通常のビルドです。
 
 #### リリースの手順
 
-pushのたびに、CIがmacOSでテストとアプリの組み立てを行います。リリースするときは、`scripts/build-app.sh`の`VERSION`を上げ、`docs/releases/v<版>.md`に変更点を書いて`main`に入れ、ActionsタブからReleaseのワークフローを実行します。テスト、両方のCPU向けの`Hachibu-macos.zip`の組み立て、タグとリリースの作成（`statusline.sh`とSHA-256を添える）までを行います。紹介ページに載せるため、`site/lib/content.ts`の`NEWS`にも版を足してください。
+pushのたびに、CIがmacOSでテストとアプリの組み立てを行います。リリースするときは、`scripts/build-app.sh`の`VERSION`を上げ、`docs/releases/v<バージョン>.md`に変更点を書いて`main`に入れ、ActionsタブからReleaseのワークフローを実行します。テスト、両方のCPU向けの`Hachibu-macos.zip`の組み立て、タグとリリースの作成（`statusline.sh`とSHA-256を添える）までを行います。紹介ページに載せるため、`site/lib/content.ts`の`NEWS`にもそのバージョンの項目を足してください。
 
 ### 開発への参加
 

@@ -119,13 +119,13 @@ public struct Strings {
     public let logOpened: String
     public let logLanguageChanged: (String) -> String
 
-    // 新しい版の確認
+    // 新しいバージョンの確認
     public let menuUpdates: String
-    /// 引数は動いている版
+    /// 引数は動いているバージョン
     public let updateCurrentVersion: (String) -> String
     public let menuUpdateAutoCheck: String
     public let menuUpdateCheckNow: String
-    /// メニューの先頭に出す。引数は新しい版
+    /// メニューの先頭に出す。引数は新しいバージョン
     public let updateAvailable: (String) -> String
     public let updateNotificationTitle: (String) -> String
     public let updateNotificationBody: String
@@ -405,17 +405,17 @@ public struct Strings {
         logOpened: "操作ログを開きました",
         logLanguageChanged: { "言語を\($0)にしました" },
         menuUpdates: "アップデート",
-        updateCurrentVersion: { "この版：\($0)" },
-        menuUpdateAutoCheck: "新しい版を自動で確認",
+        updateCurrentVersion: { "このバージョン：\($0)" },
+        menuUpdateAutoCheck: "新しいバージョンを自動で確認",
         menuUpdateCheckNow: "今すぐ確認",
         updateAvailable: { "Hachibu \($0)が出ています。ダウンロードのページを開く…" },
         updateNotificationTitle: { "Hachibu \($0)が出ました" },
         updateNotificationBody: "クリックするとダウンロードのページを開きます",
-        updateUpToDate: { "Hachibu \($0)は最新の版です" },
-        updateCheckFailed: { "新しい版を確認できませんでした（\($0)）" },
-        logUpdateAvailable: { "新しい版\($0)が出ていました" },
-        logUpdateAutoCheckOn: "新しい版の自動確認を有効にしました",
-        logUpdateAutoCheckOff: "新しい版の自動確認をやめました",
+        updateUpToDate: { "Hachibu \($0)は最新のバージョンです" },
+        updateCheckFailed: { "新しいバージョンを確認できませんでした（\($0)）" },
+        logUpdateAvailable: { "新しいバージョン\($0)が出ていました" },
+        logUpdateAutoCheckOn: "新しいバージョンの自動確認を有効にしました",
+        logUpdateAutoCheckOff: "新しいバージョンの自動確認をやめました",
         updateInstall: { "Hachibu \($0)に更新して再起動" },
         updatePreparing: { "Hachibu \($0)を取得しています…" },
         updateReadyTitle: { "Hachibu \($0)の準備ができました" },

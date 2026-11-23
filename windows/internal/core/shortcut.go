@@ -58,7 +58,7 @@ type Shortcut struct {
 	Label string `json:"label"`
 }
 
-// DefaultSummon はCtrl+Alt+/。macOS版の⌥⌘/と同じ「/」のキーにする
+// DefaultSummon はCtrl+Alt+/。macOS向けの⌥⌘/と同じ「/」のキーにする
 var DefaultSummon = Shortcut{VK: VKOem2, Mods: ModCtrl | ModAlt, Label: "/"}
 
 // Display はWindowsの表記（"Ctrl+Alt+Shift+K"）。
