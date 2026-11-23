@@ -481,10 +481,12 @@ var Ja = &Strings{
 	UpdateNotificationTitle: func(s string) string { return "Hachibu " + s + "が出ました" },
 	UpdateNotificationBody:  "クリックするとダウンロードのページを開きます",
 	UpdateUpToDate:          func(s string) string { return "Hachibu " + s + "は最新のバージョンです" },
-	UpdateCheckFailed:       func(s string) string { return "新しいバージョンを確認できませんでした（" + s + "）" },
-	LogUpdateAvailable:      func(s string) string { return "新しいバージョン" + s + "が出ていました" },
-	LogUpdateAutoCheckOn:    "新しいバージョンの自動確認を有効にしました",
-	LogUpdateAutoCheckOff:   "新しいバージョンの自動確認をやめました",
+	UpdateCheckFailed: func(s string) string {
+		return "新しいバージョンを確認できませんでした（" + s + "）"
+	},
+	LogUpdateAvailable:    func(s string) string { return "新しいバージョン" + s + "が出ていました" },
+	LogUpdateAutoCheckOn:  "新しいバージョンの自動確認を有効にしました",
+	LogUpdateAutoCheckOff: "新しいバージョンの自動確認をやめました",
 }
 
 // StringsFor は言語の文言の表。
