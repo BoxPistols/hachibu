@@ -90,16 +90,22 @@ jobs:
         with:
           go-version-file: windows/go.mod
           cache-dependency-path: windows/go.sum
-      - name: Test on Windows
-        working-directory: windows
-        run: go test ./...
       - uses: actions/download-artifact@v4
         with:
           name: Hachibu-windows
+      - name: Unzip the app
+        shell: pwsh
+        run: Expand-Archive Hachibu-windows-x64.zip -DestinationPath app
+      # その場での更新のテストのうち、組み立てたHachibu.exe（バージョン情報を埋め込んだもの）を使うものも動かす
+      - name: Test on Windows
+        working-directory: windows
+        shell: pwsh
+        run: |
+          $env:HACHIBU_TEST_EXE = (Resolve-Path ../app/Hachibu.exe).Path
+          go test ./...
       - name: Draw the strip and the tray icons
         shell: pwsh
         run: |
-          Expand-Archive Hachibu-windows-x64.zip -DestinationPath app
           $out = Join-Path $PWD 'snapshot'
           $p = Start-Process -FilePath app/Hachibu.exe -ArgumentList '--snapshot', "`"$out`"" -Wait -PassThru
           if ($p.ExitCode -ne 0) { throw "exit code $($p.ExitCode)" }

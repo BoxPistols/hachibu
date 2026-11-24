@@ -20,7 +20,13 @@ var (
 
 const logMaxBytes = 256 * 1024
 
-func actionLogPath() string { return filepath.Join(dataDir(), "actions.log") }
+func actionLogPath() string {
+	// 試験用の起動（HACHIBU_SUITE）では、設定と同じく利用者のログに書かない
+	if suite := os.Getenv("HACHIBU_SUITE"); suite != "" {
+		return filepath.Join(dataDir(), "actions-"+filepath.Base(suite)+".log")
+	}
+	return filepath.Join(dataDir(), "actions.log")
+}
 
 func logAction(message string) {
 	logOnce.Do(func() {

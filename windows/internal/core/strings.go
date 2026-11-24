@@ -161,6 +161,21 @@ type Strings struct {
 	LogUpdateAvailable      func(string) string
 	LogUpdateAutoCheckOn    string
 	LogUpdateAutoCheckOff   string
+	// その場での更新
+	UpdateInstall           func(string) string
+	UpdatePreparing         func(string) string
+	UpdateReadyTitle        func(string) string
+	UpdateReadyBody         string
+	UpdateAskBody           func(string) string
+	UpdateRestartButton     string
+	UpdateLaterButton       string
+	UpdateInstallFailed     func(string) string
+	UpdateInstallFailedBody string
+	UpdateOpenPageButton    string
+	UpdateCloseButton       string
+	LogUpdateReady          func(string) string
+	LogUpdateInstalling     func(string) string
+	LogUpdated              func(string) string
 }
 
 var enWeekdays = [...]string{"Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"}
@@ -322,6 +337,22 @@ var En = &Strings{
 	LogUpdateAvailable:      func(s string) string { return "Found a new version, " + s },
 	LogUpdateAutoCheckOn:    "Turned on checking for updates automatically",
 	LogUpdateAutoCheckOff:   "Turned off checking for updates automatically",
+	UpdateInstall:           func(s string) string { return "Update to Hachibu " + s + " and Restart" },
+	UpdatePreparing:         func(s string) string { return "Downloading Hachibu " + s + "…" },
+	UpdateReadyTitle:        func(s string) string { return "Hachibu " + s + " is ready" },
+	UpdateReadyBody:         "Click to restart Hachibu with the new version.",
+	UpdateAskBody: func(s string) string {
+		return "You are running " + s + ". Hachibu restarts with the new version, and your settings stay."
+	},
+	UpdateRestartButton:     "Update and Restart",
+	UpdateLaterButton:       "Later",
+	UpdateInstallFailed:     func(s string) string { return "Could not update Hachibu (" + s + ")" },
+	UpdateInstallFailedBody: "You can download it from the releases page and replace Hachibu.exe yourself.",
+	UpdateOpenPageButton:    "Open the Download Page",
+	UpdateCloseButton:       "Close",
+	LogUpdateReady:          func(s string) string { return "Downloaded and checked " + s },
+	LogUpdateInstalling:     func(s string) string { return "Updating to " + s + " and restarting" },
+	LogUpdated:              func(s string) string { return "Updated to " + s },
 }
 
 var Ja = &Strings{
@@ -487,6 +518,22 @@ var Ja = &Strings{
 	LogUpdateAvailable:    func(s string) string { return "新しいバージョン" + s + "が出ていました" },
 	LogUpdateAutoCheckOn:  "新しいバージョンの自動確認を有効にしました",
 	LogUpdateAutoCheckOff: "新しいバージョンの自動確認をやめました",
+	UpdateInstall:         func(s string) string { return "Hachibu " + s + "に更新して再起動" },
+	UpdatePreparing:       func(s string) string { return "Hachibu " + s + "を取得しています…" },
+	UpdateReadyTitle:      func(s string) string { return "Hachibu " + s + "の準備ができました" },
+	UpdateReadyBody:       "クリックすると、新しいバージョンで開き直します",
+	UpdateAskBody: func(s string) string {
+		return "いまは" + s + "です。新しいバージョンで開き直します。設定はそのまま残ります。"
+	},
+	UpdateRestartButton:     "更新して再起動",
+	UpdateLaterButton:       "あとで",
+	UpdateInstallFailed:     func(s string) string { return "Hachibuを更新できませんでした（" + s + "）" },
+	UpdateInstallFailedBody: "リリースのページからダウンロードして、Hachibu.exeを入れ替えることもできます。",
+	UpdateOpenPageButton:    "ダウンロードのページを開く",
+	UpdateCloseButton:       "閉じる",
+	LogUpdateReady:          func(s string) string { return s + "を取得して確かめました" },
+	LogUpdateInstalling:     func(s string) string { return s + "に更新して開き直します" },
+	LogUpdated:              func(s string) string { return s + "に更新しました" },
 }
 
 // StringsFor は言語の文言の表。

@@ -71,6 +71,11 @@ func Run() int {
 		w32.MessageBox(0, err.Error(), core.AppName, 0x10)
 		return 1
 	}
+	// 置き換えた後に開かれたときは、古いほうが終わるのを待つ（先に進むと、二重起動の防止で古いほうに帯を出させて終わる）
+	pid, afterUpdate := afterUpdatePID(os.Args[1:])
+	if afterUpdate {
+		waitForExit(pid, afterUpdateWait)
+	}
 	// 同じアプリの別のコピーがすでに動いていれば、そちらに帯を出させて終わる（帯を重ねて出さない）
 	if handOff() {
 		return 0
@@ -78,6 +83,9 @@ func Run() int {
 	a := &App{prefs: loadPrefs(), demo: isDemo()}
 	// 文言を読む部品を作る前に、メニューで選んだ言語にしておく
 	applyLanguage(a.prefs.Language())
+	if afterUpdate {
+		logAction(L.LogUpdated(Version))
+	}
 
 	registerClass(mainClass, 0)
 	mainHwnd = newWindow(w32.WS_EX_TOOLWINDOW, mainClass, core.AppName, w32.WS_POPUP, 0, 0, 0, 0, 0, a.handleMain)
@@ -120,7 +128,9 @@ func Run() int {
 		a.source = newSource(a.prefs.UsageAPIEnabled())
 		a.source.OnUpdate = a.applyState
 		a.source.Start()
+		cleanUpAfterUpdate()
 		a.updates = newUpdater(a.prefs, a.tray)
+		a.updates.Quit = a.quit
 		a.updates.Start()
 		// まだ尋ねていなければ、使用率APIを使うかを最初に一度だけ尋ねる
 		if a.prefs.UsageAPIConsent() == nil {
@@ -262,7 +272,7 @@ func (a *App) handleMain(hwnd w32.HWND, msg uint32, wParam, lParam uintptr) (uin
 	return 0, false
 }
 
-// devOpen はHACHIBU_OPEN（strip-menu、tray-menu、recorder、consent）で開くもの
+// devOpen はHACHIBU_OPEN（strip-menu、tray-menu、recorder、consent、update）で開くもの
 func (a *App) devOpen(what string) {
 	switch what {
 	case "strip-menu":
@@ -275,6 +285,12 @@ func (a *App) devOpen(what string) {
 		a.showRecorder(a.recorder, a.cycleRecorder)
 	case "consent":
 		a.askConsent()
+	case "update":
+		// 確認から取得、置き換え、開き直しまでを、メニューや通知を押さずに通す
+		if a.updates != nil {
+			a.updates.installWhenReady = true
+			a.updates.Check(false)
+		}
 	}
 }
 

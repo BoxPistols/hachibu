@@ -18,7 +18,7 @@ done
 
 cd "$(dirname "$0")"
 # リリースのタグ（windows-v0.1.0）と揃える。新しいバージョンの確認はこの値と比べる
-VERSION="0.1.0"
+VERSION="0.2.0"
 ARCH="${GOARCH:-amd64}"
 case "$ARCH" in
   amd64) LABEL=x64 ;;
