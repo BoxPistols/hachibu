@@ -276,3 +276,27 @@ func readVersion(path string) (string, error) {
 	}
 	return info["ProductVersion"], nil
 }
+
+func TestDoesNotApplyADownloadThatIsNoLongerTheNewest(t *testing.T) {
+	stage := func() *stagedUpdate {
+		p := filepath.Join(t.TempDir(), "Hachibu-0.3.0.exe")
+		os.WriteFile(p, []byte("0.3.0"), 0o644)
+		return &stagedUpdate{version: "0.3.0", exe: p, sum: sum([]byte("0.3.0"))}
+	}
+	// 取得の間に0.4.0が見つかり、押されていた。0.3.0は当てず、押された状態は0.4.0の取得に引き継ぐ
+	// （Preparingにしておき、0.4.0の取得はここでは始めない）
+	newer := core.Release{Version: "0.4.0", URL: "https://github.com/BoxPistols/hachibu/releases/tag/windows-v0.4.0"}
+	u := &Updater{Available: &newer, installWhenReady: true, Preparing: true}
+	st := stage()
+	u.finishPreparing(core.Release{Version: "0.3.0"}, st, nil)
+	if u.staged != nil || fileExists(st.exe) || !u.installWhenReady {
+		t.Fatalf("staged=%v exists=%v installWhenReady=%v", u.staged, fileExists(st.exe), u.installWhenReady)
+	}
+	// 新しいバージョンが無くなっていた（最新だった）なら、押された状態も消す
+	u = &Updater{installWhenReady: true}
+	st = stage()
+	u.finishPreparing(core.Release{Version: "0.3.0"}, st, nil)
+	if u.staged != nil || fileExists(st.exe) || u.installWhenReady {
+		t.Fatalf("staged=%v exists=%v installWhenReady=%v", u.staged, fileExists(st.exe), u.installWhenReady)
+	}
+}

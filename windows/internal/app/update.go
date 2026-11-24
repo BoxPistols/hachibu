@@ -232,6 +232,19 @@ func (u *Updater) prepare(r core.Release) {
 }
 
 func (u *Updater) finishPreparing(r core.Release, staged *stagedUpdate, err error) {
+	// 取得の間に別のバージョンが見つかっていたら、この結果は使わない。押されていた置き換え（installWhenReady）は、
+	// 見つかったほうの取得に引き継ぐ。押した人が見たのは、メニューに出ている新しいほうなので
+	if u.Available == nil || u.Available.Version != r.Version {
+		if staged != nil {
+			os.Remove(staged.exe)
+		}
+		if u.Available != nil {
+			u.prepare(*u.Available)
+		} else {
+			u.installWhenReady = false
+		}
+		return
+	}
 	if err != nil {
 		logAction(L.UpdateInstallFailed(err.Error()))
 		if u.installWhenReady {
