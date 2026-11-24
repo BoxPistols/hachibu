@@ -71,13 +71,12 @@ func Run() int {
 		w32.MessageBox(0, err.Error(), core.AppName, 0x10)
 		return 1
 	}
-	// 置き換えた後に開かれたときは、古いほうが終わるのを待つ（先に進むと、二重起動の防止で古いほうに帯を出させて終わる）
+	// 置き換えた後に開かれたときは、古いほうが終わるのを待つ（先に進むと、二重起動の防止で古いほうに帯を出させて終わる）。
+	// 待ちきれなくても引き渡さずに動く。引き渡すと、古いほうが終わった後に何も動いていなくなる
 	pid, afterUpdate := afterUpdatePID(os.Args[1:])
-	if afterUpdate {
-		waitForExit(pid, afterUpdateWait)
-	}
+	oldStillRunning := afterUpdate && !waitForExit(pid, afterUpdateWait)
 	// 同じアプリの別のコピーがすでに動いていれば、そちらに帯を出させて終わる（帯を重ねて出さない）
-	if handOff() {
+	if handOff(oldStillRunning) {
 		return 0
 	}
 	a := &App{prefs: loadPrefs(), demo: isDemo()}

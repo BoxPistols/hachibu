@@ -75,14 +75,15 @@ func setLoginItem(on bool) error {
 // MARK: - 1つだけ動かす
 
 // handOff は先に起動した同じアプリがあれば、そちらに帯を出すよう知らせてtrueを返す。
+// takeOverなら引き渡さず、目印のミューテックスだけをつかんで動く（置き換えの後、古いほうが終わりきらないとき）。
 // 撮影用や試験用の別の保存先で動かすときは、重ねて起動してよい
-func handOff() bool {
+func handOff(takeOver bool) bool {
 	if isDemo() || os.Getenv("HACHIBU_SUITE") != "" {
 		return false
 	}
 	name, _ := windows.UTF16PtrFromString(`Local\io.github.boxpistols.hachibu.windows`)
 	h, err := windows.CreateMutex(nil, false, name)
-	if err == windows.ERROR_ALREADY_EXISTS {
+	if err == windows.ERROR_ALREADY_EXISTS && !takeOver {
 		if h != 0 {
 			windows.CloseHandle(h)
 		}
