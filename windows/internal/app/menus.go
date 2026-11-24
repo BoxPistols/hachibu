@@ -121,13 +121,21 @@ func (a *App) buildTrayMenu(m *menu) {
 	m.item(L.MenuQuit, false, a.quit)
 }
 
-// updateAvailableItems は、新しいバージョンが出ていれば、メニューの先頭にダウンロードのページを開く項目を出す
+// updateAvailableItems は、新しいバージョンが出ていれば、メニューの先頭に置き換えて開き直す項目を出す。
+// その場で置き換えられない場所から動いているときは、ダウンロードのページを開く項目にする
 func (a *App) updateAvailableItems(m *menu) {
 	if a.updates == nil || a.updates.Available == nil {
 		return
 	}
 	r := *a.updates.Available
-	m.item(L.UpdateAvailable(r.Version), false, func() { openURL(r.URL) })
+	switch {
+	case a.updates.Preparing:
+		m.info(L.UpdatePreparing(r.Version), nil, 0)
+	case a.updates.CanInstall(r):
+		m.item(L.UpdateInstall(r.Version), false, a.updates.Install)
+	default:
+		m.item(L.UpdateAvailable(r.Version), false, func() { openURL(r.URL) })
+	}
 	m.separator()
 }
 

@@ -10,7 +10,21 @@ type Release struct {
 	// Version は "0.1.0"（タグの接頭辞は落とす）
 	Version string
 	URL     string
+	// AssetURL は添付のHachibu-windows-x64.zip。無ければ、その場での置き換えはせずにページを開く
+	AssetURL string
+	// SHA256 はリリースの手順が本文の末尾に書くzipのSHA-256（小文字の16進）。
+	// Windows向けはコード署名をしていないので、これと突き合わせられないときもその場では置き換えない
+	SHA256 string
 }
+
+// WindowsAssetName はリリースに添付するx64向けのzipの名前（windows/build.sh --zip）
+const WindowsAssetName = "Hachibu-windows-x64.zip"
+
+// releaseDownloadPrefix は添付を取りに行ってよい場所。応答が偽物でも、ほかの場所からは取らない
+const releaseDownloadPrefix = "https://github.com/BoxPistols/hachibu/releases/download/"
+
+// CanInstallInPlace は、取得して確かめてから置き換えられるだけの情報があるか
+func (r Release) CanInstallInPlace() bool { return r.AssetURL != "" && r.SHA256 != "" }
 
 // LatestRelease はGitHubのリリースの一覧（新しい順）から、tagPrefixで始まる最新のバージョンを探す。
 // Windows向けはmacOS向けと同じリポジトリに置き、タグをwindows-vで分ける（/releases/latestはmacOS向けを指す）。
@@ -32,9 +46,43 @@ func LatestRelease(list []any, tagPrefix string) (Release, bool) {
 		if !ok {
 			continue
 		}
-		return Release{Version: version, URL: page}, true
+		out := Release{Version: version, URL: page, AssetURL: assetURL(r["assets"], WindowsAssetName)}
+		if body, ok := str(r["body"]); ok {
+			out.SHA256 = SHA256InBody(body, WindowsAssetName)
+		}
+		return out, true
 	}
 	return Release{}, false
+}
+
+// assetURL は添付の一覧から、nameのファイルのダウンロードのURLを探す。このリポジトリのリリースのものでなければ使わない
+func assetURL(raw any, name string) string {
+	list, _ := raw.([]any)
+	for _, a := range list {
+		asset := dict(a)
+		if n, _ := str(asset["name"]); n != name {
+			continue
+		}
+		if u, _ := str(asset["browser_download_url"]); strings.HasPrefix(u, releaseDownloadPrefix) {
+			return u
+		}
+	}
+	return ""
+}
+
+// SHA256InBody はリリースの本文からnameのSHA-256を探す。リリースの手順はsha256sumの出力（"<16進64桁>  <名前>"）を本文の末尾に書く
+func SHA256InBody(body, name string) string {
+	for _, line := range strings.Split(body, "\n") {
+		f := strings.Fields(line)
+		if len(f) != 2 || strings.TrimPrefix(f[1], "*") != name || len(f[0]) != 64 {
+			continue
+		}
+		hex := strings.ToLower(f[0])
+		if strings.Trim(hex, "0123456789abcdef") == "" {
+			return hex
+		}
+	}
+	return ""
 }
 
 // IsNewer はlatestがcurrentより新しいか。どちらかがバージョン番号として読めなければfalse（開発中のビルドに知らせない）。

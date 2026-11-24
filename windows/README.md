@@ -117,7 +117,13 @@ Hachibu runs one copy at a time. Opening `Hachibu.exe` again shows the strip.
 
 ### Updates
 
-Hachibu checks GitHub for a new Windows version once a day. When it finds one, it sends one Windows notification for that version and shows Hachibu x.y.z is available at the top of both menus. To update, quit Hachibu, replace `Hachibu.exe` with the new one, and open it. Your settings stay. Updates in the menu shows the version you are running, lets you turn off Check for Updates Automatically, and has Check Now.
+Hachibu checks GitHub for a new Windows version once a day. When it finds one, it downloads and checks the new version in the background, sends one Windows notification for that version, and shows Update to Hachibu x.y.z and Restart at the top of both menus. Click the notification or the menu item to replace `Hachibu.exe` and restart. Your settings stay. When Check Now finds a new version, Hachibu asks whether to update and restart.
+
+Before replacing, Hachibu checks the zip's SHA-256 against the one in the release notes, and the product name and version inside `Hachibu.exe`. Windows cannot overwrite a running program, so Hachibu renames the old one to `Hachibu.exe.old`, puts the new one in its place, and deletes the old one when the new one starts.
+
+This works from 0.2.0 on. With 0.1.0, or when Hachibu runs from a place it cannot replace (a folder you cannot write to, such as Program Files, or a zip you opened without extracting it), the menu item opens the download page instead. Download the new `Hachibu-windows-x64.zip`, quit Hachibu, and replace `Hachibu.exe` with the one in the zip.
+
+Updates in the menu shows the version you are running, lets you turn off Check for Updates Automatically, and has Check Now.
 
 ### Uninstall
 
@@ -129,9 +135,9 @@ Hachibu checks GitHub for a new Windows version once a day. When it finds one, i
 ## Data
 
 - Hachibu reads local files: Claude Code's saved conversations (only to find the most recently used model and effort), `settings.json`, and `statusline.json` above. In WSL it reads them through `\\wsl.localhost`
-- It connects to the network for two things: the usage API, only if you turn it on (`api.anthropic.com`), and the update check once a day (`api.github.com`, which you can turn off). The update check sends only the app's name and version as the User-Agent
+- It connects to the network for two things: the usage API, only if you turn it on (`api.anthropic.com`), and the update check once a day (`api.github.com`, which you can turn off). When the check finds a new version, Hachibu also downloads `Hachibu-windows-x64.zip` from the release on GitHub (`github.com`, which redirects to GitHub's download server). These requests send only the app's name and version as the User-Agent
 - It reads the Claude Code login from `.credentials.json` only for the usage API request, and does not save or log it
-- It writes its settings and the action log to `%LOCALAPPDATA%\Hachibu`. Launch at Sign-in adds a `Hachibu` value under `HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Run`
+- It writes its settings and the action log to `%LOCALAPPDATA%\Hachibu`, and keeps a downloaded update in its `update` folder until it restarts. Launch at Sign-in adds a `Hachibu` value under `HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Run`
 
 ## How it differs from the macOS version
 
@@ -250,7 +256,13 @@ Ctrl+Alt+/で、どのモードでもバーを呼び出せます（もう一度�
 
 #### アップデート
 
-Hachibuは1日に1回、GitHubでHachibu for Windowsの新しいバージョンを確認します。見つけたら、そのバージョンにつき1回だけWindowsの通知を出し、どちらのメニューの先頭にも「Hachibu x.y.zが出ています」と出します。更新するには、Hachibuを終了し、`Hachibu.exe`を新しいものと入れ替えて開きます。設定はそのまま残ります。メニューの「アップデート」には、動いているバージョン、新しいバージョンを自動で確認するかの切り替え、「今すぐ確認」があります。
+Hachibuは1日に1回、GitHubでHachibu for Windowsの新しいバージョンを確認します。見つけたら、裏で新しいバージョンを取得して確かめ、そのバージョンにつき1回だけWindowsの通知を出し、どちらのメニューの先頭にも「Hachibu x.y.zに更新して再起動」と出します。通知かこの項目を押すと、`Hachibu.exe`を置き換えて開き直します。設定はそのまま残ります。「今すぐ確認」で見つけたときは、更新して再起動するかを尋ねます。
+
+置き換える前に、zipのSHA-256をリリースノートの値と突き合わせ、`Hachibu.exe`に入っている製品名とバージョンを確かめます。Windowsは動いているプログラムを上書きできないので、古いほうの名前を`Hachibu.exe.old`に変えてから新しいほうを置き、新しいほうが起動したときに古いほうを消します。
+
+この仕組みは0.2.0からです。0.1.0を使っているときや、置き換えられない場所（Program Filesのような書き込めないフォルダや、展開せずに開いたzipの中）から動いているときは、項目を押すとダウンロードのページが開きます。新しい`Hachibu-windows-x64.zip`をダウンロードし、Hachibuを終了してから、`Hachibu.exe`をzipの中のものと入れ替えてください。
+
+メニューの「アップデート」には、動いているバージョン、新しいバージョンを自動で確認するかの切り替え、「今すぐ確認」があります。
 
 #### アンインストール
 
@@ -262,9 +274,9 @@ Hachibuは1日に1回、GitHubでHachibu for Windowsの新しいバージョン�
 ### データの扱い
 
 - 読むのはローカルのファイルです。Claude Codeが保存した会話（最後に使われたモデルとeffortを知るためだけ）、`settings.json`、上の`statusline.json`。WSLのものは`\\wsl.localhost`越しに読みます
-- ネットワークに接続するのは2つだけです。使用率APIを有効にした場合の`api.anthropic.com`と、1日に1回の新しいバージョンの確認の`api.github.com`です（確認は止められます）。新しいバージョンの確認で送るのは、User-Agentのアプリ名とバージョンだけです
+- ネットワークに接続するのは2つだけです。使用率APIを有効にした場合の`api.anthropic.com`と、1日に1回の新しいバージョンの確認の`api.github.com`です（確認は止められます）。新しいバージョンが見つかったときは、GitHubのリリースから`Hachibu-windows-x64.zip`も取得します（`github.com`から、GitHubのダウンロード用のサーバーに転送されます）。これらの通信で送るのは、User-Agentのアプリ名とバージョンだけです
 - `.credentials.json`のログイン情報は、使用率APIへの問い合わせのときだけ読み、保存も記録もしません
-- 設定と操作ログは`%LOCALAPPDATA%\Hachibu`に書きます。「サインイン時に起動」を有効にすると、`HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Run`に`Hachibu`という値を足します
+- 設定と操作ログは`%LOCALAPPDATA%\Hachibu`に書きます。取得した新しいバージョンは、開き直すまでその中の`update`フォルダに置きます。「サインイン時に起動」を有効にすると、`HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Run`に`Hachibu`という値を足します
 
 ### macOS向けのHachibuとの違い
 
