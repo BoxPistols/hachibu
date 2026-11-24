@@ -47,7 +47,7 @@ export interface NewsItem {
 
 export const NEWS: NewsItem[] = [
   {
-    version: "0.6.0",
+    version: "0.6.1",
     date: "2026-11-23",
     items: {
       en: [
