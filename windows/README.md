@@ -8,7 +8,7 @@ It works with Claude Code on Windows and with Claude Code inside WSL.
 
 Hachibu is an unofficial tool made by an individual. It is not affiliated with, endorsed by, or sponsored by Anthropic, PBC.
 
-[Download Hachibu for Windows](https://github.com/BoxPistols/hachibu/releases/download/windows-v0.1.0/Hachibu-windows-x64.zip) (Windows 10 or 11, 64-bit). On Arm PCs it runs through Windows' x64 emulation. Windows SmartScreen stops the first launch because the app is not code-signed; [Install](#install) shows what to do.
+[Download Hachibu for Windows](https://github.com/BoxPistols/hachibu/releases/download/windows-v0.2.0/Hachibu-windows-x64.zip) (Windows 10 or 11, 64-bit). On Arm PCs it runs through Windows' x64 emulation. Windows SmartScreen stops the first launch because the app is not code-signed; [Install](#install) shows what to do.
 
 [日本語の説明はこちら](#日本語)
 
@@ -42,7 +42,7 @@ This is optional. Use it if you leave the usage API off, or if you want the mode
 Run this in WSL:
 
 ```sh
-curl -L -o ~/.claude/hachibu-statusline.sh https://github.com/BoxPistols/hachibu/releases/download/windows-v0.1.0/statusline.sh
+curl -L -o ~/.claude/hachibu-statusline.sh https://github.com/BoxPistols/hachibu/releases/download/windows-v0.2.0/statusline.sh
 chmod +x ~/.claude/hachibu-statusline.sh
 ```
 
@@ -62,9 +62,9 @@ On Windows, Claude Code runs the statusLine through Git Bash when Git for Window
 
 ```powershell
 # With Git Bash
-Invoke-WebRequest https://github.com/BoxPistols/hachibu/releases/download/windows-v0.1.0/statusline.sh -OutFile "$HOME\.claude\hachibu-statusline.sh"
+Invoke-WebRequest https://github.com/BoxPistols/hachibu/releases/download/windows-v0.2.0/statusline.sh -OutFile "$HOME\.claude\hachibu-statusline.sh"
 # Without Git Bash
-Invoke-WebRequest https://github.com/BoxPistols/hachibu/releases/download/windows-v0.1.0/statusline.ps1 -OutFile "$HOME\.claude\hachibu-statusline.ps1"
+Invoke-WebRequest https://github.com/BoxPistols/hachibu/releases/download/windows-v0.2.0/statusline.ps1 -OutFile "$HOME\.claude\hachibu-statusline.ps1"
 ```
 
 Then call it from the statusLine in `%USERPROFILE%\.claude\settings.json`. Write paths with forward slashes; Git Bash drops backslashes.
@@ -106,7 +106,7 @@ The interface follows your Windows display language: Japanese if it comes first,
 
 ## Install
 
-1. Download [Hachibu-windows-x64.zip](https://github.com/BoxPistols/hachibu/releases/download/windows-v0.1.0/Hachibu-windows-x64.zip) and extract it
+1. Download [Hachibu-windows-x64.zip](https://github.com/BoxPistols/hachibu/releases/download/windows-v0.2.0/Hachibu-windows-x64.zip) and extract it
 2. Move `Hachibu.exe` to a folder where it can stay, such as `%LOCALAPPDATA%\Programs\Hachibu`. Launch at Sign-in remembers this location
 3. Open `Hachibu.exe`. The first time, Windows SmartScreen shows "Windows protected your PC". Click More info, then Run anyway. Hachibu is not signed with a code-signing certificate yet, so SmartScreen does not know it
 4. On its first run Hachibu asks whether to use the usage API
@@ -178,7 +178,7 @@ WindowsのClaude Codeと、WSLの中のClaude Codeのどちらでも使えます
 
 Hachibuは個人が作った非公式のツールで、Anthropic, PBCとは関係がなく、同社の承認や支援も受けていません。
 
-[Hachibu for Windowsをダウンロード](https://github.com/BoxPistols/hachibu/releases/download/windows-v0.1.0/Hachibu-windows-x64.zip)（Windows 10または11、64ビット）。ArmのPCでは、Windowsのx64エミュレーションで動きます。コード署名をしていないため、初回の起動はWindows SmartScreenに止められます。手順は[インストール](#インストール)にあります。
+[Hachibu for Windowsをダウンロード](https://github.com/BoxPistols/hachibu/releases/download/windows-v0.2.0/Hachibu-windows-x64.zip)（Windows 10または11、64ビット）。ArmのPCでは、Windowsのx64エミュレーションで動きます。コード署名をしていないため、初回の起動はWindows SmartScreenに止められます。手順は[インストール](#インストール)にあります。
 
 ### 表示の読み方
 
@@ -210,7 +210,7 @@ Claude Codeの`.claude`フォルダは、次の2か所から探します。
 WSLで次を実行します。
 
 ```sh
-curl -L -o ~/.claude/hachibu-statusline.sh https://github.com/BoxPistols/hachibu/releases/download/windows-v0.1.0/statusline.sh
+curl -L -o ~/.claude/hachibu-statusline.sh https://github.com/BoxPistols/hachibu/releases/download/windows-v0.2.0/statusline.sh
 chmod +x ~/.claude/hachibu-statusline.sh
 ```
 
@@ -245,7 +245,7 @@ Ctrl+Alt+/で、どのモードでもバーを呼び出せます（もう一度�
 
 ### インストール
 
-1. [Hachibu-windows-x64.zip](https://github.com/BoxPistols/hachibu/releases/download/windows-v0.1.0/Hachibu-windows-x64.zip)をダウンロードして展開します
+1. [Hachibu-windows-x64.zip](https://github.com/BoxPistols/hachibu/releases/download/windows-v0.2.0/Hachibu-windows-x64.zip)をダウンロードして展開します
 2. `Hachibu.exe`を、置いたままにできるフォルダ（`%LOCALAPPDATA%\Programs\Hachibu`など）に移します。「サインイン時に起動」はこの場所を覚えます
 3. `Hachibu.exe`を開きます。初回はWindows SmartScreenが「WindowsによってPCが保護されました」と出すので、「詳細情報」を押してから「実行」を押します。まだコード署名の証明書で署名していないため、SmartScreenがこのアプリを知りません
 4. 初回は、使用率APIを使うかを尋ねます
