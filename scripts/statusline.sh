@@ -74,6 +74,15 @@ if [ -z "$TMP" ]; then
   /bin/cat >/dev/null
   exit 0
 fi
+# Claude Codeは間に合わなかったstatusLineのコマンドを止める。止められても書きかけを残さない
+trap '/bin/rm -f "$TMP"' EXIT
+trap 'exit 129' HUP
+trap 'exit 130' INT
+trap 'exit 143' TERM
+# 強制終了では上の後始末も動かないので、20回に1回、5分より古い書きかけを消す（毎回だとWSLから/mnt/cを見る分だけ遅くなる）
+if [ $((RANDOM % 20)) -eq 0 ]; then
+  /usr/bin/find "$DIR" -maxdepth 1 -name '.statusline.*' -mmin +5 -delete 2>/dev/null
+fi
 /bin/cat > "$TMP"
 
 # 次のコマンドには自分が受け取ったJSONを渡す。共有ファイルから読むと、同時に動く別セッションの内容を渡しうる
